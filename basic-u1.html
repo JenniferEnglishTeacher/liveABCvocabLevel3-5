@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic U1 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Basic U1
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Built-in Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Basic U1 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  // ── adj ──
+  "global":               { pos:"(adj.)", cat:"adj", en:"Relating to the whole world; worldwide.",           cn:"全球的",             ex:"The global company has offices in 28 countries worldwide." },
+  "sustainable":          { pos:"(adj.)", cat:"adj", en:"Able to be maintained at a certain rate or level.", cn:"永續的；可持續的",     ex:"The company is looking for sustainable methods of producing electricity." },
+  "unsustainable":        { pos:"(adj.)", cat:"adj", en:"Not able to be maintained at the current rate or level.", cn:"無法永續的",      ex:"Using oil is considered an unsustainable type of energy." },
+  "estimated":            { pos:"(adj.)", cat:"adj", en:"Roughly calculated or approximate.",                cn:"估計的",             ex:"An estimated 1,000 people were injured in the disaster." },
+  "vanishing":            { pos:"(adj.)", cat:"adj", en:"Disappearing from sight or existence.",             cn:"正在消失的",          ex:"The vanishing forests are a major concern for environmentalists." },
+  "vanished":             { pos:"(adj.)", cat:"adj", en:"Having disappeared completely.",                    cn:"消失的；絕跡的",      ex:"Archaeologists discovered the ruins of a vanished civilization." },
+  "emerging":             { pos:"(adj.)", cat:"adj", en:"Becoming apparent, important, or prominent.",       cn:"新興的",             ex:"Investors are increasingly interested in emerging markets." },
+  "excessive":            { pos:"(adj.)", cat:"adj", en:"More than is necessary, normal, or desirable.",     cn:"過度的",             ex:"Excessive use of social media is not good for your mental health." },
+  "ecological":           { pos:"(adj.)", cat:"adj", en:"Relating to the relation of living organisms to their surroundings.", cn:"生態的", ex:"The government must address serious ecological issues." },
+  "eco-friendly":         { pos:"(adj.)", cat:"adj", en:"Not harmful to the environment.",                   cn:"環保的",             ex:"Many consumers prefer to buy eco-friendly products." },
+  "environmentally-friendly":{ pos:"(adj.)", cat:"adj", en:"Designed to have little or no damaging effect on the environment.", cn:"環保的；對環境友善的", ex:"They prefer environmentally-friendly products." },
+  "disastrous":           { pos:"(adj.)", cat:"adj", en:"Causing great damage.",                             cn:"災難性的",           ex:"Ian's first attempt at cooking was a completely disastrous event." },
+  "surging":              { pos:"(adj.)", cat:"adj", en:"Moving suddenly and powerfully forward or upward.", cn:"洶湧的；猛增的",      ex:"The surging waves from the typhoon crashed onto the shore." },
+  "threatening":          { pos:"(adj.)", cat:"adj", en:"Having a hostile or deliberately frightening quality.", cn:"具威脅性的",      ex:"The threatening clouds forced organizers to cancel the festival." },
+  "life-threatening":     { pos:"(adj.)", cat:"adj", en:"Potentially fatal; carrying a risk of death.",      cn:"致命的；危及生命的",  ex:"The firefighter was rushed to hospital with life-threatening injuries." },
+  "profound":             { pos:"(adj.)", cat:"adj", en:"Very great or intense; showing great knowledge.",   cn:"深刻的；深奧的",      ex:"The professor has a profound knowledge of mathematics." },
+  "annual":               { pos:"(adj.)", cat:"adj", en:"Occurring once a year.",                            cn:"每年的",             ex:"The company's annual meeting will be held next month." },
+  "fatal":                { pos:"(adj.)", cat:"adj", en:"Causing death or leading to failure or disaster.",  cn:"致命的；災難性的",    ex:"Thankfully, his sudden illness was not fatal." },
+  "destined":             { pos:"(adj.)", cat:"adj", en:"Intended for a particular purpose or bound for a destination.", cn:"注定的；前往...的", ex:"These boxes are destined for South Africa." },
+  "intimidating":         { pos:"(adj.)", cat:"adj", en:"Making you feel frightened or nervous.",            cn:"令人敬畏的；嚇人的",  ex:"Starting a new job can be an incredibly intimidating experience." },
+  // ── adv ──
+  "globally":             { pos:"(adv.)", cat:"adv", en:"In a way that relates to the whole world.",         cn:"全球地",             ex:"The brand is recognized globally, giving it a significant advantage." },
+  "profoundly":           { pos:"(adv.)", cat:"adv", en:"Deeply or extremely.",                              cn:"深刻地",             ex:"The writer is profoundly insightful about human nature." },
+  "annually":             { pos:"(adv.)", cat:"adv", en:"Once a year; every year.",                          cn:"每年地",             ex:"Most doctors advise getting a physical checkup annually." },
+  "bi-annually":          { pos:"(adv.)", cat:"adv", en:"Occurring twice a year.",                           cn:"一年兩次地",          ex:"The fashion magazine is published bi-annually." },
+  "excessively":          { pos:"(adv.)", cat:"adv", en:"To a greater degree than is necessary or desirable.", cn:"過度地",           ex:"The boss complained that the team was spending excessively on trips." },
+  "ecologically":         { pos:"(adv.)", cat:"adv", en:"In a way that relates to the physical environments of plants and animals.", cn:"生態上地", ex:"The new farming practices are ecologically sustainable." },
+  "manifestly":           { pos:"(adv.)", cat:"adv", en:"In a way that is clear or obvious to the eye or mind.", cn:"顯然地",          ex:"The proposed solution is manifestly unfair to factory employees." },
+  // ── n ──
+  "globe":                { pos:"(n.)",   cat:"n",   en:"The earth, or a spherical representation of it.",   cn:"地球；地球儀",       ex:"Our teacher brought a large globe into the classroom." },
+  "globalization":        { pos:"(n.)",   cat:"n",   en:"The process by which businesses develop international influence.", cn:"全球化", ex:"Local businesses must find new ways to compete due to globalization." },
+  "sustainability":       { pos:"(n.)",   cat:"n",   en:"The ability to be maintained at a certain rate or level.", cn:"永續性",        ex:"Environmental sustainability is one of the most important goals for modern businesses." },
+  "estimation":           { pos:"(n.)",   cat:"n",   en:"A rough calculation of the value, number, or extent of something.", cn:"估計；判斷", ex:"In my estimation, the project will take at least three months." },
+  "trillion":             { pos:"(n.)",   cat:"n",   en:"The number equivalent to the product of a million and a million.", cn:"兆",     ex:"A study estimates there are over three trillion trees in the world." },
+  "trillionaire":         { pos:"(n.)",   cat:"n",   en:"A person whose wealth is estimated at a trillion or more.",        cn:"兆萬富翁", ex:"Some experts predict the world's first trillionaire will be an asteroid miner." },
+  "billion":              { pos:"(n.)",   cat:"n",   en:"The number equivalent to the product of a thousand and a million.", cn:"十億",   ex:"The new policy will cost several billion dollars to implement." },
+  "million":              { pos:"(n.)",   cat:"n",   en:"The number equivalent to the product of a thousand and a thousand.", cn:"百萬",  ex:"The popular music video quickly reached over a million views." },
+  "emergence":            { pos:"(n.)",   cat:"n",   en:"The process of coming into view or becoming exposed after being concealed.", cn:"出現；崛起", ex:"The sudden emergence of new technologies changed how businesses operate." },
+  "manifestation":        { pos:"(n.)",   cat:"n",   en:"An event, action, or object that clearly shows or embodies something.", cn:"表現；顯現", ex:"His constant complaining is just a manifestation of his dissatisfaction." },
+  "exposure":             { pos:"(n.)",   cat:"n",   en:"The state of being placed in an unprotected condition, or public attention.", cn:"暴露；曝光", ex:"The new marketing campaign gained a lot of media exposure." },
+  "ecologist":            { pos:"(n.)",   cat:"n",   en:"An expert in or student of ecology.",                cn:"生態學家",           ex:"The famous ecologist warned that destroying wetlands would harm migratory birds." },
+  "ecology":              { pos:"(n.)",   cat:"n",   en:"The branch of biology dealing with relations of organisms to their surroundings.", cn:"生態學", ex:"Students taking the ecology course will spend a week in the forest." },
+  "disaster":             { pos:"(n.)",   cat:"n",   en:"A sudden event that causes great damage or loss of life.", cn:"災難",           ex:"Last month's earthquake was the worst disaster I have ever experienced." },
+  "threat":               { pos:"(n.)",   cat:"n",   en:"A statement of an intention to inflict pain, injury, or damage.", cn:"威脅",    ex:"The new freeway posed a serious threat to the rare bird's natural home." },
+  "destiny":              { pos:"(n.)",   cat:"n",   en:"The events that will necessarily happen to a particular person in the future.", cn:"命運", ex:"He believed it was his destiny to become a great leader." },
+  "fate":                 { pos:"(n.)",   cat:"n",   en:"The development of events beyond a person's control.",  cn:"命運",             ex:"After three years of losses, the company's fate was sealed." },
+  "excess":               { pos:"(n.)",   cat:"n",   en:"An amount of something that is more than necessary, permitted, or desirable.", cn:"過量；過多", ex:"If you consume alcohol to excess, it will severely damage your liver." },
+  // ── v ──
+  "sustain":              { pos:"(v.)",   cat:"v",   en:"To strengthen or support physically or mentally.",   cn:"維持；支撐",         ex:"The roof is not strong enough to sustain the heavy weight of the snow." },
+  "vanish":               { pos:"(v.)",   cat:"v",   en:"To disappear suddenly and completely.",              cn:"消失",               ex:"Many endangered animals could vanish as a result of climate change." },
+  "disappear":            { pos:"(v.)",   cat:"v",   en:"To cease to be visible.",                            cn:"消失",               ex:"The white rabbit seemed to disappear from the stage." },
+  "estimate":             { pos:"(v.)",   cat:"v",   en:"To roughly calculate or judge the value or quantity of something.", cn:"估計；估算", ex:"A recent study estimates there are over three trillion trees in the world." },
+  "underestimate":        { pos:"(v.)",   cat:"v",   en:"To estimate something to be smaller or less important than it actually is.", cn:"低估", ex:"You should never underestimate the power of nature." },
+  "overestimate":         { pos:"(v.)",   cat:"v",   en:"To estimate to be better, larger, or more important than it really is.", cn:"高估", ex:"The manager tended to overestimate his own abilities." },
+  "emerge":               { pos:"(v.)",   cat:"v",   en:"To move out of or away from something and come into view.", cn:"出現；浮現",      ex:"The beautiful butterfly finally emerged from the cocoon." },
+  "manifest":             { pos:"(v.)",   cat:"v",   en:"To display or show a quality or feeling by one's acts or appearance.", cn:"展現；顯露", ex:"This novel clearly manifests the excellent writing skills of the author." },
+  "reveal":               { pos:"(v.)",   cat:"v",   en:"To make previously unknown or secret information known to others.", cn:"揭露",    ex:"The software bugs didn't reveal themselves until after the device was released." },
+  "expose":               { pos:"(v.)",   cat:"v",   en:"To make something hidden able to be seen, or reveal something bad or dishonest.", cn:"暴露；揭發", ex:"The reporter published an article to expose the corrupt practices within the government." },
+  "threaten":             { pos:"(v.)",   cat:"v",   en:"To state one's intention to take hostile action against someone.", cn:"威脅",     ex:"Kelly angrily threatened to tell her mother if Peter said those hurtful things again." },
+  "intimidate":           { pos:"(v.)",   cat:"v",   en:"To frighten or threaten someone to persuade them to do something.", cn:"威嚇；脅迫", ex:"The aggressive lawyer tried to intimidate the shy witness during the trial." },
+  "exceed":               { pos:"(v.)",   cat:"v",   en:"To be greater than a number or amount, or to go beyond what is allowed.", cn:"超過；超出", ex:"Please do not exceed the speed limit on the highway." },
+  // ── phr ──
+  "global warming":       { pos:"(phr.)", cat:"phr", en:"A gradual increase in the overall temperature of the earth's atmosphere.", cn:"全球暖化", ex:"Many scientists believe that global warming is causing the polar ice caps to melt." },
+  "global village":       { pos:"(phr.)", cat:"phr", en:"The world considered as a single community linked by telecommunications.", cn:"地球村", ex:"With the invention of the internet, the world has truly become a global village." },
+  "sustainable development":{ pos:"(phr.)", cat:"phr", en:"Economic development conducted without depletion of natural resources.", cn:"永續發展", ex:"The city council passed a new law to promote sustainable development." },
+  "vanish into thin air": { pos:"(phr.)", cat:"phr", en:"To disappear suddenly and completely without leaving a trace.", cn:"憑空消失", ex:"My car keys seem to have vanished into thin air." },
+  "it is estimated that": { pos:"(phr.)", cat:"phr", en:"Used to show that a number or amount is an approximation.", cn:"據估計", ex:"It is estimated that there are over three trillion trees in the world." },
+  "millions of":          { pos:"(phr.)", cat:"phr", en:"A very large but unspecified number of people or things.", cn:"數以百萬計的", ex:"Investors are injecting millions of dollars into the new wearable device." },
+  "profound impact":      { pos:"(phr.)", cat:"phr", en:"A very strong and deep effect on someone or something.", cn:"深遠的影響", ex:"The invention of the smartphone has had a profound impact on the way we communicate." },
+  "profound effect":      { pos:"(phr.)", cat:"phr", en:"A significant and deep consequence or outcome.", cn:"深刻的效果", ex:"Listening to classical music can have a profound effect on your ability to concentrate." },
+  "profound knowledge":   { pos:"(phr.)", cat:"phr", en:"A deep, comprehensive understanding of a subject.", cn:"淵博的知識", ex:"It takes years of dedicated research to acquire such profound knowledge." },
+  "annual report":        { pos:"(phr.)", cat:"phr", en:"A comprehensive report on a company's activities throughout the preceding year.", cn:"年度報告", ex:"The investors carefully reviewed the annual report." },
+  "annual leave":         { pos:"(phr.)", cat:"phr", en:"Paid time off work granted by employers to employees.", cn:"特休；年假", ex:"After twelve months of hard work, John finally took his annual leave." },
+  "excessive use of":     { pos:"(phr.)", cat:"phr", en:"The action of using something too much or more than is considered normal.", cn:"過度使用", ex:"Excessive use of social media can lead to feelings of anxiety." },
+  "excessive amount":     { pos:"(phr.)", cat:"phr", en:"A quantity that is much larger than what is considered normal or acceptable.", cn:"過量", ex:"Eating an excessive amount of sugar can lead to serious health problems." },
+  "emerge from":          { pos:"(phr.)", cat:"phr", en:"To come out of a place or situation.", cn:"從...出現/擺脫", ex:"The country managed to emerge from the economic crisis much stronger than before." },
+  "newly emerged":        { pos:"(phr.)", cat:"phr", en:"Recently come into view or existence.", cn:"新出現的", ex:"The newly emerged evidence proved that the suspect was completely innocent." },
+  "manifest itself":      { pos:"(phr.)", cat:"phr", en:"To appear or become easy to see.", cn:"顯現出來", ex:"Tyson's deep depression began to manifest itself in increased bouts of anger." },
+  "reveal the truth":     { pos:"(phr.)", cat:"phr", en:"To make a secret or hidden fact known to others.", cn:"揭露真相", ex:"The journalist worked tirelessly for months to reveal the truth." },
+  "expose a scandal":     { pos:"(phr.)", cat:"phr", en:"To reveal a situation that causes public outrage due to immoral behavior.", cn:"揭發醜聞", ex:"The newspaper editor decided to expose a scandal about the popular politician." },
+  "be exposed to":        { pos:"(phr.)", cat:"phr", en:"To be put in a situation where one is not protected from something dangerous.", cn:"暴露於...；接觸到...", ex:"If children are constantly exposed to violent games, they may develop aggressive behaviors." },
+  "exposure to":          { pos:"(phr.)", cat:"phr", en:"The condition of experiencing or being affected by something.", cn:"暴露於...；接觸...", ex:"Prolonged exposure to harsh summer sunlight can severely damage your skin." },
+  "environmental protection":{ pos:"(phr.)", cat:"phr", en:"The practice of protecting the natural environment.", cn:"環境保護", ex:"The government is conducting a comprehensive study on environmental protection." },
+  "spell disaster":       { pos:"(phr.)", cat:"phr", en:"To cause serious problems or ruin.", cn:"帶來災難", ex:"The rapidly rising river could spell disaster for people living nearby." },
+  "natural disaster":     { pos:"(phr.)", cat:"phr", en:"A natural event such as a flood or earthquake that causes great damage.", cn:"自然災害", ex:"The government established an emergency fund for victims of a natural disaster." },
+  "disaster relief":      { pos:"(phr.)", cat:"phr", en:"The provision of help to people who have experienced a disaster.", cn:"救災", ex:"Several organizations sent disaster relief teams to the flooded region." },
+  "humanitarian aid":     { pos:"(phr.)", cat:"phr", en:"Material and logistic assistance to people in times of crisis.", cn:"人道救援", ex:"Several organizations quickly sent humanitarian aid after the devastating earthquake." },
+  "a surge of":           { pos:"(phr.)", cat:"phr", en:"A sudden large increase in a feeling or in an amount of something.", cn:"一陣（情緒）；大量的", ex:"The marathon runner felt a sudden surge of energy near the finish line." },
+  "surge ahead":          { pos:"(phr.)", cat:"phr", en:"To move forwards quickly and forcefully.", cn:"猛衝向前；遙遙領先", ex:"The determined athlete managed to surge ahead of her competitors in the final lap." },
+  "threaten to V":        { pos:"(phr.)", cat:"phr", en:"To seem likely to produce an unpleasant or unwelcome result.", cn:"威脅將要；有...的危險", ex:"The ongoing bad weather threatens to ruin the weekend camping trip." },
+  "pose a threat to":     { pos:"(phr.)", cat:"phr", en:"To present a danger or risk to someone or something.", cn:"對...構成威脅", ex:"Building a house so close to the river poses a serious threat to your family's safety." },
+  "pose a risk to":       { pos:"(phr.)", cat:"phr", en:"To create a possible danger or harm to someone or something.", cn:"對...構成風險", ex:"Eating excessive processed foods can pose a significant risk to your overall health." },
+  "at risk":              { pos:"(phr.)", cat:"phr", en:"In a situation where something bad or harmful might happen.", cn:"處於危險中；有風險", ex:"The politician's reputation will be at risk if he loses the court case." },
+  "be destined to":       { pos:"(phr.)", cat:"phr", en:"To be certain to do something or to happen in the future.", cn:"注定要", ex:"Everyone agrees that Alex is destined to become a famous singer." },
+  "be destined for":      { pos:"(phr.)", cat:"phr", en:"Bound for a certain destination or outcome.", cn:"目的地是...；注定會得到...", ex:"She worked hard because she knew she was destined for great success." },
+  "manifest destiny":     { pos:"(phr.)", cat:"phr", en:"The 19th-century doctrine that the expansion of the US throughout the Americas was both justified and inevitable.", cn:"天命論", ex:"The concept of manifest destiny was used to justify westward expansion in the 1800s." },
+};
+
+// ══════════════════════════════════════════════════════
+//  QUESTION DATA
+//  [word_key, en_sentence_with_blank, zh_sentence, clue_words_array]
+//  Blank marker: __________
+// ══════════════════════════════════════════════════════
+const QUESTION_POOL = [
+  ["global",            "The __________ company has offices in 28 countries worldwide, and it plans to expand its business into new markets soon.",         "這家全球的公司在世界各地28個國家設有辦事處，並計劃很快將業務擴展到新市場。",            ["worldwide","countries","expand","international","markets"]],
+  ["globe",             "Our teacher brought a large __________ into the classroom so we could easily locate different countries and continents during the geography lesson.", "老師帶了一個大地球儀進教室，這樣我們在地理課時就能輕鬆找到不同的國家和大陸。",  ["spherical","classroom","countries","geography","locate"]],
+  ["globalization",     "Due to the rapid pace of __________, local businesses must find new ways to compete with international corporations to survive.",   "由於全球化的步伐快速，本土企業必須尋找新方法來與國際公司競爭以求生存。",            ["international","global","compete","corporations","worldwide"]],
+  ["global warming",    "Many scientists believe that __________ is causing the polar ice caps to melt at a dangerously accelerated rate.",                  "許多科學家相信全球暖化正導致極地冰帽以危險的加速速率融化。",                         ["temperature","polar","melt","climate","accelerated"]],
+  ["globally",          "The brand is recognized __________, which gives it a significant advantage over its smaller, more regional competitors.",           "這個品牌在全球地受到認可，讓它比那些規模較小、較具區域性的競爭對手擁有顯著優勢。",  ["worldwide","international","recognized","markets","everywhere"]],
+  ["global village",    "With the invention of the internet, the world has truly become a __________, allowing instant communication across national borders.", "隨著網際網路的發明，世界已真正成為一個地球村，允許跨越國界的即時通訊。",            ["internet","communication","borders","connected","world"]],
+  ["sustain",           "The roof is not strong enough to __________ the heavy weight of the snow, and it might collapse if we don't clear it.",             "這個屋頂不夠堅固，無法支撐積雪的沉重重量，如果不清理可能會倒塌。",                  ["support","maintain","heavy","strong","weight"]],
+  ["sustainable",       "The company is looking for __________ methods of producing electricity to reduce its negative impact on the fragile natural environment.", "這間公司正在尋找永續的發電方法，以減少其對脆弱自然環境的負面影響。",             ["renewable","maintained","long-term","environment","reduce"]],
+  ["unsustainable",     "Using oil is considered an __________ type of energy, so governments must find alternative sources before it completely runs out.",  "使用石油被認為是一種無法永續的能源，因此政府必須在它完全耗盡之前尋找替代來源。",  ["deplete","alternative","runs out","maintained","environment"]],
+  ["sustainability",    "Environmental __________ is one of the most important goals for modern businesses that care deeply about the future of our planet.", "對於深切關心地球未來的現代企業來說，環境的永續性是最重要的目標之一。",             ["environmental","maintained","long-term","planet","future"]],
+  ["sustainable development", "The city council passed a new law to promote __________, ensuring that future generations will have enough natural resources.", "市議會通過了一項新法律來促進永續發展，確保後代將有足夠的自然資源。",              ["natural resources","future generations","economic","environment","promote"]],
+  ["vanish",            "Many endangered animals could __________ as a result of climate change, which would severely damage the delicate balance of our ecosystem.", "由於氣候變遷，許多瀕危動物可能會消失，這將嚴重破壞我們生態系統的微妙平衡。", ["disappear","endangered","extinct","suddenly","ecosystem"]],
+  ["vanish into thin air","I don't know what happened to my car keys, but they seem to have __________, and I can't find them anywhere.",                    "我不知道我的車鑰匙怎麼了，但它們似乎憑空消失了，我到處都找不到。",                  ["disappeared","trace","nowhere","completely","nowhere"]],
+  ["vanishing",         "The __________ forests are a major concern for environmentalists who are fighting hard to protect the habitats of wild animals.",    "正在消失的森林是環保人士的主要擔憂，他們正努力保護野生動物的棲息地。",             ["shrinking","disappearing","deforestation","endangered","habitats"]],
+  ["vanished",          "The archaeologists discovered the ancient ruins of a __________ civilization that existed thousands of years ago in the dense jungle.", "考古學家在茂密的叢林中發現了一個數千年前存在的消失的文明的古老遺跡。",          ["ancient","extinct","ruins","lost","disappeared"]],
+  ["disappear",         "The talented magician waved his wand, and the white rabbit seemed to __________ from the stage, leaving the audience in absolute shock.", "才華洋溢的魔術師揮舞著他的魔杖，白兔似乎從舞台上消失了，讓觀眾感到絕對震驚。", ["invisible","vanish","gone","stage","suddenly"]],
+  ["estimate",          "A recent study __________ that there are over three trillion trees in the world, which is much higher than previous counts.",         "一項最近的研究估計世界上有超過三兆棵樹，這比之前的統計高出許多。",                  ["calculate","approximate","roughly","count","study"]],
+  ["estimated",         "An __________ 1,000 people were injured in the disaster, and emergency rescue teams are still working hard to find survivors.",       "災難中約有估計的1,000人受傷，緊急救援隊仍在努力尋找倖存者。",                      ["approximate","roughly","calculated","around","reported"]],
+  ["it is estimated that","In a recent study, __________ there are over three trillion trees in the world, highlighting the vastness of our global forests.", "在最近的一項研究中，據估計世界上有超過三兆棵樹，凸顯了我們全球森林的浩瀚。",    ["approximately","calculated","roughly","study","count"]],
+  ["estimation",        "In my __________, the project will take at least three months to complete if everyone works overtime to meet the strict deadline.",   "依我的判斷，如果每個人都加班以趕上嚴格的截止日期，這個專案至少需要三個月才能完成。",["judge","calculate","approximately","roughly","assessment"]],
+  ["underestimate",     "You should never __________ the power of nature, because severe storms can cause massive destruction in just a few short hours.",     "你永遠不該低估大自然的力量，因為強烈的風暴能在短短幾個小時內造成巨大的破壞。",  ["misjudge","smaller","less","important","severe"]],
+  ["overestimate",      "The manager tended to __________ his own abilities, which eventually led to the failure of the company's most important marketing campaign.", "經理傾向於高估自己的能力，這最終導致了公司最重要的行銷活動的失敗。",       ["exaggerate","larger","greater","misjudge","failure"]],
+  ["trillion",          "A recent study estimates that there are over three __________ trees in the world, highlighting the vastness of our global forests.", "一項最近的研究估計世界上有超過三兆棵樹，凸顯了我們全球森林的浩瀚。",               ["million","number","million","enormous","quantity"]],
+  ["billion",           "The new government policy will cost several __________ dollars to implement, but it is expected to greatly improve public transportation.", "新的政府政策將耗資數十億美元來實施，但預計將大大改善公共交通。",              ["million","large","number","cost","expensive"]],
+  ["million",           "The popular music video quickly reached over a __________ views on the internet, making the creator famous overnight.",              "這部受歡迎的音樂影片在網路上很快就達到了超過一百萬次的觀看，讓創作者一夜成名。", ["large","number","views","popular","quantity"]],
+  ["millions of",       "The ambitious investors are injecting __________ dollars into the new wearable device, hoping it will become the next big trend.",   "雄心勃勃的投資者正向這款新的穿戴式裝置注資數以百萬計的美元，希望它能成為全球市場的下一個大趨勢。",["large","countless","enormous","vast","number"]],
+  ["profound",          "The professor has a __________ knowledge of mathematics, and he is always willing to help his students understand complex theories.", "這位教授擁有深奧的數學知識，而且他總是樂於幫助學生理解複雜的理論。",             ["deep","knowledge","insight","great","complex"]],
+  ["profoundly",        "The writer is known for his __________ insightful observations on human nature, which have influenced many modern philosophers.",    "這位作家以他對人性的深刻地具洞察力的觀察而聞名，這些觀察影響了許多現代哲學家和讀者。",["deeply","extremely","greatly","insight","strongly"]],
+  ["profound impact",   "The invention of the smartphone has had a __________ on the way we communicate and share information with each other.",              "智慧型手機的發明對我們溝通和彼此分享資訊的方式產生了深遠的影響。",                ["deep","strong","significant","changed","transformed"]],
+  ["profound effect",   "Listening to classical music can have a __________ on your ability to concentrate and reduce stress during long study sessions.",    "聽古典音樂可以對你集中注意力的能力產生深刻的效果，並在長時間學習中減輕壓力。", ["deep","significant","notable","concentrate","stress"]],
+  ["profound knowledge","It takes years of dedicated research and continuous study to acquire such __________ about ancient Egyptian culture.",               "獲得如此關於古埃及文化及其傳統的淵博的知識需要多年專注的研究和持續的學習。",    ["deep","expertise","comprehensive","years","research"]],
+  ["annually",          "Most doctors advise getting a physical checkup __________ to ensure that any potential health problems are caught early.",           "大多數醫生建議每年地進行一次健康檢查，以確保任何潛在的健康問題都能及早被發現和有效治療。",["yearly","regular","once","checkup","doctors"]],
+  ["annual",            "The company's __________ meeting will be held next month, and all employees are expected to attend to discuss future business goals.", "公司的每年的會議將於下個月舉行，所有員工都被期望出席以討論未來的商業目標。",     ["yearly","regular","once a year","meeting","employees"]],
+  ["annual report",     "The cautious investors carefully reviewed the __________ to see if the company had made a reasonable profit over the past year.",    "謹慎的投資者仔細審閱了年度報告，以查看該公司在過去一年中是否獲得了合理的利潤。", ["document","investors","profit","yearly","company"]],
+  ["bi-annually",       "The fashion magazine is published __________, meaning loyal subscribers will receive a new and exciting issue every six months.",    "這本時尚雜誌一年兩次地出版，這意味著忠實訂閱者每六個月一定會收到一期全新且精彩的期刊。",["twice","six months","regular","twice a year","published"]],
+  ["annual leave",      "After working incredibly hard for twelve months, John finally took his __________ to travel across Europe with his beloved family.", "辛苦工作十二個月後，約翰終於休了年假，和他深愛的家人一起去歐洲旅行。",            ["vacation","paid","holiday","time off","employees"]],
+  ["exceed",            "When you are driving on the highway, please be very careful and do not __________ the speed limit, otherwise you will have to pay a steep penalty.", "在高速公路上行駛時，請不要超過速限，否則你將必須支付高昂的罰款。",   ["go beyond","surpass","greater","over","limit"]],
+  ["excess",            "If you consume alcohol to __________, it will severely damage your liver and negatively impact your overall physical well-being.",   "如果你飲酒過量，它將嚴重損害你的肝臟並對你的整體身體健康產生負面影響。",          ["too much","more than","harmful","beyond","limit"]],
+  ["excessive",         "__________ use of social media is not good for your mental health, as it can easily lead to feelings of intense anxiety and loneliness.", "過度的使用社群媒體對你的心理健康不利，因為它很容易導致強烈焦慮和孤獨的感覺。", ["too much","extreme","unhealthy","beyond","overuse"]],
+  ["excessive use of",  "Many experts strongly warn that __________ social media is not good for your mental health and can lead to feelings of intense anxiety.", "許多專家強烈警告，過度使用社群媒體對你的心理健康不利，並且很容易導致強烈的焦慮感。",["too much","extreme","unhealthy","overuse","beyond"]],
+  ["excessive amount",  "Eating an __________ of artificial sugar can lead to serious health problems like diabetes and heart disease in the long run.",       "從長遠來看，吃下過量的人造糖可能會導致嚴重的健康問題，如糖尿病和心臟病。",      ["too much","large quantity","more than","unhealthy","diet"]],
+  ["excessively",       "The angry boss complained that the team was spending __________ on business trips, so he immediately cut the travel budget by half.", "生氣的老闆抱怨團隊在出差上花費過度地多，所以他立刻將差旅預算削減了一半。",       ["too much","unreasonably","beyond","overspending","more than"]],
+  ["emerge",            "After several days of waiting, the beautiful butterfly finally __________ from the cocoon and prepared to fly for the very first time.", "經過幾天的等待，這隻美麗的蝴蝶終於從繭中出現，並準備進行第一次的飛行。",       ["come out","appeared","surface","cocoon","visible"]],
+  ["emergence",         "The sudden __________ of new internet technologies has drastically changed the way traditional businesses operate in the modern global economy.", "新網際網路科技的突然出現已徹底改變了傳統企業在現代全球經濟中的運作方式。", ["appearance","rise","arrival","new","suddenly"]],
+  ["emerging",          "Investors are increasingly interested in __________ markets because they offer significant opportunities for rapid growth and high returns.", "投資者對新興的市場越來越感興趣，因為它們為快速增長和高財務回報提供了重大的機會。",["developing","growing","new","rising","opportunities"]],
+  ["emerge from",       "The country managed to __________ the severe economic crisis much stronger than before, thanks to a series of brilliant government policies.", "該國成功地從嚴重的經濟危機中擺脫出來，變得比以前更強大，這要歸功於一系列出色的政府政策。",["recover","come out","overcome","crisis","stronger"]],
+  ["newly emerged",     "The __________ evidence strongly proved that the suspect was completely innocent, forcing the police to restart their criminal investigation immediately.", "新出現的證據強烈證明了嫌疑犯是完全無辜的，迫使警方立刻重新開始他們的刑事調查。",["recent","new","appeared","discovered","fresh"]],
+  ["manifest",          "This captivating novel clearly __________ the excellent writing skills of the author, proving that she is a true master of storytelling.", "這本迷人的小說清楚地展現了作者出色的寫作技巧，證明了她是一位真正的說故事大師。",["show","display","demonstrate","reveal","clearly"]],
+  ["manifestation",     "His constant and loud complaining is just a __________ of his deep dissatisfaction with his current job and his lack of career progress.", "他不斷且大聲的抱怨只是他對目前工作深感不滿以及缺乏職涯進展的一種表現。",     ["sign","expression","showing","result","symptom"]],
+  ["manifest itself",   "Tyson's deep depression began to __________ in increased bouts of sudden anger that frightened his family and his closest friends.", "泰森的重度憂鬱開始在越來越多突發的憤怒中顯現出來，這嚇壞了他的家人和最親密的朋友。",["appear","show itself","become visible","symptom","display"]],
+  ["manifestly",        "The recently proposed solution is __________ unfair to the hardworking factory employees, and the labor union has declared they will strictly oppose it.", "最近提議的解決方案對辛勤工作的工廠員工來說顯然地是不公平的，而工會已宣布他們將嚴格反對它。",["obviously","clearly","evidently","undeniably","plainly"]],
+  ["reveal",            "The critical software bugs didn't __________ themselves until the device had already been released to the public, causing massive customer complaints.", "直到該設備已經向公眾發布後，關鍵的軟體錯誤才揭露出來，引起了大量的顧客抱怨。",["uncover","show","expose","make known","discovered"]],
+  ["reveal the truth",  "The courageous journalist worked tirelessly for several months to __________, proving that the woman was completely innocent of the terrible crime.", "這位勇敢的記者不知疲倦地工作了幾個月以揭露真相，證明該名婦女對那起可怕的罪行是完全無辜的。",["uncover","expose","discover","facts","innocent"]],
+  ["expose",            "The investigative reporter published a comprehensive article to __________ the corrupt practices within the local government, causing a massive uproar.", "那位調查記者發表了一篇全面的文章來揭發當地政府內部的腐敗行為，在憤怒的公民中引起了巨大的騷動。",["reveal","uncover","disclose","hidden","dishonest"]],
+  ["expose a scandal",  "The newspaper editor ultimately decided to __________, which was fueled by shocking rumors about the popular politician's private life and illegal financial activities.", "報社編輯最終決定揭發一樁醜聞，這樁醜聞是由關於那位受歡迎政治人物的私生活和非法財務活動的令人震驚的謠言所引起的。",["reveal","disclose","uncover","rumors","dishonest"]],
+  ["be exposed to",     "If children __________ constantly __________ violent video games and movies, they might develop aggressive behaviors and lack empathy for other people's suffering.", "如果孩子們不斷地暴露於暴力的電玩遊戲和電影中，他們可能會發展出具攻擊性的行為，並且對他人的痛苦缺乏同理心。",["experience","encounter","subjected","unprotected","harmful"]],
+  ["exposure",          "The company's new marketing campaign gained a lot of media __________ on the internet, which helped boost their overall sales significantly.", "該公司的新行銷活動在網路上獲得了大量的媒體曝光，這有助於在繁忙的假期期間顯著提升他們的整體銷售額。",["visibility","attention","public","media","coverage"]],
+  ["exposure to",       "Prolonged __________ the harsh summer sunlight without wearing proper protection can severely damage your delicate skin.",              "在沒有採取適當保護的情況下，長時間暴露於強烈的夏日陽光下會嚴重損害你嬌嫩的皮膚。",  ["contact","subjected","experience","unprotected","harmful"]],
+  ["ecological",        "The government often has to address serious __________ issues that are ignored by big businesses in their relentless pursuit of profit.", "政府經常必須解決大企業在無情追求利潤時所忽視的嚴重生態的問題。",               ["environmental","natural","ecosystem","biology","habitat"]],
+  ["ecologically",      "The new farming practices are __________ sustainable and will not harm the local wildlife that depends heavily on this specific habitat.", "新的農作實踐在生態上地是永續的，且不會傷害嚴重依賴這個特定棲息地的當地野生動物。",["environmentally","naturally","biologically","sustainably","harmlessly"]],
+  ["ecologist",         "The famous __________ warned that destroying the wetlands would have a disastrous effect on the populations of migratory birds in the region.", "那位著名的生態學家警告說，破壞濕地將對該地區的候鳥數量產生災難性的影響。",  ["scientist","expert","biologist","researcher","environmentalist"]],
+  ["ecology",           "Students taking the university's __________ course will spend a week in the forest to directly observe the complex interactions between different species.", "選修大學生態學課程的學生將在森林裡待上一個星期，以直接觀察不同物種之間複雜的互動。",["biology","environment","science","nature","organisms"]],
+  ["eco-friendly",      "Many conscious consumers now prefer to buy __________ products to reduce their carbon footprint and help protect the earth for future generations.", "許多有意識的消費者現在更喜歡購買環保的產品，以減少他們的碳足跡並幫助為後代保護地球。",["green","sustainable","environmental","recyclable","natural"]],
+  ["environmentally-friendly","As more consumers become conscious of the planet, they prefer to purchase __________ products that reduce their carbon footprint.", "隨著越來越多的消費者對地球產生意識，他們更喜歡購買能減少碳足跡並幫助防止全球暖化的環保的產品。",["green","sustainable","ecological","natural","recyclable"]],
+  ["environmental protection","The government committee will be conducting a comprehensive study on __________ to ensure that future generations can live in a safe, healthy, and sustainable world.", "政府委員會將針對環境保護進行一項全面的研究，以確保後代能生活在一個安全、健康且永續的世界中。",["conservation","safeguarding","sustainability","ecology","preservation"]],
+  ["disaster",          "Last month's devastating earthquake was the worst __________ I have ever experienced, and many people were unfortunately left homeless in its wake.", "上個月的毀滅性地震是我經歷過最糟糕的災難，許多人不幸地因此無家可歸。",          ["catastrophe","tragedy","calamity","event","earthquake"]],
+  ["disastrous",        "Ian's first attempt at making dinner was a completely __________ event, as he accidentally burned the chicken and broke an expensive plate.",  "伊恩第一次嘗試做晚餐是一件完全災難性的事件，因為他不小心把雞肉燒焦還打破了一個昂貴的盤子。",["catastrophic","terrible","ruinous","harmful","devastating"]],
+  ["spell disaster",    "The rapidly rising river could __________ for those who fish on its banks or live in the nearby low-lying coastal areas.",                      "迅速上漲的河水可能會為那些在河岸捕魚或住在附近低窪沿海地區的人帶來災難。",      ["cause problems","ruin","catastrophe","bring","flooding"]],
+  ["natural disaster",  "The government has established a special emergency fund to help citizens rebuild their homes quickly after a __________ unexpectedly occurs.", "政府建立了一個特別緊急基金，以幫助公民在自然災害意外發生後迅速重建家園。",       ["earthquake","flood","hurricane","calamity","typhoon"]],
+  ["disaster relief",   "Several international organizations sent __________ teams to the flooded region to distribute clean water and medical supplies to the desperate victims.", "幾個國際組織派遣了救災隊伍前往水患地區，向絕望的災民分發乾淨的水和醫療物資。",["humanitarian","emergency","aid","assistance","help"]],
+  ["humanitarian aid",  "After the devastating earthquake destroyed the entire coastal city, several international organizations quickly sent __________ to provide clean water, food, and urgent medical supplies.", "在毀滅性的地震摧毀了整座沿海城市之後，幾個國際組織迅速送來人道救援以提供乾淨的水、食物和緊急的醫療物資。",["assistance","relief","emergency","supplies","support"]],
+  ["surge",             "Lately, there has been a massive __________ of interest in taking action against climate change among the younger generations across the globe.", "最近，在全球年輕世代中，採取行動對抗氣候變遷的興趣出現了大規模的激增。",        ["increase","rise","wave","sudden","growth"]],
+  ["surging",           "The __________ waves from the powerful typhoon crashed forcefully onto the shore, causing significant structural damage to the coastal buildings.", "強烈颱風帶來洶湧的海浪猛烈地拍打著海岸，對沿海建築造成了重大的結構性破壞。",  ["powerful","rushing","increasing","rising","crashing"]],
+  ["a surge of",        "The marathon runner felt a sudden __________ energy as she heard the massive crowd cheering for her near the finish line.",                      "當馬拉松選手在終點線附近聽到大批人群為她歡呼時，她感到一陣突如其來的能量。",    ["burst","rush","wave","increase","sudden"]],
+  ["surge ahead",       "Despite a slow start in the race, the determined athlete managed to __________ of her competitors in the final lap.",                           "儘管在比賽一開始進展緩慢，這位意志堅定的運動員在最後一圈成功地遙遙領先。",      ["race","overtake","lead","fast","competitors"]],
+  ["threaten",          "Kelly angrily __________ to tell her mother if Peter said those incredibly mean and hurtful things to her ever again.",                         "凱莉生氣地威脅說，如果彼得再對她說那些極其刻薄傷人的話，她就要告訴她媽媽。",  ["warned","hostile","intimidate","danger","action"]],
+  ["threat",            "The environmental group warned that the massive building of the new freeway posed a serious __________ to the rare bird's natural home.",       "環保團體警告說，大規模建造新高速公路對這種稀有鳥類的自然家園構成了嚴重的威脅。",["danger","risk","warning","hostile","harm"]],
+  ["threatening",       "The dark, heavy clouds looking incredibly __________ in the sky forced the organizers to cancel the outdoor music festival entirely.",          "天空中看起來極其具威脅性的烏雲迫使主辦單位完全取消了戶外音樂節。",             ["menacing","dangerous","ominous","scary","dark"]],
+  ["threaten to V",     "The ongoing bad weather __________ ruin the weekend camping trip that we had been eagerly planning for several long months.",                   "持續的惡劣天氣有毀掉我們已經熱切計畫了好幾個月的週末露營之旅的危險。",          ["likely","might","could","danger","risk"]],
+  ["life-threatening",  "The brave firefighter was rushed to the hospital with __________ injuries after he bravely rescued the trapped family from the burning house.", "這位勇敢的消防員在英勇地將受困家庭從燃燒的房子中救出後，帶著危及生命的傷勢被緊急送往醫院。",["fatal","dangerous","critical","serious","deadly"]],
+  ["pose a threat to",  "Having a new house built so close to the river __________ your family's safety because the water floods the area every few years.",             "把新房子建在離河這麼近的地方對你家人的安全構成嚴重的威脅，因為河水每隔幾年就會淹沒該地區。",["danger","risk","endanger","harm","close"]],
+  ["pose a risk to",    "Eating an excessive amount of processed foods can __________ your overall health and eventually lead to severe chronic diseases.",               "吃過量的加工食品可能會對你的整體健康構成顯著的風險，並最終導致嚴重的慢性疾病。",["danger","harm","endanger","threaten","health"]],
+  ["at risk",           "The famous politician's outstanding reputation will undoubtedly be __________ if he fails to win his difficult court case.",                     "如果這位著名的政治人物未能在艱難的官司中勝訴並被判有罪，他傑出的名聲無疑將處於危險中。",["endangered","danger","threatened","vulnerable","losing"]],
+  ["intimidate",        "The aggressive lawyer tried to __________ the shy witness during the intense trial, hoping she would become too scared to tell the truth.",     "這位咄咄逼人的律師試圖在激烈的審判中威嚇害羞的證人，希望她會因為太害怕而不敢對嚴格的法官說出真相。",["frighten","threaten","scare","bully","pressure"]],
+  ["intimidating",      "Starting a new job in a large and busy corporation can be an incredibly __________ experience, especially if you are not yet acquainted with your new colleagues.", "在一家龐大且繁忙的公司開始一份新工作可能是一次極其嚇人的經歷。",["frightening","daunting","scary","overwhelming","challenging"]],
+  ["destiny",           "He always strongly believed that it was his __________ to become a great leader and positively change his country for the better.",              "他總是強烈地相信，成為一位偉大的領導人並積極地讓他的國家變得更好是他的命運。",  ["fate","future","purpose","calling","inevitable"]],
+  ["destined",          "These large wooden boxes full of donated clothes and essential medical supplies are __________ for South Africa to help people in urgent need.",  "這些裝滿捐贈衣物和基本醫療物資的大木箱是前往南非去幫助急需援助的人的。",        ["bound","headed","intended","going","aimed"]],
+  ["be destined to",    "Everyone agrees that Alex __________ become an incredibly famous singer because he has so much natural talent and charisma.",                   "每個人都同意亞歷克斯注定要成為一位極其著名的歌手，因為他擁有如此多的天賦和魅力。",["certainly","inevitably","surely","fated","meant"]],
+  ["be destined for",   "She worked incredibly hard during her university years because she knew she __________ great success in the competitive corporate world.",        "她在大學期間非常努力工作，因為她知道她注定會得到競爭激烈的企業界中的巨大成功。", ["meant","fated","inevitable","headed","certain"]],
+  ["manifest destiny",  "The historical concept of __________ was frequently used to justify the rapid and controversial westward expansion of the United States in the 1800s.", "天命論的歷史概念經常被用來為1800年代美國快速且具爭議的向西擴張辯護。",     ["expansion","inevitable","justified","westward","historical"]],
+  ["fate",              "After the large company suffered massive financial losses for three consecutive years, its __________ was sealed and the owner had no choice but to declare bankruptcy.", "在這家大公司連續三年遭受巨額財務損失之後，它的命運就已注定，老闆除了宣佈破產別無選擇。",["destiny","future","outcome","inevitable","end"]],
+  ["fatal",             "Thankfully, his sudden illness was not __________, and the experienced doctor assured his anxious family that he would make a full recovery in just a few weeks.", "幸好，他的突發疾病不是致命的，且經驗豐富的醫生向他焦急的家人保證他會在短短幾週內完全康復。",["deadly","lethal","life-ending","dangerous","mortal"]],
+];
+
+// ══════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════
+let studentName   = "";
+let questions     = [];   // ALL entries shuffled
+let currentQ      = 0;
+let score         = 0;
+let answered      = false;
+let totalQ        = 0;    // set at start = QUESTION_POOL.length
+let wrongWords    = [];
+let lookedUp      = new Set();
+
+// ══════════════════════════════════════════════════════
+//  UTILITIES
+// ══════════════════════════════════════════════════════
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function getDistractors(correctKey, count) {
+  const cat     = DEFS[correctKey]?.cat;
+  const sameCat = QUESTION_POOL.filter(q => q[0] !== correctKey && DEFS[q[0]]?.cat === cat);
+  const picked  = shuffle(sameCat).slice(0, count).map(q => q[0]);
+  // pad from any POS if same-cat doesn't have enough
+  if (picked.length < count) {
+    const other = shuffle(QUESTION_POOL.filter(q => q[0] !== correctKey && !picked.includes(q[0])));
+    while (picked.length < count && other.length) picked.push(other.pop()[0]);
+  }
+  return picked;
+}
+
+// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (part === "__________") return `<span class="word blank-word">__________</span>`;
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optKey}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+const MINI_DICT = {
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "offices":{"en":"places where people work","cn":"辦事處","pos":"n."},
+  "countries":{"en":"nations of the world","cn":"國家","pos":"n."},
+  "worldwide":{"en":"throughout the entire world","cn":"全世界","pos":"adv."},
+  "markets":{"en":"places or systems for buying and selling","cn":"市場","pos":"n."},
+  "businesses":{"en":"commercial organizations","cn":"企業","pos":"n."},
+  "compete":{"en":"to try to win against others","cn":"競爭","pos":"v."},
+  "corporations":{"en":"large companies","cn":"公司；企業","pos":"n."},
+  "survive":{"en":"to continue to live or exist","cn":"生存","pos":"v."},
+  "temperature":{"en":"the degree of heat or cold","cn":"溫度","pos":"n."},
+  "polar":{"en":"relating to the North or South Pole","cn":"極地的","pos":"adj."},
+  "melt":{"en":"to become liquid from heat","cn":"融化","pos":"v."},
+  "climate":{"en":"the typical weather in a region","cn":"氣候","pos":"n."},
+  "accelerated":{"en":"happening faster than normal","cn":"加速的","pos":"adj."},
+  "competitors":{"en":"people or businesses competing with you","cn":"競爭對手","pos":"n."},
+  "recognized":{"en":"known and respected by many people","cn":"被認可的","pos":"adj."},
+  "advantage":{"en":"something that helps you succeed","cn":"優勢","pos":"n."},
+  "invention":{"en":"something newly created","cn":"發明","pos":"n."},
+  "internet":{"en":"the global computer network","cn":"網際網路","pos":"n."},
+  "communication":{"en":"the act of sharing information","cn":"溝通；通訊","pos":"n."},
+  "borders":{"en":"the lines dividing countries","cn":"國界","pos":"n."},
+  "collapse":{"en":"to fall down suddenly","cn":"倒塌；崩潰","pos":"v."},
+  "roof":{"en":"the top covering of a building","cn":"屋頂","pos":"n."},
+  "weight":{"en":"how heavy something is","cn":"重量","pos":"n."},
+  "electricity":{"en":"energy used to power devices","cn":"電力","pos":"n."},
+  "environment":{"en":"the natural world around us","cn":"環境","pos":"n."},
+  "negative":{"en":"bad or harmful","cn":"負面的","pos":"adj."},
+  "alternative":{"en":"another option or choice","cn":"替代的","pos":"adj."},
+  "sources":{"en":"places where something comes from","cn":"來源","pos":"n."},
+  "endangered":{"en":"at risk of becoming extinct","cn":"瀕危的","pos":"adj."},
+  "animals":{"en":"living creatures that are not plants","cn":"動物","pos":"n."},
+  "ecosystem":{"en":"a system of living things interacting","cn":"生態系統","pos":"n."},
+  "balance":{"en":"a state of equal distribution","cn":"平衡","pos":"n."},
+  "keys":{"en":"small devices used to open locks","cn":"鑰匙","pos":"n."},
+  "forests":{"en":"large areas of trees","cn":"森林","pos":"n."},
+  "environmentalists":{"en":"people who care for the natural world","cn":"環保人士","pos":"n."},
+  "habitats":{"en":"natural homes for animals","cn":"棲息地","pos":"n."},
+  "ruins":{"en":"remains of destroyed buildings","cn":"遺跡；廢墟","pos":"n."},
+  "civilization":{"en":"an advanced human society","cn":"文明","pos":"n."},
+  "archaeologists":{"en":"scientists who study ancient remains","cn":"考古學家","pos":"n."},
+  "jungle":{"en":"a dense tropical forest","cn":"叢林","pos":"n."},
+  "magician":{"en":"a person who performs magic tricks","cn":"魔術師","pos":"n."},
+  "stage":{"en":"a platform for performances","cn":"舞台","pos":"n."},
+  "audience":{"en":"people watching a performance","cn":"觀眾","pos":"n."},
+  "study":{"en":"a piece of research; to learn","cn":"研究；學習","pos":"n./v."},
+  "trees":{"en":"large plants with trunks and branches","cn":"樹木","pos":"n."},
+  "project":{"en":"a planned piece of work","cn":"專案；計畫","pos":"n."},
+  "deadline":{"en":"the final time to complete something","cn":"截止日期","pos":"n."},
+  "overtime":{"en":"time worked beyond regular hours","cn":"加班","pos":"n."},
+  "manager":{"en":"a person who oversees others","cn":"經理","pos":"n."},
+  "abilities":{"en":"skills or talents","cn":"能力","pos":"n."},
+  "campaign":{"en":"organized effort to achieve a goal","cn":"活動；行動","pos":"n."},
+  "failure":{"en":"lack of success","cn":"失敗","pos":"n."},
+  "butterfly":{"en":"a colorful flying insect","cn":"蝴蝶","pos":"n."},
+  "cocoon":{"en":"protective case formed by an insect","cn":"繭","pos":"n."},
+  "technologies":{"en":"tools and systems created by science","cn":"科技","pos":"n."},
+  "businesses":{"en":"commercial organizations","cn":"企業","pos":"n."},
+  "global":{"en":"relating to the whole world","cn":"全球的","pos":"adj."},
+  "economy":{"en":"a country's system of money and trade","cn":"經濟","pos":"n."},
+  "novel":{"en":"a long fictional book; new and original","cn":"小說；新穎的","pos":"n./adj."},
+  "author":{"en":"a person who writes books","cn":"作者","pos":"n."},
+  "complaining":{"en":"expressing unhappiness","cn":"抱怨","pos":"v."},
+  "dissatisfaction":{"en":"the feeling of not being happy","cn":"不滿","pos":"n."},
+  "depression":{"en":"a serious mental illness; deep sadness","cn":"憂鬱；不景氣","pos":"n."},
+  "anger":{"en":"the feeling of being very upset","cn":"憤怒","pos":"n."},
+  "bugs":{"en":"errors in computer software; insects","cn":"程式錯誤；蟲子","pos":"n."},
+  "device":{"en":"a machine or electronic tool","cn":"裝置","pos":"n."},
+  "reporter":{"en":"a journalist who reports news","cn":"記者","pos":"n."},
+  "government":{"en":"the group of people who rule a country","cn":"政府","pos":"n."},
+  "corrupt":{"en":"dishonest and illegal","cn":"腐敗的","pos":"adj."},
+  "practices":{"en":"things done regularly","cn":"行為；實踐","pos":"n."},
+  "journalist":{"en":"a person who reports news","cn":"記者","pos":"n."},
+  "innocent":{"en":"not guilty of a crime","cn":"無辜的","pos":"adj."},
+  "crime":{"en":"an illegal act","cn":"犯罪","pos":"n."},
+  "sunlight":{"en":"the light from the sun","cn":"陽光","pos":"n."},
+  "protection":{"en":"something that keeps you safe","cn":"保護","pos":"n."},
+  "skin":{"en":"the outer covering of the body","cn":"皮膚","pos":"n."},
+  "disease":{"en":"a sickness or illness","cn":"疾病","pos":"n."},
+  "profit":{"en":"money gained after expenses","cn":"利潤","pos":"n."},
+  "wetlands":{"en":"areas of wet marshy land","cn":"濕地","pos":"n."},
+  "populations":{"en":"the number of living things in an area","cn":"數量；族群","pos":"n."},
+  "birds":{"en":"animals with feathers and wings","cn":"鳥類","pos":"n."},
+  "species":{"en":"a type of plant or animal","cn":"物種","pos":"n."},
+  "interactions":{"en":"actions between people or things","cn":"互動","pos":"n."},
+  "products":{"en":"things made or grown for sale","cn":"產品","pos":"n."},
+  "footprint":{"en":"the impact a person has on the environment","cn":"足跡","pos":"n."},
+  "generations":{"en":"groups of people born at the same time","cn":"世代","pos":"n."},
+  "earthquake":{"en":"a violent shaking of the ground","cn":"地震","pos":"n."},
+  "chicken":{"en":"a common farm bird; its meat","cn":"雞","pos":"n."},
+  "plate":{"en":"a flat dish for food","cn":"盤子","pos":"n."},
+  "river":{"en":"a large natural flow of water","cn":"河流","pos":"n."},
+  "coastal":{"en":"near the coast or sea","cn":"沿海的","pos":"adj."},
+  "areas":{"en":"regions or zones","cn":"地區","pos":"n."},
+  "interest":{"en":"a feeling of wanting to know more","cn":"興趣；利率","pos":"n."},
+  "action":{"en":"something done to achieve a goal","cn":"行動","pos":"n."},
+  "change":{"en":"to become or make different","cn":"改變","pos":"v./n."},
+  "waves":{"en":"moving ridges of water","cn":"波浪","pos":"n."},
+  "shore":{"en":"the land along a body of water","cn":"海岸","pos":"n."},
+  "damage":{"en":"physical harm caused to something","cn":"損壞","pos":"n./v."},
+  "buildings":{"en":"structures with walls and a roof","cn":"建築物","pos":"n."},
+  "mother":{"en":"a female parent","cn":"母親","pos":"n."},
+  "things":{"en":"objects or matters","cn":"事物","pos":"n."},
+  "freeway":{"en":"a fast road with multiple lanes","cn":"高速公路","pos":"n."},
+  "natural":{"en":"existing in or caused by nature","cn":"自然的","pos":"adj."},
+  "home":{"en":"the place where someone lives","cn":"家","pos":"n."},
+  "hospital":{"en":"a place where sick people are treated","cn":"醫院","pos":"n."},
+  "injuries":{"en":"physical harm done to the body","cn":"傷勢","pos":"n."},
+  "family":{"en":"a group of related people","cn":"家人","pos":"n."},
+  "house":{"en":"a building where people live","cn":"房屋","pos":"n."},
+  "leader":{"en":"a person who guides others","cn":"領導人","pos":"n."},
+  "country":{"en":"a nation with its own government","cn":"國家","pos":"n."},
+  "south":{"en":"the direction opposite to north","cn":"南方","pos":"n./adj."},
+  "africa":{"en":"a large continent south of Europe","cn":"非洲","pos":"n."},
+  "singer":{"en":"a person who sings","cn":"歌手","pos":"n."},
+  "talent":{"en":"a natural ability","cn":"天賦","pos":"n."},
+  "charisma":{"en":"charm that inspires others","cn":"魅力","pos":"n."},
+  "success":{"en":"achieving a desired goal","cn":"成功","pos":"n."},
+  "corporate":{"en":"relating to a large company","cn":"企業的","pos":"adj."},
+  "expansion":{"en":"the process of growing larger","cn":"擴張","pos":"n."},
+  "space":{"en":"the area beyond Earth's atmosphere","cn":"太空","pos":"n."},
+  "asteroid":{"en":"a rocky object orbiting the sun","cn":"小行星","pos":"n."},
+  "miner":{"en":"a person who extracts minerals","cn":"礦工","pos":"n."},
+  "policy":{"en":"a rule or plan made by a government","cn":"政策","pos":"n."},
+  "transportation":{"en":"ways of moving people or goods","cn":"交通運輸","pos":"n."},
+  "mathematics":{"en":"the science of numbers and shapes","cn":"數學","pos":"n."},
+  "theories":{"en":"ideas that explain something","cn":"理論","pos":"n."},
+  "observations":{"en":"careful watching and noting","cn":"觀察","pos":"n."},
+  "philosophers":{"en":"people who study ideas and knowledge","cn":"哲學家","pos":"n."},
+  "smartphone":{"en":"a mobile phone with advanced features","cn":"智慧型手機","pos":"n."},
+  "information":{"en":"facts and knowledge","cn":"資訊","pos":"n."},
+  "magazine":{"en":"a periodical publication","cn":"雜誌","pos":"n."},
+  "subscribers":{"en":"people who pay regularly for a service","cn":"訂閱者","pos":"n."},
+  "issue":{"en":"a copy of a magazine; a topic","cn":"期刊；問題","pos":"n."},
+  "highway":{"en":"a main road for fast travel","cn":"高速公路","pos":"n."},
+  "penalty":{"en":"a punishment for breaking a rule","cn":"罰款；懲罰","pos":"n."},
+  "alcohol":{"en":"drinks that can make you drunk","cn":"酒精","pos":"n."},
+  "liver":{"en":"an organ in the body that filters blood","cn":"肝臟","pos":"n."},
+  "health":{"en":"the condition of the body and mind","cn":"健康","pos":"n."},
+  "mental":{"en":"relating to the mind","cn":"心理的；精神的","pos":"adj."},
+  "anxiety":{"en":"a feeling of worry or fear","cn":"焦慮","pos":"n."},
+  "loneliness":{"en":"feeling sad because of being alone","cn":"孤獨感","pos":"n."},
+  "social":{"en":"relating to society or people together","cn":"社交的","pos":"adj."},
+  "media":{"en":"channels of communication","cn":"媒體","pos":"n."},
+  "sugar":{"en":"a sweet substance in food","cn":"糖","pos":"n."},
+  "diabetes":{"en":"a disease affecting blood sugar","cn":"糖尿病","pos":"n."},
+  "heart":{"en":"the organ that pumps blood","cn":"心臟","pos":"n."},
+  "budget":{"en":"a plan for spending money","cn":"預算","pos":"n."},
+  "business":{"en":"a commercial organization","cn":"商業；公司","pos":"n."},
+  "reputation":{"en":"what others think of you","cn":"名聲","pos":"n."},
+  "court":{"en":"a place where legal cases are judged","cn":"法院","pos":"n."},
+  "case":{"en":"a legal matter; a situation","cn":"案件；情況","pos":"n."},
+  "guilty":{"en":"having committed a crime","cn":"有罪的","pos":"adj."},
+  "lawyer":{"en":"a professional who gives legal advice","cn":"律師","pos":"n."},
+  "witness":{"en":"a person who saw something happen","cn":"證人","pos":"n."},
+  "trial":{"en":"a legal hearing in court","cn":"審判","pos":"n."},
+  "judge":{"en":"a person who decides court cases","cn":"法官","pos":"n."},
+  "police":{"en":"people who enforce the law","cn":"警察","pos":"n."},
+  "investigation":{"en":"a careful search for information","cn":"調查","pos":"n."},
+  "evidence":{"en":"facts that show something is true","cn":"證據","pos":"n."},
+  "politician":{"en":"a person involved in politics","cn":"政治人物","pos":"n."},
+  "scandal":{"en":"an event causing public shock","cn":"醜聞","pos":"n."},
+  "rumors":{"en":"stories that may not be true","cn":"謠言","pos":"n."},
+  "financial":{"en":"relating to money","cn":"財務的","pos":"adj."},
+  "activities":{"en":"things done for a purpose","cn":"活動","pos":"n."},
+  "editor":{"en":"a person who checks and improves writing","cn":"編輯","pos":"n."},
+  "children":{"en":"young people","cn":"孩子","pos":"n."},
+  "games":{"en":"activities done for fun or competition","cn":"遊戲","pos":"n."},
+  "movies":{"en":"films shown in cinemas","cn":"電影","pos":"n."},
+  "behaviors":{"en":"ways of acting","cn":"行為","pos":"n."},
+  "empathy":{"en":"understanding how others feel","cn":"同理心","pos":"n."},
+  "suffering":{"en":"the experience of pain or hardship","cn":"痛苦","pos":"n."},
+  "marketing":{"en":"promoting goods or services","cn":"行銷","pos":"n."},
+  "sales":{"en":"the number of items sold","cn":"銷售","pos":"n."},
+  "holiday":{"en":"a special day or vacation time","cn":"假日","pos":"n."},
+  "fund":{"en":"money set aside for a purpose","cn":"基金","pos":"n."},
+  "citizens":{"en":"members of a country","cn":"公民","pos":"n."},
+  "homes":{"en":"places where people live","cn":"家園","pos":"n."},
+  "victims":{"en":"people who have been harmed","cn":"受害者","pos":"n."},
+  "region":{"en":"a part of a country or the world","cn":"地區","pos":"n."},
+  "organizations":{"en":"groups with shared goals","cn":"組織","pos":"n."},
+  "water":{"en":"the liquid essential for life","cn":"水","pos":"n."},
+  "food":{"en":"substances eaten for energy","cn":"食物","pos":"n."},
+  "supplies":{"en":"items needed for daily use","cn":"物資","pos":"n."},
+  "city":{"en":"a large urban area","cn":"城市","pos":"n."},
+  "banker":{"en":"a person who works in banking","cn":"銀行家","pos":"n."},
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "bankruptcy":{"en":"the state of being unable to pay debts","cn":"破產","pos":"n."},
+  "losses":{"en":"amounts of money lost","cn":"損失","pos":"n."},
+  "consecutive":{"en":"following one after another","cn":"連續的","pos":"adj."},
+  "illness":{"en":"a sickness or disease","cn":"疾病","pos":"n."},
+  "recovery":{"en":"the process of getting better","cn":"康復","pos":"n."},
+  "doctor":{"en":"a medical professional","cn":"醫生","pos":"n."},
+};
+
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — checks DEFS first, then mini-dict, then API
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  const raw  = el.dataset.word;           // lowercase, stripped
+  lookedUp.add(raw);
+  const helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+
+  // Set word text + wire up TTS button
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent  = "";
+  document.getElementById("helperDef").innerHTML    = `<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up…</span>`;
+
+  // TTS button — always speaks the raw word
+  const ttsBtn = document.getElementById("helperTtsBtn");
+  // Remove old listener and add fresh one
+  const newTtsBtn = ttsBtn.cloneNode(true);
+  ttsBtn.parentNode.replaceChild(newTtsBtn, ttsBtn);
+  newTtsBtn.addEventListener("click", () => {
+    newTtsBtn.classList.add("speaking");
+    speakWordOnly(raw, () => newTtsBtn.classList.remove("speaking"));
+  });
+
+  // 1️⃣ Check DEFS (our vocab list) — exact or partial key match
+  const defsKey = Object.keys(DEFS).find(k => k.toLowerCase() === raw || k.toLowerCase().startsWith(raw));
+  if (defsKey) {
+    const d = DEFS[defsKey];
+    document.getElementById("helperPos").textContent = d.pos || "";
+    document.getElementById("helperDef").innerHTML   =
+      `<span style="color:#1c1c1c">${d.en}</span><br>
+       <span style="color:#6a4c93;font-family:'Noto Serif TC',serif;font-size:0.9rem">${d.cn}</span>`;
+    return;
+  }
+
+  // 2️⃣ Check built-in mini-dictionary
+  if (MINI_DICT[raw]) {
+    const m = MINI_DICT[raw];
+    document.getElementById("helperPos").textContent = m.pos || "";
+    document.getElementById("helperDef").innerHTML   =
+      `<span style="color:#1c1c1c">${m.en}</span><br>
+       <span style="color:#6a4c93;font-family:'Noto Serif TC',serif;font-size:0.9rem">${m.cn}</span>`;
+    return;
+  }
+
+  // 3️⃣ Fall back to Free Dictionary API
+  try {
+    const res  = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${raw}`);
+    if (!res.ok) throw new Error("not found");
+    const data = await res.json();
+    const m    = data[0]?.meanings?.[0];
+    if (m) {
+      const def = m.definitions[0]?.definition || "No definition available.";
+      document.getElementById("helperPos").textContent = m.partOfSpeech || "";
+      document.getElementById("helperDef").innerHTML   =
+        `<span style="color:#1c1c1c">${def}</span><br>
+         <span style="color:#6a4c93;font-size:0.82rem;font-style:italic">(No Chinese translation available)</span>`;
+    } else throw new Error("no meaning");
+  } catch {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML   = `<em style="color:var(--color-muted)">Try clicking a different content word.</em>`;
+  }
+}
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push(q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = wk + (isAns ? " ✓" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = wk;
+    wordTts.addEventListener("click", () => speakText(wk));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/__________/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>
