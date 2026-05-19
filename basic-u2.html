@@ -1,0 +1,2175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic U2 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Basic U2
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Built-in Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Basic U2 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  // ── adj ──
+  "mutual":         { pos:"(adj.)", cat:"adj", en:"Shared, felt, or shown equally by two or more people.", cn:"互相的；共同的", ex:"John and Carrie share a mutual appreciation for classic jazz music." },
+  "solid":          { pos:"(adj.)", cat:"adj", en:"Firm and stable in shape; not liquid or fluid.", cn:"堅固的；紮實的", ex:"You need a solid understanding of basic mathematical principles." },
+  "sociable":       { pos:"(adj.)", cat:"adj", en:"Willing to talk and engage in activities with others; friendly.", cn:"好交際的；合群的", ex:"The Millers are incredibly sociable people who enjoy dinner parties." },
+  "unsociable":     { pos:"(adj.)", cat:"adj", en:"Not enjoying the company of others; not friendly.", cn:"不愛交際的", ex:"Ever since he lost his job, he has become quite unsociable." },
+  "antisocial":     { pos:"(adj.)", cat:"adj", en:"Contrary to the laws and customs of society; not sociable.", cn:"反社會的；不擅社交的", ex:"His habit of ignoring people when they speak is considered completely antisocial." },
+  "wild":           { pos:"(adj.)", cat:"adj", en:"Living or growing in the natural environment; not domesticated.", cn:"野生的", ex:"We took photographs of wild lions, elephants, and giraffes on safari." },
+  "enhanced":       { pos:"(adj.)", cat:"adj", en:"Intensified or further improved in quality or value.", cn:"增強的；提升的", ex:"The newest sports car comes with several enhanced safety features." },
+  "conscious":      { pos:"(adj.)", cat:"adj", en:"Aware of and responding to one's surroundings; awake.", cn:"有意識的；意識到的", ex:"Bobby bites his nails when nervous, but not in a conscious manner." },
+  "tolerant":       { pos:"(adj.)", cat:"adj", en:"Showing willingness to allow the existence of different opinions.", cn:"寬容的；容忍的", ex:"In a diverse society, citizens must be more tolerant of different cultures." },
+  "airtight":       { pos:"(adj.)", cat:"adj", en:"Not allowing air to escape; having no weaknesses.", cn:"密不透風的；無懈可擊的", ex:"The engineer had airtight knowledge of the landscape before building the bridge." },
+  "indisputable":   { pos:"(adj.)", cat:"adj", en:"Unable to be challenged or denied.", cn:"不容置疑的", ex:"The surveillance video provided indisputable evidence that the suspect was innocent." },
+  "sealed":         { pos:"(adj.)", cat:"adj", en:"Closed securely so that nothing can get in or out.", cn:"密封的", ex:"The ancient Egyptian tomb had remained sealed for thousands of years." },
+  "visible":        { pos:"(adj.)", cat:"adj", en:"Able to be seen.", cn:"可見的", ex:"The bright stars were clearly visible in the night sky far from the city." },
+  "defensive":      { pos:"(adj.)", cat:"adj", en:"Used or intended to defend; oversensitive to criticism.", cn:"防禦的；防備的", ex:"Whenever I suggest improvements, he immediately gets defensive." },
+  "predatory":      { pos:"(adj.)", cat:"adj", en:"Relating to an animal or person that preys on others.", cn:"掠食的；剝削的", ex:"The government passed laws to protect citizens from predatory lending practices." },
+
+  // ── adv ──
+  "mutually":       { pos:"(adv.)", cat:"adv", en:"In a shared manner or to an equal degree.", cn:"互相地", ex:"The two rival companies reached a mutually beneficial agreement." },
+  "consciously":    { pos:"(adv.)", cat:"adv", en:"In a deliberate and intentional way.", cn:"有意識地；蓄意地", ex:"You must consciously force yourself to sit up straight at your desk." },
+  "unconsciously":  { pos:"(adv.)", cat:"adv", en:"Without realizing or being aware of one's actions.", cn:"無意識地", ex:"I was unconsciously holding my breath as the suspenseful movie reached its climax." },
+  "subconsciously": { pos:"(adv.)", cat:"adv", en:"In a way influenced by the part of the mind one is not fully aware of.", cn:"潛意識地", ex:"He was subconsciously rubbing his sore shoulder throughout the entire meeting." },
+
+  // ── n ──
+  "solidarity":     { pos:"(n.)", cat:"n", en:"Unity or agreement of feeling or action among people with a common interest.", cn:"團結", ex:"The factory workers showed incredible solidarity during the strike." },
+  "motto":          { pos:"(n.)", cat:"n", en:"A short sentence chosen as encapsulating the beliefs guiding an individual or group.", cn:"座右銘；格言", ex:"Many athletes apply the motto 'no pain, no gain' to their daily training." },
+  "longevity":      { pos:"(n.)", cat:"n", en:"Long life; long existence or service.", cn:"長壽；持久", ex:"Extreme longevity is quite normal in my family, as my grandparents lived past 100." },
+  "wildlife":       { pos:"(n.)", cat:"n", en:"Wild animals collectively; the native fauna of a region.", cn:"野生動植物", ex:"Taiwan's central mountain ranges are home to a diverse range of wildlife." },
+  "prey":           { pos:"(n.)/(v.)", cat:"n", en:"An animal that is hunted and killed by another for food.", cn:"獵物；捕食", ex:"Many small mammals are easy prey for the large venomous snakes on this island." },
+  "predator":       { pos:"(n.)", cat:"n", en:"An animal that naturally preys on others.", cn:"掠食者", ex:"The young birds were completely safe from dangerous predators on the cliff." },
+  "enhancement":    { pos:"(n.)", cat:"n", en:"An increase or improvement in quality, value, or extent.", cn:"提升；改進", ex:"The software update provides a significant enhancement to the system's security." },
+  "vision":         { pos:"(n.)", cat:"n", en:"The faculty of being able to see; the ability to plan the future with imagination.", cn:"視力；願景", ex:"Marcus has a great and ambitious vision for his startup company." },
+  "mammal":         { pos:"(n.)", cat:"n", en:"A warm-blooded vertebrate animal with hair or fur.", cn:"哺乳動物", ex:"The largest mammal in the entire world is the massive blue whale." },
+  "consciousness":  { pos:"(n.)", cat:"n", en:"The state of being awake and aware of one's surroundings.", cn:"意識；知覺", ex:"After being struck on the head, the hiker briefly lost consciousness." },
+  "shortcoming":    { pos:"(n.)", cat:"n", en:"A fault or failure to meet a certain standard.", cn:"缺點；短處", ex:"Jesse is a brilliant engineer, but her only major shortcoming is refusing to learn Chinese." },
+  "weakness":       { pos:"(n.)", cat:"n", en:"A disadvantage or fault; lack of strength.", cn:"弱點", ex:"During the job interview, the manager asked me to describe my greatest weakness." },
+  "strength":       { pos:"(n.)", cat:"n", en:"A good or beneficial quality; the state of being physically strong.", cn:"優點；力量", ex:"The candidate's communication skills are definitely her greatest strength." },
+  "tolerance":      { pos:"(n.)", cat:"n", en:"The ability or willingness to tolerate something.", cn:"寬容；忍耐力", ex:"The wise leader preached a message of peace and religious tolerance." },
+  "circumstance":   { pos:"(n.)", cat:"n", en:"A fact or condition connected with or relevant to an event or action.", cn:"情況；環境", ex:"Under different circumstances, the two men could have been great friends." },
+  "condition":      { pos:"(n.)", cat:"n", en:"The state of something, especially with regard to its appearance or working order.", cn:"狀況；條件", ex:"The used car was affordable, but unfortunately in terrible condition." },
+  "defense":        { pos:"(n.)", cat:"n", en:"The action of defending from or resisting attack.", cn:"防禦；防衛", ex:"The ancient city's strong stone defense did not stop the invading soldiers." },
+  "self-defense":   { pos:"(n.)", cat:"n", en:"The defense of one's person or interests, especially through physical force.", cn:"自衛", ex:"The lawyer argued that his client only attacked the man in self-defense." },
+
+  // ── v ──
+  "solidify":       { pos:"(v.)", cat:"v", en:"To make or become hard or solid; to make stronger.", cn:"鞏固；凝固", ex:"The recent successful project helped to solidify her position as the most capable manager." },
+  "socialize":      { pos:"(v.)", cat:"v", en:"To mix socially with others.", cn:"交際；參與社交", ex:"The weekend conference is a perfect opportunity for young professionals to socialize." },
+  "roam":           { pos:"(v.)", cat:"v", en:"To move about or travel aimlessly over a wide area.", cn:"漫遊；遊蕩", ex:"Thousands of years ago, massive herds of wild bison once roamed freely across the plains." },
+  "wander":         { pos:"(v.)", cat:"v", en:"To walk or move in a leisurely, casual, or aimless way.", cn:"徘徊；閒逛", ex:"On Sunday afternoons, I love to wander through the city's botanical gardens." },
+  "enhance":        { pos:"(v.)", cat:"v", en:"To intensify or further improve the quality, value, or extent of.", cn:"提高；增加", ex:"The chef added fresh herbs to enhance the natural flavor of the expensive steak." },
+  "tolerate":       { pos:"(v.)", cat:"v", en:"To allow the existence of something one does not necessarily like or agree with.", cn:"容忍；忍受", ex:"The strict teacher stated she is not going to tolerate your rudeness any longer." },
+  "defend":         { pos:"(v.)", cat:"v", en:"To resist an attack; to protect from harm or danger.", cn:"保衛；防守", ex:"The brave soldiers were ordered to fiercely defend the strategic bridge." },
+  "lengthen":       { pos:"(v.)", cat:"v", en:"To make or become longer.", cn:"加長；延長", ex:"Doing regular stretching exercises can help to lengthen your muscles and reduce injury risk." },
+  "long for":       { pos:"(v.)", cat:"v", en:"To want or desire something very much; to yearn for.", cn:"期盼；渴望", ex:"The job seeker longed for a chance to get a full-time job with a decent salary." },
+
+  // ── phr ──
+  "mutual trust":       { pos:"(phr.)", cat:"phr", en:"A shared belief in the reliability, truth, or ability of each other.", cn:"互信", ex:"Building strong mutual trust is essential for any successful partnership." },
+  "mutual respect":     { pos:"(phr.)", cat:"phr", en:"A shared feeling of admiration and consideration for each other.", cn:"互相尊重", ex:"A healthy marriage must be built on honesty, communication, and mutual respect." },
+  "show solidarity with":{ pos:"(phr.)", cat:"phr", en:"To demonstrate support for a group or cause.", cn:"展現對...的團結/支持", ex:"Hundreds of teachers joined the march to show solidarity with their protesting students." },
+  "express solidarity": { pos:"(phr.)", cat:"phr", en:"To state or communicate one's support for a group.", cn:"表達支持/團結", ex:"Several international leaders released statements to express solidarity with the earthquake victims." },
+  "live by the motto":  { pos:"(phr.)", cat:"phr", en:"To base one's life choices on a specific phrase or belief.", cn:"秉持...的座右銘生活", ex:"I always try to live by the motto that honesty is the best policy." },
+  "school motto":       { pos:"(phr.)", cat:"phr", en:"A phrase representing the educational beliefs or values of a school.", cn:"校訓", ex:"The principal proudly reminded the graduating students of the school motto." },
+  "company motto":      { pos:"(phr.)", cat:"phr", en:"A short phrase expressing the guiding principles of a business.", cn:"公司宗旨", ex:"The tech firm chose 'Innovation through Collaboration' as its company motto." },
+  "secret to longevity":{ pos:"(phr.)", cat:"phr", en:"The reason or method for living a very long time.", cn:"長壽的秘訣", ex:"Many researchers believe the secret to longevity involves a healthy diet, exercise, and low stress." },
+  "promote longevity":  { pos:"(phr.)", cat:"phr", en:"To encourage or contribute to a longer lifespan.", cn:"促進長壽", ex:"Eating fresh vegetables and avoiding processed foods are habits that promote longevity." },
+  "wildlife conservation":{ pos:"(phr.)", cat:"phr", en:"The practice of protecting wild plant and animal species and their habitats.", cn:"野生動物保育", ex:"The government invested in wildlife conservation programs to protect endangered species." },
+  "wildlife habitat":   { pos:"(phr.)", cat:"phr", en:"The natural environment in which a particular species of wild animal lives.", cn:"野生動物棲息地", ex:"Cutting down ancient forests destroys the wildlife habitat that rare animals depend on." },
+  "in the wild":        { pos:"(phr.)", cat:"phr", en:"In a natural state or environment, unconfined by humans.", cn:"在野外", ex:"It is thrilling to see a powerful tiger running freely in the wild." },
+  "social animal":      { pos:"(phr.)", cat:"phr", en:"An animal (including humans) that is highly interactive with other members of its species.", cn:"群居動物；喜歡社交的人", ex:"Humans are naturally a social animal, needing communication with others to stay healthy." },
+  "fall prey to":       { pos:"(phr.)", cat:"phr", en:"To be vulnerable to or overcome by something.", cn:"成為...的犧牲品；受...所害", ex:"The elderly woman fell prey to a sophisticated online scam and lost her life savings." },
+  "prey on":            { pos:"(phr.)", cat:"phr", en:"To hunt and kill for food; to take advantage of someone.", cn:"捕食；利用", ex:"Domestic cats will often prey on wild birds and rats if allowed outside." },
+  "bird of prey":       { pos:"(phr.)", cat:"phr", en:"A bird that feeds on animal flesh, with a strong hooked bill and sharp talons.", cn:"猛禽", ex:"The eagle is a magnificent bird of prey that can spot small animals from hundreds of feet high." },
+  "easy prey":          { pos:"(phr.)", cat:"phr", en:"Someone or something that is easily attacked or deceived.", cn:"容易下手的目標", ex:"Tourists who leave their bags unzipped are often easy prey for pickpockets." },
+  "apex predator":      { pos:"(phr.)", cat:"phr", en:"A predator at the top of a food chain, without natural predators of its own.", cn:"頂級掠食者", ex:"The great white shark is an apex predator in the ocean." },
+  "natural predator":   { pos:"(phr.)", cat:"phr", en:"An animal that hunts and eats a particular species in nature.", cn:"天敵", ex:"The invasive insect has no natural predator in this new environment." },
+  "performance enhancement":{ pos:"(phr.)", cat:"phr", en:"The act of improving the efficiency or output of something.", cn:"效能提升；表現增強", ex:"The athlete was banned after testing positive for performance enhancement drugs." },
+  "night vision":       { pos:"(phr.)", cat:"phr", en:"The ability to see in low light conditions.", cn:"夜視能力", ex:"Gail says her night vision is very bad, so she prefers not to drive after dark." },
+  "field of vision":    { pos:"(phr.)", cat:"phr", en:"The entire area a person or animal is able to see when their eyes are fixed in one position.", cn:"視野", ex:"A sudden movement in my field of vision warned me that a deer was jumping onto the road." },
+  "marine mammal":      { pos:"(phr.)", cat:"phr", en:"A mammal that lives in the ocean or depends on the ocean for its food.", cn:"海洋哺乳動物", ex:"Dolphins and seals are highly intelligent marine mammals that communicate underwater." },
+  "land mammal":        { pos:"(phr.)", cat:"phr", en:"A mammal that primarily lives on land.", cn:"陸地哺乳動物", ex:"The cheetah is widely known as the fastest land mammal on the planet." },
+  "roam around":        { pos:"(phr.)", cat:"phr", en:"To walk or travel without a specific destination in a particular area.", cn:"在...四處走動/遊蕩", ex:"During our vacation in Rome, we spent the morning roaming around the ancient ruins." },
+  "roam freely":        { pos:"(phr.)", cat:"phr", en:"To move about without restrictions or boundaries.", cn:"自由漫遊", ex:"The national park was established so that elephants could roam freely without threat." },
+  "overcome a shortcoming":{ pos:"(phr.)", cat:"phr", en:"To successfully deal with a personal fault or flaw.", cn:"克服缺點", ex:"Through dedicated practice, Daniel managed to overcome his shortcoming of being extremely shy." },
+  "major shortcoming":  { pos:"(phr.)", cat:"phr", en:"A significant or prominent fault or weakness.", cn:"主要缺點", ex:"The major shortcoming of this new software is that it frequently crashes." },
+  "zero tolerance":     { pos:"(phr.)", cat:"phr", en:"A strict policy of not allowing a particular type of behavior.", cn:"零容忍", ex:"The school adopted a zero tolerance policy towards bullying." },
+  "put up with":        { pos:"(phr.)", cat:"phr", en:"To endure or tolerate someone or something.", cn:"忍受", ex:"We'll have to put up with the terrible noise from the construction site next door." },
+  "on condition that":  { pos:"(phr.)", cat:"phr", en:"Only if a specific thing happens; provided that.", cn:"條件是…；在…的條件下", ex:"The school allowed Marcus to take the elective course on condition that he attended every class." },
+  "in critical condition":{ pos:"(phr.)", cat:"phr", en:"Extremely ill or injured, and likely to die or face serious danger.", cn:"情況危急；病危", ex:"Following the severe traffic accident, the truck driver remains in critical condition." },
+  "in good condition":  { pos:"(phr.)", cat:"phr", en:"Healthy, working well, or looking clean and undamaged.", cn:"狀態良好；完好無缺", ex:"Although this smartphone is a used model, it is still in good condition." },
+  "in bad condition":   { pos:"(phr.)", cat:"phr", en:"Sick, not working properly, or heavily damaged.", cn:"狀態不佳；破舊不堪", ex:"The historic mountain cabin was in bad condition after being abandoned for over twenty years." },
+  "under no circumstances":{ pos:"(phr.)", cat:"phr", en:"Never; absolutely not.", cn:"無論在任何情況下都不", ex:"Under no circumstances are you allowed to look at another patient's private medical records." },
+  "under normal circumstances":{ pos:"(phr.)", cat:"phr", en:"Usually; in a typical situation.", cn:"在正常情況下", ex:"Under normal circumstances, the flight from New York to London takes about seven hours." },
+  "unforeseen circumstances":{ pos:"(phr.)", cat:"phr", en:"Unexpected events or situations that could not be predicted.", cn:"不可預見的情況", ex:"Due to unforeseen circumstances, the outdoor music festival had to be suddenly canceled." },
+  "airtight container": { pos:"(phr.)", cat:"phr", en:"A box or jar designed to keep air out.", cn:"密封容器", ex:"If you keep your leftover meals in an airtight container, the food will stay fresh longer." },
+  "airtight alibi":     { pos:"(phr.)", cat:"phr", en:"A claim of being elsewhere when a crime was committed that is impossible to disprove.", cn:"完美的不在場證明", ex:"The detective was frustrated because the suspect had an airtight alibi verified by dozens of witnesses." },
+  "self-defense":       { pos:"(phr.)", cat:"phr", en:"The defense of one's person using physical force.", cn:"自衛", ex:"The lawyer argued his client only attacked the man in self-defense." },
+};
+
+
+const QUESTION_POOL = [
+  // ── adj ──
+  ["mutual",         "Even though they have very different personalities, John and Carrie share a __________ appreciation for classic jazz music.",                        "儘管他們有著非常不同的個性，約翰和凱莉對經典爵士樂有著共同的欣賞。",          ["different","personalities","share","appreciation","jazz"]],
+  ["solid",          "You need a __________ understanding of basic mathematical principles before you can attempt to solve these advanced physics equations.",             "在你嘗試解開這些進階物理方程式之前，你需要對基本數學原理有紮實的理解。",      ["understanding","mathematical","principles","advanced","physics"]],
+  ["sociable",       "The Millers are incredibly __________ people who frequently enjoy having loud and exciting dinner parties with their neighbors.",                    "米勒一家是極其好交際的人，他們經常喜歡和鄰居舉辦熱鬧又刺激的晚宴。",          ["friendly","people","enjoy","dinner","neighbors"]],
+  ["unsociable",     "Ever since he lost his job, he has become quite __________, refusing to leave his room or speak to anyone.",                                         "自從他失業後，他變得相當不愛交際的，拒絕離開他的房間或和任何人說話。",          ["lost","job","refusing","leave","room"]],
+  ["antisocial",     "His habit of ignoring people when they speak to him is considered completely __________ and rude by his colleagues.",                               "當別人跟他說話時他總是不理睬的習慣，被他的同事認為是完全反社會的且粗魯的。",  ["ignoring","habit","rude","colleagues","considered"]],
+  ["wild",           "We went on an exciting safari in Africa and took incredible photographs of __________ lions, elephants, and giraffes.",                             "我們去非洲參加了一場刺激的野生動物園之旅，並拍下了野生的獅子、大象和長頸鹿的驚人照片。",["safari","Africa","photographs","lions","elephants"]],
+  ["enhanced",       "The newest version of the sports car comes with several __________ safety features to better protect the driver during an accident.",               "最新版本的跑車配備了幾項增強的安全功能，以在事故中更好地保護駕駛。",           ["newest","version","sports","safety","features"]],
+  ["conscious",      "Bobby bites his fingernails all the time when he's nervous, but he doesn't usually do it in a __________ manner.",                                  "波比緊張時總是在咬指甲，但他通常不是以有意識的方式在做這件事。",              ["bites","nervous","manner","usually","aware"]],
+  ["tolerant",       "In a diverse and modern society, it is essential that citizens be more __________ of cultures and beliefs that are different from their own.",       "在一個多元且現代的社會中，公民必須對與自己不同的文化和信仰更加寬容的。",       ["diverse","society","citizens","cultures","beliefs"]],
+  ["airtight",       "The careful engineer made absolutely sure to have __________ knowledge of the challenging landscape before he started building the suspension bridge.", "這位謹慎的工程師在開始建造吊橋之前，絕對確保自己對這個具挑戰性的地形擁有無懈可擊的知識。", ["engineer","knowledge","landscape","building","bridge"]],
+  ["indisputable",   "The surveillance video provided clear and __________ evidence that the suspect was nowhere near the bank when the robbery actually occurred.",       "監視器影片提供了清晰且不容置疑的證據，證明當搶劫實際發生時，嫌疑犯根本不在銀行附近。", ["surveillance","evidence","suspect","bank","robbery"]],
+  ["sealed",         "The ancient Egyptian tomb had remained completely __________ for thousands of years until modern archaeologists finally discovered its hidden entrance.", "這個古埃及陵墓已經完全密封的數千年，直到現代考古學家終於發現了它隱藏的入口。", ["Egyptian","tomb","thousands","archaeologists","entrance"]],
+  ["visible",        "The bright stars were clearly __________ in the night sky because we were camping far away from the city's light pollution.",                        "明亮的星星在夜空中清晰可見的，因為我們在遠離城市光害的地方露營。",            ["stars","night","sky","camping","pollution"]],
+  ["defensive",      "Whenever I gently suggest that he could improve his writing skills, he immediately gets incredibly __________ and starts arguing with me.",          "每當我溫和地建議他可以改善寫作技巧時，他立刻變得極具防備的並開始和我爭論。", ["suggest","improve","writing","arguing","immediately"]],
+  ["predatory",      "The government is trying to pass new laws to protect vulnerable citizens from the __________ lending practices of some banks.",                      "政府正試圖通過新法律，以保護弱勢公民免受某些銀行剝削的放貸行為所害。",         ["government","protect","vulnerable","lending","banks"]],
+
+  // ── adv ──
+  ["mutually",       "The two rival companies eventually reached a __________ beneficial agreement that allowed both of them to increase their profits.",                  "兩家競爭公司最終達成了一項互相地有益的協議，讓雙方都能增加利潤。",            ["rival","companies","agreement","profits","increase"]],
+  ["consciously",    "You must __________ force yourself to sit up straight at your desk, otherwise you will eventually develop terrible back pain.",                      "你必須有意識地強迫自己坐在辦公桌前挺直腰板，否則你最終會發展出可怕的背痛。", ["force","straight","desk","back","pain"]],
+  ["unconsciously",  "As the suspenseful movie reached its climax, I was __________ holding my breath the entire time until the scene ended.",                            "當這部懸疑電影達到高潮時，我無意識地一直屏住呼吸，直到該場景結束。",          ["movie","climax","holding","breath","scene"]],
+  ["subconsciously", "Even though he smiled and said he was fine, he was __________ rubbing his sore shoulder throughout the entire meeting.",                             "即使他笑著說他沒事，在整個會議中他卻潛意識地在揉他痠痛的肩膀。",              ["smiled","rubbing","sore","shoulder","meeting"]],
+
+  // ── n ──
+  ["solidarity",     "The factory workers showed incredible __________ during the strike, refusing to return to work until their demands were met.",                       "工廠工人在罷工期間展現了令人難以置信的團結，拒絕重返工作崗位直到他們的要求得到滿足。", ["factory","workers","strike","refusing","demands"]],
+  ["motto",          "Many successful professional athletes apply the __________ 'no pain, no gain' to their strict daily training routines.",                             "許多成功的職業運動員將「沒有痛苦就沒有收穫」的座右銘應用在他們嚴格的日常訓練中。", ["athletes","apply","pain","gain","training"]],
+  ["longevity",      "Extreme __________ is quite normal in my family, as both of my grandparents lived to be over 100 years old.",                                        "極端的長壽在我家是很正常的，因為我的祖父母都活到了100歲以上。",               ["grandparents","100","years","extreme","family"]],
+  ["wildlife",       "Taiwan's central mountain ranges are home to a diverse and beautiful range of __________, including monkeys, birds, and bears.",                     "台灣的中央山脈是各種美麗野生動植物的家園，包含猴子、鳥類和熊。",              ["Taiwan","mountain","monkeys","birds","bears"]],
+  ["prey",           "Many small mammals and insects on this remote island are easy __________ for the large, venomous snakes that live here.",                            "這座偏遠島嶼上的許多小型哺乳動物和昆蟲，都是生活在這裡的大型毒蛇的容易到手的獵物。", ["mammals","insects","island","venomous","snakes"]],
+  ["predator",       "Nesting high on the steep cliff wall, the young birds were completely safe from dangerous __________ that roamed below.",                            "在陡峭的懸崖壁高處築巢，幼鳥們完全免於在下方漫遊的危險掠食者的威脅。",        ["nesting","cliff","birds","safe","roamed"]],
+  ["enhancement",    "The software update provides a significant __________ to the system's security, making it much harder for hackers to steal information.",            "這次軟體更新為系統的安全性提供了顯著的提升，讓駭客更難竊取資訊。",             ["software","update","security","hackers","information"]],
+  ["vision",         "Marcus has a great and ambitious __________ for his startup company, but it will be quite difficult to make it happen.",                             "馬庫斯對他的新創公司有一個偉大且雄心勃勃的願景，但要實現它將會相當困難。",    ["Marcus","ambitious","startup","company","difficult"]],
+  ["mammal",         "It is a fascinating scientific fact that the largest __________ in the entire world is the massive blue whale.",                                     "整個世界上最大的哺乳動物是巨大的藍鯨，這是一個迷人的科學事實。",              ["scientific","fact","largest","world","blue","whale"]],
+  ["consciousness",  "After being struck heavily on the head by a falling rock, the injured hiker briefly lost __________ before the rescue team arrived.",                "在頭部被落石重擊後，受傷的登山客在救援隊抵達前短暫失去了意識。",              ["struck","head","falling","rock","hiker","rescue"]],
+  ["shortcoming",    "Jesse is a brilliant engineer, but her only major __________ is that she completely refuses to learn how to speak Chinese.",                         "潔西是位才華洋溢的工程師，但她唯一主要的缺點是她完全拒絕學習如何說中文。",    ["brilliant","engineer","refuses","learn","Chinese"]],
+  ["weakness",       "During the demanding job interview, the manager asked me to truthfully describe my greatest professional strength and my greatest __________.",       "在要求嚴格的工作面試中，經理要求我如實描述我最大的專業優勢和我最大的弱點。",  ["interview","manager","describe","professional","strength"]],
+  ["tolerance",      "The wise leader preached a message of peace and religious __________ to help unite the deeply divided country during the crisis.",                    "明智的領袖傳達了和平與宗教寬容的訊息，以幫助在危機期間團結嚴重分裂的國家。", ["leader","peace","religious","unite","divided"]],
+  ["circumstance",   "The two men didn't get along well, but under entirely different __________, they could have actually been great friends.",                            "這兩個男人相處得不好，但在完全不同的情況下，他們實際上可能成為很好的朋友。",  ["men","different","great","friends","along"]],
+  ["condition",      "The used car was highly affordable, but it was unfortunately in terrible __________ and needed expensive repairs to its engine.",                     "這輛二手車非常負擔得起，但不幸的是它的狀況很糟，且需要對其引擎進行昂貴的維修。", ["affordable","terrible","expensive","repairs","engine"]],
+  ["defense",        "Sadly, the ancient city's strong stone __________ did not stop the invading enemy soldiers from climbing the walls and getting inside.",              "令人遺憾地，這座古城堅固的石頭防禦並沒有阻止入侵的敵方士兵爬上城牆並進入內部。", ["ancient","city","stone","invading","soldiers"]],
+  ["self-defense",   "The lawyer argued that his frightened client only attacked the aggressive man in an act of pure __________ to save her own life.",                    "律師辯稱，他受驚的委託人只是出於純粹的自衛行為才攻擊那名具攻擊性的男子以保住自己的性命。", ["lawyer","client","attacked","aggressive","save"]],
+
+  // ── v ──
+  ["solidify",       "The recent successful project helped to __________ her position as the most capable manager in the entire marketing department.",                    "最近成功的專案有助於鞏固她作為整個行銷部門中最有能力經理的地位。",             ["project","position","capable","manager","marketing"]],
+  ["socialize",      "The weekend conference is a perfect opportunity for young professionals to __________ and build valuable connections within the industry.",           "這個週末會議是年輕專業人士參與社交並在業界建立寶貴人脈的完美機會。",          ["conference","opportunity","professionals","connections","industry"]],
+  ["roam",           "Thousands of years ago, massive herds of wild bison once __________ freely across the vast and empty American plains.",                              "數千年前，大量的野生野牛群曾經在廣闊空曠的美洲平原上自由漫遊。",             ["thousands","herds","bison","vast","plains"]],
+  ["wander",         "On Sunday afternoons, I love to just __________ through the city's botanical gardens and admire the beautiful blooming flowers.",                    "在星期天下午，我喜歡只是在城市的植物園裡閒逛，並欣賞美麗盛開的花朵。",        ["Sunday","botanical","gardens","admire","blooming"]],
+  ["enhance",        "The chef added a variety of fresh local herbs and spices to __________ the natural flavor of the expensive steak.",                                  "廚師加入各種新鮮的當地香草和香料，以提升這塊昂貴牛排的天然風味。",             ["chef","herbs","spices","flavor","steak"]],
+  ["tolerate",       "The strict teacher clearly stated on the first day of class that she is not going to __________ your rudeness any longer.",                           "嚴格的老師在開學第一天就清楚聲明她不打算再容忍你的粗魯了。",                  ["teacher","stated","class","rudeness","longer"]],
+  ["defend",         "The brave soldiers were ordered to fiercely __________ the strategic bridge against the advancing enemy troops at all costs.",                        "勇敢的士兵們被命令要不惜一切代價猛烈地保衛這座具戰略意義的橋樑，抵禦推進的敵軍。", ["soldiers","ordered","strategic","bridge","enemy"]],
+  ["lengthen",       "Doing regular stretching exercises can help to __________ your muscles and significantly reduce the risk of sports injuries.",                        "規律地做伸展運動可以幫助延長你的肌肉並顯著降低運動傷害的風險。",              ["stretching","exercises","muscles","reduce","injuries"]],
+  ["long for",       "The job seeker __________ a chance to get a full-time job with a decent salary.",                                                                    "這位求職者期盼渴望得到全職工作且有不錯的薪資。",                              ["job","chance","full-time","decent","salary"]],
+
+  // ── phr ──
+  ["mutual trust",       "Building strong __________ is essential for any successful partnership, especially when starting a new business together.",                     "建立堅強的互信對於任何成功的合夥關係都是不可或缺的，尤其是在一起開創新事業時。", ["building","essential","partnership","business","together"]],
+  ["mutual respect",     "A healthy and long-lasting marriage must be built on a foundation of honesty, excellent communication, and deep __________.",                   "一段健康且長久的婚姻必須建立在誠實、良好的溝通和深深的互相尊重的基礎上。",    ["marriage","foundation","honesty","communication","lasting"]],
+  ["show solidarity with","Hundreds of university teachers joined the massive street march to __________ their protesting students.",                                      "數百名大學教師加入了大規模的街頭遊行，以展現對抗議學生的團結。",              ["teachers","march","protesting","students","joined"]],
+  ["express solidarity", "Several international leaders released statements to __________ the nation after it was struck by the terrible earthquake.",                     "在該國遭受可怕的地震襲擊後，幾位國際領袖發表聲明以表達支持。",                ["leaders","statements","nation","earthquake","released"]],
+  ["live by the motto",  "I always try to __________ that honesty is the best policy, even when telling the truth is difficult.",                                          "我總是試著秉持「誠實為上策」的座右銘生活，即使說出真相很困難。",              ["honesty","policy","truth","difficult","always"]],
+  ["school motto",       "The principal proudly reminded the graduating students of the __________, encouraging them to always strive for excellence.",                    "校長自豪地提醒畢業生們校訓，鼓勵他們永遠追求卓越。",                          ["principal","graduating","students","excellence","strive"]],
+  ["company motto",      "The newly established tech firm chose 'Innovation through Collaboration' as its official __________ to inspire all its employees.",              "這家新成立的科技公司選擇「透過合作創新」作為其官方的公司宗旨以激勵所有員工。", ["tech","firm","Innovation","Collaboration","inspire"]],
+  ["secret to longevity","Many researchers believe that the __________ involves a combination of a healthy diet, daily exercise, and low stress.",                         "許多研究人員相信，長壽的秘訣包含了健康飲食、日常運動和低壓力的結合。",        ["researchers","healthy","diet","exercise","stress"]],
+  ["promote longevity",  "Eating plenty of fresh vegetables and avoiding processed foods are proven lifestyle habits that actively __________ in human beings.",            "多吃新鮮蔬菜並避免加工食品是被證實能積極促進人類長壽的生活習慣。",            ["vegetables","processed","foods","lifestyle","habits"]],
+  ["wildlife conservation","The government has heavily invested in __________ programs to ensure that endangered species are protected from illegal hunting.",              "政府已大量投資於野生動物保育計畫，以確保瀕危物種免受非法狩獵的威脅。",         ["government","programs","endangered","species","hunting"]],
+  ["wildlife habitat",   "Cutting down ancient forests destroys the essential __________ that thousands of rare animals depend on for their survival.",                    "砍伐古老森林摧毀了數千種珍稀動物賴以生存的必要野生動物棲息地。",              ["forests","thousands","rare","animals","survival"]],
+  ["in the wild",        "It is absolutely thrilling to see a powerful tiger running freely __________ rather than locked inside a small cage.",                           "看到一隻強壯的老虎在野外自由奔跑，而不是被關在小籠子裡，絕對是令人興奮的。",  ["thrilling","tiger","running","locked","cage"]],
+  ["social animal",      "Humans are naturally a __________, meaning that we desperately need communication and connection with others to maintain good mental health.",    "人類天生就是一種群居動物，這意味著我們極度需要與他人溝通和連結以維持良好的心理健康。", ["humans","communication","connection","mental","health"]],
+  ["fall prey to",       "Unfortunately, the elderly woman __________ a sophisticated online scam and lost almost all of her life savings.",                               "不幸地，這位老婦人成為一場複雜網路詐騙的犧牲品，失去了幾乎所有的畢生積蓄。",  ["elderly","woman","scam","lost","savings"]],
+  ["prey on",            "It is a known fact that domestic cats will often __________ wild birds and rats if they are allowed outside.",                                    "眾所周知，如果允許家貓外出，牠們經常會捕食野鳥和老鼠。",                      ["cats","birds","rats","allowed","outside"]],
+  ["bird of prey",       "The eagle is a magnificent __________ that can easily spot small animals from hundreds of feet in the air.",                                     "老鷹是一種壯麗的猛禽，能從數百英尺的高空輕鬆發現小動物。",                    ["eagle","magnificent","spot","animals","hundreds"]],
+  ["easy prey",          "Tourists who carry expensive cameras and leave their bags unzipped are often __________ for clever pickpockets in crowded areas.",               "帶著昂貴相機且包包沒拉上拉鍊的遊客，在擁擠的地區通常是聰明扒手容易下手的目標。", ["tourists","cameras","bags","pickpockets","crowded"]],
+  ["apex predator",      "The great white shark is an __________ in the ocean, playing a crucial role in maintaining the balance of marine life.",                         "大白鯊是海洋中的頂級掠食者，在維持海洋生物平衡中扮演著關鍵的角色。",          ["shark","ocean","crucial","role","balance"]],
+  ["natural predator",   "Because the invasive insect has no __________ in this new environment, its population has multiplied out of control rapidly.",                   "因為這種入侵昆蟲在這個新環境中沒有天敵，牠的數量已迅速繁殖到失控的地步。",    ["invasive","insect","environment","population","multiplied"]],
+  ["performance enhancement","The athlete was banned from the upcoming Olympic games after testing positive for illegal __________ drugs during a random check.",           "這名運動員在隨機檢查中對非法的表現增強藥物呈陽性反應後，被禁止參加即將到來的奧運會。", ["athlete","Olympic","testing","positive","illegal"]],
+  ["night vision",       "Gail says that her __________ is very bad, so she strongly prefers to never drive a car after the sun goes down.",                               "蓋兒說她的夜視能力非常差，所以她強烈傾向在太陽下山後絕不開車。",              ["Gail","bad","drive","sun","dark"]],
+  ["field of vision",    "When driving on the highway, a sudden movement in my __________ warned me that a deer was jumping onto the road.",                               "在高速公路上開車時，我視野中突然的移動警告我有一隻鹿正跳到路上。",            ["highway","movement","warned","deer","jumping"]],
+  ["visionary",          "Steve Jobs was widely recognized as a brilliant __________ who completely revolutionized the personal computer and mobile phone industries.",     "史蒂夫·賈伯斯被廣泛認可為一位才華洋溢的有遠見的人，他徹底顛覆了個人電腦和行動電話產業。", ["Jobs","brilliant","revolutionized","computer","industries"]],
+  ["marine mammal",      "Dolphins and seals are highly intelligent __________ that rely heavily on sound to communicate underwater.",                                      "海豚和海豹是高度聰明的海洋哺乳動物，牠們嚴重依賴聲音在水下溝通。",            ["dolphins","seals","intelligent","sound","underwater"]],
+  ["land mammal",        "The cheetah is widely known for being the fastest __________ on the planet, capable of reaching incredible speeds during a hunt.",               "獵豹以地球上跑得最快的陸地哺乳動物而廣為人知，能夠在狩獵期間達到驚人的速度。", ["cheetah","fastest","planet","speeds","hunt"]],
+  ["roam around",        "During our vacation in Rome, we spent the entire morning __________ the ancient ruins and taking beautiful photos.",                              "在羅馬度假期間，我們花了整個早上在古老遺跡中四處走動並拍下美麗的照片。",      ["vacation","Rome","morning","ruins","photos"]],
+  ["roam freely",        "The national park was established so that endangered elephants and rhinos could __________ without the threat of being hunted.",                 "建立國家公園是為了讓瀕危的大象和犀牛可以自由漫遊，而不受被狩獵的威脅。",       ["national","park","elephants","rhinos","hunted"]],
+  ["overcome a shortcoming","Through months of dedicated practice and public speaking classes, Daniel finally managed to __________ of being extremely shy.",               "透過幾個月的專心練習和公開演講課程，丹尼爾終於成功克服了他極度害羞的缺點。",  ["months","practice","speaking","Daniel","shy"]],
+  ["major shortcoming",  "The __________ of this new software is that it frequently crashes when too many people try to use it at the same time.",                          "這款新軟體的主要缺點是當太多人試圖同時使用它時，它經常會崩潰。",              ["software","frequently","crashes","people","time"]],
+  ["zero tolerance",     "The school board recently adopted a strict __________ policy towards bullying, meaning any offender will be suspended immediately.",             "學校董事會最近對霸凌採取了嚴格的零容忍政策，這意味著任何違規者將在沒有警告的情況下被立即停學。", ["school","strict","bullying","offender","suspended"]],
+  ["put up with",        "We'll just have to patiently __________ the terrible noise from the construction site next door until the building work is completed.",           "我們只好耐心地忍受隔壁建築工地的可怕噪音，直到建築工程完成。",                ["patiently","terrible","noise","construction","completed"]],
+  ["on condition that",  "The school allowed Marcus to take the elective course __________ he attended every single class.",                                               "學校允許馬庫斯選修這門選修課，條件是他每堂課都必須出席。",                    ["school","Marcus","elective","course","attended"]],
+  ["in critical condition","Following the severe traffic accident, the truck driver was rushed to the hospital and remains __________.",                                    "在那場嚴重的交通意外之後，卡車司機被緊急送往醫院，目前仍情況危急。",          ["traffic","accident","truck","hospital","rushed"]],
+  ["in good condition",  "Although this smartphone is a used model, it is still __________ and looks completely new.",                                                     "雖然這款智慧型手機是二手型號，但它依然狀態良好，而且看起來像全新的一樣。",    ["smartphone","used","model","looks","new"]],
+  ["in bad condition",   "The historic mountain cabin was __________ after being abandoned and neglected for over twenty years.",                                           "這座歷史悠久的山區小屋在被遺棄並疏於照顧二十多年後，已經破舊不堪（狀態不佳）。", ["mountain","cabin","abandoned","neglected","twenty"]],
+  ["under no circumstances","The doctor emphasized that __________ are you officially allowed to look at another patient's private and confidential medical records.",      "醫生強調，無論在任何情況下都不正式允許你查看另一位病人的私人且機密的醫療記錄。", ["doctor","allowed","patient","private","medical"]],
+  ["under normal circumstances","__________, the flight from New York to London only takes about seven hours, but a massive storm caused severe delays today.",             "在正常情況下，從紐約飛往倫敦只需大約七個小時，但今天一場巨大的風暴造成了嚴重的延誤。", ["flight","New York","London","hours","storm"]],
+  ["unforeseen circumstances","Due to completely __________, the popular outdoor music festival had to be suddenly canceled just hours before it was supposed to begin.",   "由於完全不可預見的情況，這個受歡迎的戶外音樂節不得不在原定開始前幾個小時突然被取消。", ["outdoor","festival","canceled","hours","begin"]],
+  ["airtight container", "If you keep your leftover meals stored in an __________ inside the refrigerator, the food will stay fresh for much longer.",                     "如果你把吃剩的飯菜存放在冰箱裡的密封容器中，食物會保鮮更久。",               ["leftover","meals","refrigerator","fresh","longer"]],
+  ["airtight alibi",     "The detective was extremely frustrated because the primary suspect had an __________ verified by dozens of reliable witnesses at the party.",     "偵探感到極度挫折，因為主要嫌疑犯擁有數十名在派對上的可靠證人所證實的完美的不在場證明。", ["detective","suspect","verified","witnesses","party"]],
+];
+
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP
+//  Keys must never appear together as distractors
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  // movement
+  "roam":             new Set(["wander","roam around","roam freely"]),
+  "wander":           new Set(["roam","roam around","roam freely"]),
+  "roam around":      new Set(["roam","wander","roam freely"]),
+  "roam freely":      new Set(["roam","wander","roam around"]),
+  // sociable family
+  "sociable":         new Set(["unsociable","antisocial","social animal"]),
+  "unsociable":       new Set(["sociable","antisocial"]),
+  "antisocial":       new Set(["sociable","unsociable"]),
+  "social animal":    new Set(["sociable"]),
+  // conscious family
+  "conscious":        new Set(["consciously","unconsciously","subconsciously"]),
+  "consciously":      new Set(["unconsciously","subconsciously"]),
+  "unconsciously":    new Set(["consciously","subconsciously"]),
+  "subconsciously":   new Set(["consciously","unconsciously"]),
+  // tolerate family
+  "tolerate":         new Set(["put up with","tolerance","tolerant"]),
+  "put up with":      new Set(["tolerate","tolerance"]),
+  "tolerance":        new Set(["tolerate","put up with","tolerant","zero tolerance"]),
+  "tolerant":         new Set(["tolerate","tolerance"]),
+  "zero tolerance":   new Set(["tolerance"]),
+  // shortcoming / weakness family
+  "shortcoming":      new Set(["weakness","major shortcoming","overcome a shortcoming"]),
+  "weakness":         new Set(["shortcoming","strength","major shortcoming"]),
+  "strength":         new Set(["weakness"]),
+  "major shortcoming":new Set(["shortcoming","weakness","overcome a shortcoming"]),
+  "overcome a shortcoming": new Set(["shortcoming","major shortcoming"]),
+  // circumstance / condition family
+  "circumstance":     new Set(["condition","on condition that","in critical condition","in good condition","in bad condition","under no circumstances","under normal circumstances","unforeseen circumstances"]),
+  "condition":        new Set(["circumstance","on condition that","in critical condition","in good condition","in bad condition"]),
+  "on condition that":new Set(["condition","circumstance","in critical condition","in good condition","in bad condition"]),
+  "in critical condition": new Set(["condition","in good condition","in bad condition","on condition that"]),
+  "in good condition":     new Set(["condition","in critical condition","in bad condition","on condition that"]),
+  "in bad condition":      new Set(["condition","in good condition","in critical condition","on condition that"]),
+  "under no circumstances":    new Set(["circumstance","under normal circumstances","unforeseen circumstances"]),
+  "under normal circumstances":new Set(["circumstance","under no circumstances","unforeseen circumstances"]),
+  "unforeseen circumstances":  new Set(["circumstance","under no circumstances","under normal circumstances"]),
+  // mutual family
+  "mutual":           new Set(["mutually","mutual trust","mutual respect"]),
+  "mutually":         new Set(["mutual","mutual trust","mutual respect"]),
+  "mutual trust":     new Set(["mutual","mutually","mutual respect"]),
+  "mutual respect":   new Set(["mutual","mutually","mutual trust"]),
+  // prey / predator family
+  "prey":             new Set(["predator","fall prey to","prey on","bird of prey","easy prey","apex predator","natural predator"]),
+  "predator":         new Set(["prey","apex predator","natural predator","predatory"]),
+  "fall prey to":     new Set(["prey","prey on","easy prey"]),
+  "prey on":          new Set(["prey","fall prey to","bird of prey","easy prey"]),
+  "bird of prey":     new Set(["prey","prey on"]),
+  "easy prey":        new Set(["prey","fall prey to","prey on"]),
+  "apex predator":    new Set(["predator","natural predator","predatory"]),
+  "natural predator": new Set(["predator","apex predator","predatory"]),
+  "predatory":        new Set(["predator","apex predator","natural predator"]),
+  // defend / defense family
+  "defend":           new Set(["defense","self-defense","defensive"]),
+  "defense":          new Set(["defend","self-defense","defensive"]),
+  "self-defense":     new Set(["defend","defense","defensive"]),
+  "defensive":        new Set(["defend","defense","self-defense"]),
+  // airtight / indisputable / sealed
+  "airtight":         new Set(["indisputable","sealed","airtight container","airtight alibi"]),
+  "indisputable":     new Set(["airtight","sealed","airtight alibi"]),
+  "sealed":           new Set(["airtight","indisputable","airtight container"]),
+  "airtight container": new Set(["airtight","sealed"]),
+  "airtight alibi":   new Set(["airtight","indisputable"]),
+  // enhance / solidify
+  "enhance":          new Set(["solidify","enhanced","enhancement","performance enhancement"]),
+  "solidify":         new Set(["enhance","enhanced","enhancement"]),
+  "enhanced":         new Set(["enhance","solidify","enhancement","performance enhancement"]),
+  "enhancement":      new Set(["enhance","enhanced","performance enhancement"]),
+  "performance enhancement": new Set(["enhance","enhanced","enhancement"]),
+  // longevity / lengthen / long for
+  "longevity":        new Set(["lengthen","secret to longevity","promote longevity"]),
+  "lengthen":         new Set(["longevity","long for"]),
+  "long for":         new Set(["lengthen"]),
+  "secret to longevity":  new Set(["longevity","promote longevity"]),
+  "promote longevity":    new Set(["longevity","secret to longevity"]),
+  // motto family
+  "motto":            new Set(["live by the motto","school motto","company motto"]),
+  "live by the motto":new Set(["motto","school motto","company motto"]),
+  "school motto":     new Set(["motto","live by the motto","company motto"]),
+  "company motto":    new Set(["motto","live by the motto","school motto"]),
+  // solidarity family
+  "solidarity":       new Set(["show solidarity with","express solidarity"]),
+  "show solidarity with": new Set(["solidarity","express solidarity"]),
+  "express solidarity":   new Set(["solidarity","show solidarity with"]),
+  // wildlife family
+  "wildlife":         new Set(["wildlife conservation","wildlife habitat","wild","in the wild"]),
+  "wild":             new Set(["wildlife","in the wild"]),
+  "in the wild":      new Set(["wildlife","wild"]),
+  "wildlife conservation": new Set(["wildlife","wildlife habitat"]),
+  "wildlife habitat": new Set(["wildlife","wildlife conservation"]),
+  // vision family
+  "vision":           new Set(["visionary","night vision","field of vision","visible"]),
+  "visionary":        new Set(["vision","night vision","field of vision"]),
+  "night vision":     new Set(["vision","visionary","field of vision"]),
+  "field of vision":  new Set(["vision","night vision","visionary"]),
+  "visible":          new Set(["vision"]),
+  // mammal family
+  "mammal":           new Set(["marine mammal","land mammal"]),
+  "marine mammal":    new Set(["mammal","land mammal"]),
+  "land mammal":      new Set(["mammal","marine mammal"]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat    = DEFS[correctKey]?.cat;
+  const syns   = SYNONYMS[correctKey] || new Set();
+
+  // Filter: same POS, not the answer, not a synonym of the answer
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    // Also exclude if the answer is in THAT word's synonym set
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  // Pad with non-synonym words of any POS if not enough
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey &&
+             !picked.includes(k) &&
+             !syns.has(k) &&
+             !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length) picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}
+// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (part === "__________") return `<span class="word blank-word">__________</span>`;
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optKey}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+const MINI_DICT = {
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "offices":{"en":"places where people work","cn":"辦事處","pos":"n."},
+  "countries":{"en":"nations of the world","cn":"國家","pos":"n."},
+  "worldwide":{"en":"throughout the entire world","cn":"全世界","pos":"adv."},
+  "markets":{"en":"places or systems for buying and selling","cn":"市場","pos":"n."},
+  "businesses":{"en":"commercial organizations","cn":"企業","pos":"n."},
+  "compete":{"en":"to try to win against others","cn":"競爭","pos":"v."},
+  "corporations":{"en":"large companies","cn":"公司；企業","pos":"n."},
+  "survive":{"en":"to continue to live or exist","cn":"生存","pos":"v."},
+  "temperature":{"en":"the degree of heat or cold","cn":"溫度","pos":"n."},
+  "polar":{"en":"relating to the North or South Pole","cn":"極地的","pos":"adj."},
+  "melt":{"en":"to become liquid from heat","cn":"融化","pos":"v."},
+  "climate":{"en":"the typical weather in a region","cn":"氣候","pos":"n."},
+  "accelerated":{"en":"happening faster than normal","cn":"加速的","pos":"adj."},
+  "competitors":{"en":"people or businesses competing with you","cn":"競爭對手","pos":"n."},
+  "recognized":{"en":"known and respected by many people","cn":"被認可的","pos":"adj."},
+  "advantage":{"en":"something that helps you succeed","cn":"優勢","pos":"n."},
+  "invention":{"en":"something newly created","cn":"發明","pos":"n."},
+  "internet":{"en":"the global computer network","cn":"網際網路","pos":"n."},
+  "communication":{"en":"the act of sharing information","cn":"溝通；通訊","pos":"n."},
+  "borders":{"en":"the lines dividing countries","cn":"國界","pos":"n."},
+  "collapse":{"en":"to fall down suddenly","cn":"倒塌；崩潰","pos":"v."},
+  "roof":{"en":"the top covering of a building","cn":"屋頂","pos":"n."},
+  "weight":{"en":"how heavy something is","cn":"重量","pos":"n."},
+  "electricity":{"en":"energy used to power devices","cn":"電力","pos":"n."},
+  "environment":{"en":"the natural world around us","cn":"環境","pos":"n."},
+  "negative":{"en":"bad or harmful","cn":"負面的","pos":"adj."},
+  "alternative":{"en":"another option or choice","cn":"替代的","pos":"adj."},
+  "sources":{"en":"places where something comes from","cn":"來源","pos":"n."},
+  "endangered":{"en":"at risk of becoming extinct","cn":"瀕危的","pos":"adj."},
+  "animals":{"en":"living creatures that are not plants","cn":"動物","pos":"n."},
+  "ecosystem":{"en":"a system of living things interacting","cn":"生態系統","pos":"n."},
+  "balance":{"en":"a state of equal distribution","cn":"平衡","pos":"n."},
+  "keys":{"en":"small devices used to open locks","cn":"鑰匙","pos":"n."},
+  "forests":{"en":"large areas of trees","cn":"森林","pos":"n."},
+  "environmentalists":{"en":"people who care for the natural world","cn":"環保人士","pos":"n."},
+  "habitats":{"en":"natural homes for animals","cn":"棲息地","pos":"n."},
+  "ruins":{"en":"remains of destroyed buildings","cn":"遺跡；廢墟","pos":"n."},
+  "civilization":{"en":"an advanced human society","cn":"文明","pos":"n."},
+  "archaeologists":{"en":"scientists who study ancient remains","cn":"考古學家","pos":"n."},
+  "jungle":{"en":"a dense tropical forest","cn":"叢林","pos":"n."},
+  "magician":{"en":"a person who performs magic tricks","cn":"魔術師","pos":"n."},
+  "stage":{"en":"a platform for performances","cn":"舞台","pos":"n."},
+  "audience":{"en":"people watching a performance","cn":"觀眾","pos":"n."},
+  "study":{"en":"a piece of research; to learn","cn":"研究；學習","pos":"n./v."},
+  "trees":{"en":"large plants with trunks and branches","cn":"樹木","pos":"n."},
+  "project":{"en":"a planned piece of work","cn":"專案；計畫","pos":"n."},
+  "deadline":{"en":"the final time to complete something","cn":"截止日期","pos":"n."},
+  "overtime":{"en":"time worked beyond regular hours","cn":"加班","pos":"n."},
+  "manager":{"en":"a person who oversees others","cn":"經理","pos":"n."},
+  "abilities":{"en":"skills or talents","cn":"能力","pos":"n."},
+  "campaign":{"en":"organized effort to achieve a goal","cn":"活動；行動","pos":"n."},
+  "failure":{"en":"lack of success","cn":"失敗","pos":"n."},
+  "butterfly":{"en":"a colorful flying insect","cn":"蝴蝶","pos":"n."},
+  "cocoon":{"en":"protective case formed by an insect","cn":"繭","pos":"n."},
+  "technologies":{"en":"tools and systems created by science","cn":"科技","pos":"n."},
+  "businesses":{"en":"commercial organizations","cn":"企業","pos":"n."},
+  "global":{"en":"relating to the whole world","cn":"全球的","pos":"adj."},
+  "economy":{"en":"a country's system of money and trade","cn":"經濟","pos":"n."},
+  "novel":{"en":"a long fictional book; new and original","cn":"小說；新穎的","pos":"n./adj."},
+  "author":{"en":"a person who writes books","cn":"作者","pos":"n."},
+  "complaining":{"en":"expressing unhappiness","cn":"抱怨","pos":"v."},
+  "dissatisfaction":{"en":"the feeling of not being happy","cn":"不滿","pos":"n."},
+  "depression":{"en":"a serious mental illness; deep sadness","cn":"憂鬱；不景氣","pos":"n."},
+  "anger":{"en":"the feeling of being very upset","cn":"憤怒","pos":"n."},
+  "bugs":{"en":"errors in computer software; insects","cn":"程式錯誤；蟲子","pos":"n."},
+  "device":{"en":"a machine or electronic tool","cn":"裝置","pos":"n."},
+  "reporter":{"en":"a journalist who reports news","cn":"記者","pos":"n."},
+  "government":{"en":"the group of people who rule a country","cn":"政府","pos":"n."},
+  "corrupt":{"en":"dishonest and illegal","cn":"腐敗的","pos":"adj."},
+  "practices":{"en":"things done regularly","cn":"行為；實踐","pos":"n."},
+  "journalist":{"en":"a person who reports news","cn":"記者","pos":"n."},
+  "innocent":{"en":"not guilty of a crime","cn":"無辜的","pos":"adj."},
+  "crime":{"en":"an illegal act","cn":"犯罪","pos":"n."},
+  "sunlight":{"en":"the light from the sun","cn":"陽光","pos":"n."},
+  "protection":{"en":"something that keeps you safe","cn":"保護","pos":"n."},
+  "skin":{"en":"the outer covering of the body","cn":"皮膚","pos":"n."},
+  "disease":{"en":"a sickness or illness","cn":"疾病","pos":"n."},
+  "profit":{"en":"money gained after expenses","cn":"利潤","pos":"n."},
+  "wetlands":{"en":"areas of wet marshy land","cn":"濕地","pos":"n."},
+  "populations":{"en":"the number of living things in an area","cn":"數量；族群","pos":"n."},
+  "birds":{"en":"animals with feathers and wings","cn":"鳥類","pos":"n."},
+  "species":{"en":"a type of plant or animal","cn":"物種","pos":"n."},
+  "interactions":{"en":"actions between people or things","cn":"互動","pos":"n."},
+  "products":{"en":"things made or grown for sale","cn":"產品","pos":"n."},
+  "footprint":{"en":"the impact a person has on the environment","cn":"足跡","pos":"n."},
+  "generations":{"en":"groups of people born at the same time","cn":"世代","pos":"n."},
+  "earthquake":{"en":"a violent shaking of the ground","cn":"地震","pos":"n."},
+  "chicken":{"en":"a common farm bird; its meat","cn":"雞","pos":"n."},
+  "plate":{"en":"a flat dish for food","cn":"盤子","pos":"n."},
+  "river":{"en":"a large natural flow of water","cn":"河流","pos":"n."},
+  "coastal":{"en":"near the coast or sea","cn":"沿海的","pos":"adj."},
+  "areas":{"en":"regions or zones","cn":"地區","pos":"n."},
+  "interest":{"en":"a feeling of wanting to know more","cn":"興趣；利率","pos":"n."},
+  "action":{"en":"something done to achieve a goal","cn":"行動","pos":"n."},
+  "change":{"en":"to become or make different","cn":"改變","pos":"v./n."},
+  "waves":{"en":"moving ridges of water","cn":"波浪","pos":"n."},
+  "shore":{"en":"the land along a body of water","cn":"海岸","pos":"n."},
+  "damage":{"en":"physical harm caused to something","cn":"損壞","pos":"n./v."},
+  "buildings":{"en":"structures with walls and a roof","cn":"建築物","pos":"n."},
+  "mother":{"en":"a female parent","cn":"母親","pos":"n."},
+  "things":{"en":"objects or matters","cn":"事物","pos":"n."},
+  "freeway":{"en":"a fast road with multiple lanes","cn":"高速公路","pos":"n."},
+  "natural":{"en":"existing in or caused by nature","cn":"自然的","pos":"adj."},
+  "home":{"en":"the place where someone lives","cn":"家","pos":"n."},
+  "hospital":{"en":"a place where sick people are treated","cn":"醫院","pos":"n."},
+  "injuries":{"en":"physical harm done to the body","cn":"傷勢","pos":"n."},
+  "family":{"en":"a group of related people","cn":"家人","pos":"n."},
+  "house":{"en":"a building where people live","cn":"房屋","pos":"n."},
+  "leader":{"en":"a person who guides others","cn":"領導人","pos":"n."},
+  "country":{"en":"a nation with its own government","cn":"國家","pos":"n."},
+  "south":{"en":"the direction opposite to north","cn":"南方","pos":"n./adj."},
+  "africa":{"en":"a large continent south of Europe","cn":"非洲","pos":"n."},
+  "singer":{"en":"a person who sings","cn":"歌手","pos":"n."},
+  "talent":{"en":"a natural ability","cn":"天賦","pos":"n."},
+  "charisma":{"en":"charm that inspires others","cn":"魅力","pos":"n."},
+  "success":{"en":"achieving a desired goal","cn":"成功","pos":"n."},
+  "corporate":{"en":"relating to a large company","cn":"企業的","pos":"adj."},
+  "expansion":{"en":"the process of growing larger","cn":"擴張","pos":"n."},
+  "space":{"en":"the area beyond Earth's atmosphere","cn":"太空","pos":"n."},
+  "asteroid":{"en":"a rocky object orbiting the sun","cn":"小行星","pos":"n."},
+  "miner":{"en":"a person who extracts minerals","cn":"礦工","pos":"n."},
+  "policy":{"en":"a rule or plan made by a government","cn":"政策","pos":"n."},
+  "transportation":{"en":"ways of moving people or goods","cn":"交通運輸","pos":"n."},
+  "mathematics":{"en":"the science of numbers and shapes","cn":"數學","pos":"n."},
+  "theories":{"en":"ideas that explain something","cn":"理論","pos":"n."},
+  "observations":{"en":"careful watching and noting","cn":"觀察","pos":"n."},
+  "philosophers":{"en":"people who study ideas and knowledge","cn":"哲學家","pos":"n."},
+  "smartphone":{"en":"a mobile phone with advanced features","cn":"智慧型手機","pos":"n."},
+  "information":{"en":"facts and knowledge","cn":"資訊","pos":"n."},
+  "magazine":{"en":"a periodical publication","cn":"雜誌","pos":"n."},
+  "subscribers":{"en":"people who pay regularly for a service","cn":"訂閱者","pos":"n."},
+  "issue":{"en":"a copy of a magazine; a topic","cn":"期刊；問題","pos":"n."},
+  "highway":{"en":"a main road for fast travel","cn":"高速公路","pos":"n."},
+  "penalty":{"en":"a punishment for breaking a rule","cn":"罰款；懲罰","pos":"n."},
+  "alcohol":{"en":"drinks that can make you drunk","cn":"酒精","pos":"n."},
+  "liver":{"en":"an organ in the body that filters blood","cn":"肝臟","pos":"n."},
+  "health":{"en":"the condition of the body and mind","cn":"健康","pos":"n."},
+  "mental":{"en":"relating to the mind","cn":"心理的；精神的","pos":"adj."},
+  "anxiety":{"en":"a feeling of worry or fear","cn":"焦慮","pos":"n."},
+  "loneliness":{"en":"feeling sad because of being alone","cn":"孤獨感","pos":"n."},
+  "social":{"en":"relating to society or people together","cn":"社交的","pos":"adj."},
+  "media":{"en":"channels of communication","cn":"媒體","pos":"n."},
+  "sugar":{"en":"a sweet substance in food","cn":"糖","pos":"n."},
+  "diabetes":{"en":"a disease affecting blood sugar","cn":"糖尿病","pos":"n."},
+  "heart":{"en":"the organ that pumps blood","cn":"心臟","pos":"n."},
+  "budget":{"en":"a plan for spending money","cn":"預算","pos":"n."},
+  "business":{"en":"a commercial organization","cn":"商業；公司","pos":"n."},
+  "reputation":{"en":"what others think of you","cn":"名聲","pos":"n."},
+  "court":{"en":"a place where legal cases are judged","cn":"法院","pos":"n."},
+  "case":{"en":"a legal matter; a situation","cn":"案件；情況","pos":"n."},
+  "guilty":{"en":"having committed a crime","cn":"有罪的","pos":"adj."},
+  "lawyer":{"en":"a professional who gives legal advice","cn":"律師","pos":"n."},
+  "witness":{"en":"a person who saw something happen","cn":"證人","pos":"n."},
+  "trial":{"en":"a legal hearing in court","cn":"審判","pos":"n."},
+  "judge":{"en":"a person who decides court cases","cn":"法官","pos":"n."},
+  "police":{"en":"people who enforce the law","cn":"警察","pos":"n."},
+  "investigation":{"en":"a careful search for information","cn":"調查","pos":"n."},
+  "evidence":{"en":"facts that show something is true","cn":"證據","pos":"n."},
+  "politician":{"en":"a person involved in politics","cn":"政治人物","pos":"n."},
+  "scandal":{"en":"an event causing public shock","cn":"醜聞","pos":"n."},
+  "rumors":{"en":"stories that may not be true","cn":"謠言","pos":"n."},
+  "financial":{"en":"relating to money","cn":"財務的","pos":"adj."},
+  "activities":{"en":"things done for a purpose","cn":"活動","pos":"n."},
+  "editor":{"en":"a person who checks and improves writing","cn":"編輯","pos":"n."},
+  "children":{"en":"young people","cn":"孩子","pos":"n."},
+  "games":{"en":"activities done for fun or competition","cn":"遊戲","pos":"n."},
+  "movies":{"en":"films shown in cinemas","cn":"電影","pos":"n."},
+  "behaviors":{"en":"ways of acting","cn":"行為","pos":"n."},
+  "empathy":{"en":"understanding how others feel","cn":"同理心","pos":"n."},
+  "suffering":{"en":"the experience of pain or hardship","cn":"痛苦","pos":"n."},
+  "marketing":{"en":"promoting goods or services","cn":"行銷","pos":"n."},
+  "sales":{"en":"the number of items sold","cn":"銷售","pos":"n."},
+  "holiday":{"en":"a special day or vacation time","cn":"假日","pos":"n."},
+  "fund":{"en":"money set aside for a purpose","cn":"基金","pos":"n."},
+  "citizens":{"en":"members of a country","cn":"公民","pos":"n."},
+  "homes":{"en":"places where people live","cn":"家園","pos":"n."},
+  "victims":{"en":"people who have been harmed","cn":"受害者","pos":"n."},
+  "region":{"en":"a part of a country or the world","cn":"地區","pos":"n."},
+  "organizations":{"en":"groups with shared goals","cn":"組織","pos":"n."},
+  "water":{"en":"the liquid essential for life","cn":"水","pos":"n."},
+  "food":{"en":"substances eaten for energy","cn":"食物","pos":"n."},
+  "supplies":{"en":"items needed for daily use","cn":"物資","pos":"n."},
+  "city":{"en":"a large urban area","cn":"城市","pos":"n."},
+  "banker":{"en":"a person who works in banking","cn":"銀行家","pos":"n."},
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "company":{"en":"a business organization","cn":"公司","pos":"n."},
+  "bankruptcy":{"en":"the state of being unable to pay debts","cn":"破產","pos":"n."},
+  "losses":{"en":"amounts of money lost","cn":"損失","pos":"n."},
+  "consecutive":{"en":"following one after another","cn":"連續的","pos":"adj."},
+  "illness":{"en":"a sickness or disease","cn":"疾病","pos":"n."},
+  "recovery":{"en":"the process of getting better","cn":"康復","pos":"n."},
+  "doctor":{"en":"a medical professional","cn":"醫生","pos":"n."},
+
+  // ── Extra words from Unit 1 sentences ──
+  "investor":       {"en":"a person who puts money into something to make profit","cn":"投資者","pos":"n."},
+  "investors":      {"en":"people who put money into something to make profit","cn":"投資者","pos":"n."},
+  "cautious":       {"en":"being careful to avoid danger or mistakes","cn":"謹慎的","pos":"adj."},
+  "carefully":      {"en":"giving close attention to avoid mistakes","cn":"仔細地","pos":"adv."},
+  "reviewed":       {"en":"looked at something again carefully","cn":"仔細審閱","pos":"v."},
+  "review":         {"en":"to look at or examine carefully","cn":"審閱；複習","pos":"v."},
+  "reasonable":     {"en":"fair and sensible","cn":"合理的","pos":"adj."},
+  "rapidly":        {"en":"very quickly","cn":"迅速地","pos":"adv."},
+  "ancient":        {"en":"very old, from a long time ago","cn":"古老的","pos":"adj."},
+  "ambitious":      {"en":"having a strong desire to succeed","cn":"雄心勃勃的","pos":"adj."},
+  "aggressive":     {"en":"forceful and sometimes violent","cn":"具攻擊性的","pos":"adj."},
+  "angrily":        {"en":"in an angry way","cn":"生氣地","pos":"adv."},
+  "angry":          {"en":"feeling or showing strong displeasure","cn":"憤怒的","pos":"adj."},
+  "anxious":        {"en":"worried and nervous","cn":"焦慮的","pos":"adj."},
+  "apparent":       {"en":"clearly visible or obvious","cn":"明顯的","pos":"adj."},
+  "approximately":  {"en":"close to the exact amount","cn":"大約","pos":"adv."},
+  "article":        {"en":"a piece of writing in a newspaper or magazine","cn":"文章","pos":"n."},
+  "artificial":     {"en":"made by humans, not natural","cn":"人造的；人工的","pos":"adj."},
+  "assistance":     {"en":"help or support","cn":"援助；幫助","pos":"n."},
+  "assured":        {"en":"made someone feel certain about something","cn":"向...保證","pos":"v."},
+  "athlete":        {"en":"a person good at sports","cn":"運動員","pos":"n."},
+  "atmosphere":     {"en":"the layer of gases surrounding Earth","cn":"大氣層；氣氛","pos":"n."},
+  "attempt":        {"en":"to try to do something","cn":"嘗試","pos":"v./n."},
+  "attend":         {"en":"to go to or be present at","cn":"出席；參加","pos":"v."},
+  "available":      {"en":"able to be used or obtained","cn":"可得到的；可用的","pos":"adj."},
+  "beautiful":      {"en":"very attractive or pleasing","cn":"美麗的","pos":"adj."},
+  "behavior":       {"en":"the way a person or animal acts","cn":"行為","pos":"n."},
+  "believe":        {"en":"to think something is true","cn":"相信","pos":"v."},
+  "beloved":        {"en":"dearly loved","cn":"深愛的","pos":"adj."},
+  "billion":        {"en":"one thousand million (1,000,000,000)","cn":"十億","pos":"n."},
+  "biology":        {"en":"the study of living things","cn":"生物學","pos":"n."},
+  "brand":          {"en":"a type of product made by a company","cn":"品牌","pos":"n."},
+  "brave":          {"en":"willing to face danger without fear","cn":"勇敢的","pos":"adj."},
+  "bravely":        {"en":"in a courageous way","cn":"勇敢地","pos":"adv."},
+  "brilliant":      {"en":"very clever or bright","cn":"才華洋溢的；出色的","pos":"adj."},
+  "building":       {"en":"a structure with walls and a roof","cn":"建築物","pos":"n."},
+  "butterfly":      {"en":"a colorful flying insect","cn":"蝴蝶","pos":"n."},
+  "campaign":       {"en":"an organized effort to achieve a goal","cn":"活動；行動","pos":"n."},
+  "carbon":         {"en":"a chemical element found in all living things","cn":"碳","pos":"n."},
+  "caused":         {"en":"made something happen","cn":"造成；導致","pos":"v."},
+  "chemicals":      {"en":"substances produced by chemistry","cn":"化學物質","pos":"n."},
+  "clear":          {"en":"easy to understand; to remove","cn":"清楚的；清除","pos":"adj./v."},
+  "cocoon":         {"en":"the case made by an insect before becoming an adult","cn":"繭","pos":"n."},
+  "collapse":       {"en":"to fall down suddenly","cn":"倒塌；崩潰","pos":"v."},
+  "completely":     {"en":"totally; in every way","cn":"完全地","pos":"adv."},
+  "concept":        {"en":"an idea or principle","cn":"概念","pos":"n."},
+  "concerned":      {"en":"worried; relating to","cn":"擔心的；有關的","pos":"adj."},
+  "confidently":    {"en":"in a sure and certain way","cn":"自信地","pos":"adv."},
+  "connected":      {"en":"joined or linked together","cn":"連接的；相關的","pos":"adj."},
+  "conservation":   {"en":"the protection of nature","cn":"保育；保護","pos":"n."},
+  "considered":     {"en":"thought about carefully","cn":"被認為；考慮到","pos":"v."},
+  "constantly":     {"en":"all the time; without stopping","cn":"不斷地","pos":"adv."},
+  "controversial":  {"en":"causing public disagreement","cn":"具爭議性的","pos":"adj."},
+  "courageous":     {"en":"having or showing courage","cn":"勇敢的","pos":"adj."},
+  "created":        {"en":"made something new","cn":"創造了","pos":"v."},
+  "creatures":      {"en":"living animals","cn":"生物","pos":"n."},
+  "cultures":       {"en":"the customs and beliefs of a group","cn":"文化","pos":"n."},
+  "current":        {"en":"happening now; a flow of water or electricity","cn":"目前的；電流","pos":"adj./n."},
+  "dedicated":      {"en":"giving a lot of time and energy to something","cn":"盡責的；致力的","pos":"adj."},
+  "deeply":         {"en":"far down; very strongly","cn":"深深地","pos":"adv."},
+  "depletion":      {"en":"using up of a resource","cn":"耗盡；消耗","pos":"n."},
+  "describing":     {"en":"giving details about something","cn":"描述","pos":"v."},
+  "destroyed":      {"en":"completely ruined","cn":"被摧毀","pos":"v."},
+  "destructive":    {"en":"causing a lot of damage","cn":"具破壞性的","pos":"adj."},
+  "determined":     {"en":"having made a firm decision","cn":"意志堅定的","pos":"adj."},
+  "developed":      {"en":"grew or created over time","cn":"發展了","pos":"v."},
+  "developing":     {"en":"growing or becoming more advanced","cn":"發展中的","pos":"adj."},
+  "directly":       {"en":"in a straight line; without delay","cn":"直接地","pos":"adv."},
+  "disaster":       {"en":"a sudden terrible event causing great damage","cn":"災難","pos":"n."},
+  "discovered":     {"en":"found something for the first time","cn":"發現了","pos":"v."},
+  "discussed":      {"en":"talked about something","cn":"討論了","pos":"v."},
+  "doctrine":       {"en":"a set of beliefs or principles","cn":"學說；信條","pos":"n."},
+  "dominant":       {"en":"most powerful or important","cn":"占主導地位的","pos":"adj."},
+  "dramatically":   {"en":"in a very noticeable way","cn":"戲劇性地；顯著地","pos":"adv."},
+  "drastically":    {"en":"in a very strong and severe way","cn":"急遽地；大幅地","pos":"adv."},
+  "drinking":       {"en":"taking liquid into the mouth","cn":"喝；飲用","pos":"v."},
+  "eagerly":        {"en":"with great enthusiasm","cn":"熱切地","pos":"adv."},
+  "easily":         {"en":"without difficulty","cn":"輕鬆地","pos":"adv."},
+  "economic":       {"en":"relating to money and trade","cn":"經濟的","pos":"adj."},
+  "effectively":    {"en":"in a way that works well","cn":"有效地","pos":"adv."},
+  "emergency":      {"en":"a serious and dangerous situation","cn":"緊急情況","pos":"n."},
+  "employees":      {"en":"people who work for a company","cn":"員工","pos":"n."},
+  "employed":       {"en":"having a job; used for a purpose","cn":"受雇的；使用的","pos":"adj."},
+  "empty":          {"en":"containing nothing","cn":"空的","pos":"adj."},
+  "encourage":      {"en":"to give support or confidence to someone","cn":"鼓勵","pos":"v."},
+  "endanger":       {"en":"to put someone or something at risk","cn":"危及","pos":"v."},
+  "enormous":       {"en":"very large in size or amount","cn":"巨大的","pos":"adj."},
+  "ensure":         {"en":"to make sure something happens","cn":"確保","pos":"v."},
+  "entire":         {"en":"whole; complete","cn":"整個的；完整的","pos":"adj."},
+  "entirely":       {"en":"completely","cn":"完全地","pos":"adv."},
+  "established":    {"en":"set up or created formally","cn":"建立了","pos":"v."},
+  "event":          {"en":"something that happens","cn":"事件；活動","pos":"n."},
+  "eventually":     {"en":"in the end; after a long time","cn":"最終；終於","pos":"adv."},
+  "evidence":       {"en":"facts that prove something","cn":"證據","pos":"n."},
+  "excited":        {"en":"feeling great enthusiasm","cn":"興奮的","pos":"adj."},
+  "expand":         {"en":"to grow larger","cn":"擴展；擴大","pos":"v."},
+  "expansion":      {"en":"the process of growing bigger","cn":"擴張","pos":"n."},
+  "experience":     {"en":"something you live through; skill gained","cn":"經歷；經驗","pos":"n./v."},
+  "experienced":    {"en":"having a lot of skill from doing something","cn":"經驗豐富的","pos":"adj."},
+  "explain":        {"en":"to make something clear","cn":"解釋","pos":"v."},
+  "exploration":    {"en":"traveling to discover new places","cn":"探索；勘探","pos":"n."},
+  "factory":        {"en":"a building where goods are made","cn":"工廠","pos":"n."},
+  "farming":        {"en":"growing crops or raising animals","cn":"農業；農耕","pos":"n."},
+  "famous":         {"en":"known by many people","cn":"著名的","pos":"adj."},
+  "fashion":        {"en":"style of clothing; a popular trend","cn":"時尚","pos":"n."},
+  "federal":        {"en":"relating to central government","cn":"聯邦的","pos":"adj."},
+  "fight":          {"en":"to struggle against something","cn":"戰鬥；對抗","pos":"v."},
+  "fighting":       {"en":"struggling against something","cn":"努力對抗","pos":"v."},
+  "firefighter":    {"en":"a person who puts out fires","cn":"消防員","pos":"n."},
+  "flooded":        {"en":"covered with too much water","cn":"被淹沒的","pos":"adj."},
+  "force":          {"en":"physical power; to make someone do something","cn":"力量；強迫","pos":"n./v."},
+  "forever":        {"en":"for all time","cn":"永遠","pos":"adv."},
+  "formally":       {"en":"in an official or proper way","cn":"正式地","pos":"adv."},
+  "fragile":        {"en":"easily broken or damaged","cn":"脆弱的；易碎的","pos":"adj."},
+  "frequently":     {"en":"often; many times","cn":"經常；頻繁地","pos":"adv."},
+  "frightened":     {"en":"scared or afraid","cn":"受驚的；害怕的","pos":"adj."},
+  "generate":       {"en":"to produce or create","cn":"產生；生成","pos":"v."},
+  "generation":     {"en":"people born around the same time","cn":"世代","pos":"n."},
+  "goal":           {"en":"something you want to achieve","cn":"目標","pos":"n."},
+  "goals":          {"en":"things you want to achieve","cn":"目標","pos":"n."},
+  "graciously":     {"en":"in a kind and polite way","cn":"優雅地；親切地","pos":"adv."},
+  "gradually":      {"en":"slowly, a little at a time","cn":"逐漸地","pos":"adv."},
+  "granted":        {"en":"officially given","cn":"給予的","pos":"v."},
+  "greatly":        {"en":"to a large extent","cn":"大大地","pos":"adv."},
+  "group":          {"en":"a number of people or things together","cn":"群體；團體","pos":"n."},
+  "growing":        {"en":"increasing in size or amount","cn":"成長的；增加的","pos":"adj./v."},
+  "harmful":        {"en":"causing damage or injury","cn":"有害的","pos":"adj."},
+  "heavily":        {"en":"to a great degree; with great weight","cn":"大量地；沉重地","pos":"adv."},
+  "hidden":         {"en":"not visible; kept secret","cn":"隱藏的","pos":"adj."},
+  "highly":         {"en":"to a high degree; very","cn":"高度地；非常","pos":"adv."},
+  "historical":     {"en":"related to history","cn":"歷史的","pos":"adj."},
+  "homeless":       {"en":"having no home","cn":"無家可歸的","pos":"adj."},
+  "humanity":       {"en":"human beings as a whole","cn":"人類；人性","pos":"n."},
+  "hungry":         {"en":"feeling the need to eat","cn":"飢餓的","pos":"adj."},
+  "hurting":        {"en":"causing pain","cn":"傷害","pos":"v."},
+  "idea":           {"en":"a thought or plan","cn":"想法；主意","pos":"n."},
+  "illegal":        {"en":"against the law","cn":"非法的","pos":"adj."},
+  "immediately":    {"en":"at once; without delay","cn":"立刻；立即","pos":"adv."},
+  "important":      {"en":"having great value or significance","cn":"重要的","pos":"adj."},
+  "increase":       {"en":"to become or make larger","cn":"增加","pos":"v./n."},
+  "incredibly":     {"en":"to a very great degree","cn":"難以置信地；極其","pos":"adv."},
+  "influence":      {"en":"the effect one thing has on another","cn":"影響","pos":"n./v."},
+  "inject":         {"en":"to put liquid into something with a needle","cn":"注射；注入","pos":"v."},
+  "injecting":      {"en":"putting money or resources into something","cn":"注入；投入","pos":"v."},
+  "innovative":     {"en":"using new and creative ideas","cn":"創新的","pos":"adj."},
+  "intense":        {"en":"very strong or extreme","cn":"激烈的；強烈的","pos":"adj."},
+  "international":  {"en":"involving more than one country","cn":"國際的","pos":"adj."},
+  "introduced":     {"en":"brought something in for the first time","cn":"引進了","pos":"v."},
+  "irreversible":   {"en":"impossible to change back","cn":"不可逆的","pos":"adj."},
+  "isolated":       {"en":"far away from others; lonely","cn":"孤立的；偏僻的","pos":"adj."},
+  "journalist":     {"en":"a person who reports news","cn":"記者","pos":"n."},
+  "justified":      {"en":"shown to be right or reasonable","cn":"合理的；被辯護的","pos":"adj."},
+  "lab":            {"en":"a room used for scientific experiments","cn":"實驗室","pos":"n."},
+  "lack":           {"en":"not having enough of something","cn":"缺乏","pos":"n./v."},
+  "lap":            {"en":"one circuit of a track; the top of the legs when sitting","cn":"（賽跑）圈；膝蓋上","pos":"n."},
+  "large":          {"en":"big in size","cn":"大的","pos":"adj."},
+  "laws":           {"en":"rules made by a government","cn":"法律","pos":"n."},
+  "leading":        {"en":"most important; in first place","cn":"領先的；主要的","pos":"adj./v."},
+  "level":          {"en":"a position or amount; flat and even","cn":"水準；程度；平的","pos":"n./adj."},
+  "limit":          {"en":"the greatest amount allowed","cn":"限制；極限","pos":"n./v."},
+  "local":          {"en":"belonging to a particular area","cn":"當地的","pos":"adj."},
+  "locate":         {"en":"to find the position of something","cn":"找到；位於","pos":"v."},
+  "logistic":       {"en":"relating to organizing complex activities","cn":"後勤的","pos":"adj."},
+  "long":           {"en":"great in length or time","cn":"長的；長久的","pos":"adj."},
+  "louder":         {"en":"making more noise","cn":"更大聲的","pos":"adj."},
+  "massive":        {"en":"very large in size or amount","cn":"大規模的；巨大的","pos":"adj."},
+  "material":       {"en":"a substance used to make things","cn":"材料；物質","pos":"n."},
+  "measure":        {"en":"to find out the size or amount of something","cn":"測量；衡量","pos":"v./n."},
+  "meet":           {"en":"to come together; to satisfy a requirement","cn":"見面；滿足","pos":"v."},
+  "meeting":        {"en":"an arranged gathering of people","cn":"會議","pos":"n."},
+  "methods":        {"en":"ways of doing something","cn":"方法","pos":"n."},
+  "military":       {"en":"relating to the army or armed forces","cn":"軍事的","pos":"adj."},
+  "modern":         {"en":"relating to the present time","cn":"現代的","pos":"adj."},
+  "moment":         {"en":"a very short period of time","cn":"時刻；片刻","pos":"n."},
+  "month":          {"en":"one of the twelve periods of the year","cn":"月份","pos":"n."},
+  "months":         {"en":"periods of about four weeks","cn":"月份（複數）","pos":"n."},
+  "move":           {"en":"to change position","cn":"移動","pos":"v."},
+  "movement":       {"en":"the act of moving; a group working for change","cn":"移動；運動","pos":"n."},
+  "multiple":       {"en":"many; more than one","cn":"多個的","pos":"adj."},
+  "national":       {"en":"relating to a whole country","cn":"國家的；全國的","pos":"adj."},
+  "noticed":        {"en":"became aware of","cn":"注意到了","pos":"v."},
+  "occurred":       {"en":"happened","cn":"發生了","pos":"v."},
+  "official":       {"en":"approved by an authority","cn":"官方的；正式的","pos":"adj."},
+  "operate":        {"en":"to work or control a machine","cn":"運作；操作","pos":"v."},
+  "opportunity":    {"en":"a chance to do something","cn":"機會","pos":"n."},
+  "original":       {"en":"existing from the beginning; not a copy","cn":"原來的；原創的","pos":"adj."},
+  "overcome":       {"en":"to succeed in dealing with a problem","cn":"克服","pos":"v."},
+  "paid":           {"en":"given money for work done","cn":"有薪的；支付了","pos":"adj./v."},
+  "particularly":   {"en":"especially; more than usual","cn":"特別地","pos":"adv."},
+  "peaceful":       {"en":"quiet and calm","cn":"和平的；寧靜的","pos":"adj."},
+  "people":         {"en":"human beings","cn":"人們","pos":"n."},
+  "percent":        {"en":"out of every hundred","cn":"百分之","pos":"n."},
+  "period":         {"en":"a length of time","cn":"時期；期間","pos":"n."},
+  "person":         {"en":"a human being","cn":"人","pos":"n."},
+  "physical":       {"en":"relating to the body","cn":"身體的；物理的","pos":"adj."},
+  "planet":         {"en":"a large body orbiting a star","cn":"星球；地球","pos":"n."},
+  "planned":        {"en":"prepared in advance","cn":"計畫好的","pos":"adj."},
+  "planning":       {"en":"preparing for the future","cn":"計畫中","pos":"v."},
+  "plants":         {"en":"living organisms that grow in soil","cn":"植物","pos":"n."},
+  "platform":       {"en":"a raised surface; an online service","cn":"平台","pos":"n."},
+  "polluted":       {"en":"made dirty and harmful","cn":"被污染的","pos":"adj."},
+  "pollution":      {"en":"harmful substances in the environment","cn":"污染","pos":"n."},
+  "positive":       {"en":"good; showing optimism","cn":"積極的；正面的","pos":"adj."},
+  "powerful":       {"en":"having great strength or influence","cn":"強大的；有力的","pos":"adj."},
+  "primarily":      {"en":"mainly; most importantly","cn":"主要地","pos":"adv."},
+  "primarily":      {"en":"mainly; most importantly","cn":"主要地","pos":"adv."},
+  "prior":          {"en":"coming before in time","cn":"先前的","pos":"adj."},
+  "problem":        {"en":"something that is difficult to deal with","cn":"問題","pos":"n."},
+  "process":        {"en":"a series of steps to achieve something","cn":"過程","pos":"n."},
+  "prominent":      {"en":"important and well-known","cn":"顯著的；著名的","pos":"adj."},
+  "properly":       {"en":"in the correct way","cn":"適當地","pos":"adv."},
+  "proposed":       {"en":"suggested as a plan","cn":"被提議的","pos":"adj."},
+  "protect":        {"en":"to keep safe from harm","cn":"保護","pos":"v."},
+  "proved":         {"en":"showed something was true","cn":"證明了","pos":"v."},
+  "provides":       {"en":"gives or supplies something","cn":"提供","pos":"v."},
+  "public":         {"en":"open to everyone; the general people","cn":"公共的；大眾","pos":"adj./n."},
+  "purpose":        {"en":"the reason for doing something","cn":"目的","pos":"n."},
+  "quickly":        {"en":"at a fast speed","cn":"快速地","pos":"adv."},
+  "raise":          {"en":"to lift up; to bring up a child","cn":"舉起；養育","pos":"v."},
+  "rapidly":        {"en":"very quickly","cn":"迅速地","pos":"adv."},
+  "rate":           {"en":"the speed at which something happens","cn":"速率；比率","pos":"n."},
+  "reason":         {"en":"a cause or explanation","cn":"原因；理由","pos":"n."},
+  "recently":       {"en":"not long ago","cn":"最近","pos":"adv."},
+  "reduce":         {"en":"to make smaller in size or amount","cn":"減少","pos":"v."},
+  "related":        {"en":"connected to something else","cn":"相關的","pos":"adj."},
+  "rely":           {"en":"to depend on someone or something","cn":"依賴","pos":"v."},
+  "remains":        {"en":"what is left after something is gone","cn":"遺跡；殘留物","pos":"n."},
+  "rescue":         {"en":"to save someone from danger","cn":"救援；營救","pos":"v./n."},
+  "research":       {"en":"careful study to find new information","cn":"研究","pos":"n./v."},
+  "resources":      {"en":"things that can be used","cn":"資源","pos":"n."},
+  "restart":        {"en":"to begin again","cn":"重新開始","pos":"v."},
+  "result":         {"en":"something caused by something else","cn":"結果","pos":"n."},
+  "rights":         {"en":"things you are legally allowed to do","cn":"權利","pos":"n."},
+  "rising":         {"en":"going up","cn":"上升的","pos":"adj."},
+  "safe":           {"en":"protected from danger","cn":"安全的","pos":"adj."},
+  "safely":         {"en":"without danger","cn":"安全地","pos":"adv."},
+  "scientists":     {"en":"people who study science","cn":"科學家","pos":"n."},
+  "section":        {"en":"a part of something larger","cn":"部分；區塊","pos":"n."},
+  "secure":         {"en":"safe and protected","cn":"安全的","pos":"adj."},
+  "seeking":        {"en":"looking for something","cn":"尋求","pos":"v."},
+  "seriously":      {"en":"in a serious way; to a serious degree","cn":"嚴重地；認真地","pos":"adv."},
+  "significantly":  {"en":"in an important or noticeable way","cn":"顯著地","pos":"adv."},
+  "signed":         {"en":"wrote your name on an official document","cn":"簽署了","pos":"v."},
+  "simply":         {"en":"in a straightforward way; just","cn":"只是；簡單地","pos":"adv."},
+  "situation":      {"en":"the circumstances at a particular time","cn":"情況；狀況","pos":"n."},
+  "slowly":         {"en":"at a slow speed","cn":"慢慢地","pos":"adv."},
+  "source":         {"en":"the place something comes from","cn":"來源","pos":"n."},
+  "specifically":   {"en":"in a particular or exact way","cn":"具體地；特別地","pos":"adv."},
+  "spread":         {"en":"to extend over an area","cn":"傳播；蔓延","pos":"v."},
+  "start":          {"en":"to begin","cn":"開始","pos":"v./n."},
+  "statement":      {"en":"something you say or write officially","cn":"聲明；陳述","pos":"n."},
+  "steps":          {"en":"actions taken to achieve something","cn":"步驟","pos":"n."},
+  "storm":          {"en":"very bad weather with rain and wind","cn":"風暴","pos":"n."},
+  "strict":         {"en":"following rules very carefully","cn":"嚴格的","pos":"adj."},
+  "strictly":       {"en":"in a very controlled way","cn":"嚴格地","pos":"adv."},
+  "strong":         {"en":"powerful; able to resist force","cn":"強壯的；強烈的","pos":"adj."},
+  "strongly":       {"en":"with great force or feeling","cn":"強烈地","pos":"adv."},
+  "suddenly":       {"en":"happening quickly and unexpectedly","cn":"突然地","pos":"adv."},
+  "sufficient":     {"en":"enough","cn":"足夠的","pos":"adj."},
+  "sunlight":       {"en":"the light that comes from the sun","cn":"陽光","pos":"n."},
+  "support":        {"en":"to help or hold up","cn":"支持；支撐","pos":"v./n."},
+  "suspect":        {"en":"a person thought to have done something wrong","cn":"嫌疑犯","pos":"n."},
+  "system":         {"en":"a set of parts working together","cn":"系統","pos":"n."},
+  "technology":     {"en":"the use of science to solve problems","cn":"科技","pos":"n."},
+  "terrified":      {"en":"very frightened","cn":"極度害怕的","pos":"adj."},
+  "terrible":       {"en":"very bad","cn":"可怕的；糟糕的","pos":"adj."},
+  "tiny":           {"en":"very small","cn":"微小的","pos":"adj."},
+  "tired":          {"en":"feeling the need to rest","cn":"疲憊的","pos":"adj."},
+  "tirelessly":     {"en":"without getting tired","cn":"不知疲倦地","pos":"adv."},
+  "traditional":    {"en":"following customs from the past","cn":"傳統的","pos":"adj."},
+  "trapped":        {"en":"unable to escape","cn":"被困的","pos":"adj."},
+  "travel":         {"en":"to go from one place to another","cn":"旅行","pos":"v./n."},
+  "tremendous":     {"en":"very great or large","cn":"極大的；巨大的","pos":"adj."},
+  "trip":           {"en":"a journey","cn":"旅行；旅程","pos":"n."},
+  "truly":          {"en":"really; genuinely","cn":"真正地","pos":"adv."},
+  "typical":        {"en":"having the usual qualities","cn":"典型的","pos":"adj."},
+  "ultimately":     {"en":"in the end; finally","cn":"最終","pos":"adv."},
+  "unique":         {"en":"being the only one of its kind","cn":"獨特的","pos":"adj."},
+  "unless":         {"en":"except if","cn":"除非","pos":"conj."},
+  "unpredictable":  {"en":"not able to be predicted","cn":"不可預測的","pos":"adj."},
+  "upset":          {"en":"unhappy or disturbed","cn":"難過的；心煩意亂的","pos":"adj."},
+  "urgent":         {"en":"needing immediate attention","cn":"緊急的","pos":"adj."},
+  "useful":         {"en":"able to help","cn":"有用的","pos":"adj."},
+  "usually":        {"en":"most of the time","cn":"通常","pos":"adv."},
+  "various":        {"en":"of different kinds","cn":"各種各樣的","pos":"adj."},
+  "vehicle":        {"en":"a machine used for transportation","cn":"交通工具","pos":"n."},
+  "violently":      {"en":"with great force","cn":"猛烈地；暴力地","pos":"adv."},
+  "vital":          {"en":"absolutely necessary","cn":"至關重要的","pos":"adj."},
+  "warned":         {"en":"told someone about a danger","cn":"警告了","pos":"v."},
+  "warning":        {"en":"a statement telling of danger","cn":"警告","pos":"n."},
+  "wearable":       {"en":"able to be worn on the body","cn":"可穿戴的","pos":"adj."},
+  "western":        {"en":"relating to the west","cn":"西方的","pos":"adj."},
+  "wildlife":       {"en":"wild animals and plants","cn":"野生動植物","pos":"n."},
+  "worker":         {"en":"a person who does a job","cn":"工人；員工","pos":"n."},
+  "workers":        {"en":"people who do jobs","cn":"工人；員工","pos":"n."},
+  "working":        {"en":"doing a job; operating","cn":"工作中；運作中","pos":"adj./v."},
+  "world":          {"en":"the Earth and all its people","cn":"世界","pos":"n."},
+  "worried":        {"en":"feeling anxiety","cn":"擔心的","pos":"adj."},
+  "wrong":          {"en":"not correct or right","cn":"錯誤的","pos":"adj."},
+  "year":           {"en":"a period of 12 months","cn":"年","pos":"n."},
+  "years":          {"en":"periods of 12 months","cn":"年（複數）","pos":"n."},
+  "young":          {"en":"having lived for only a short time","cn":"年輕的","pos":"adj."},
+};
+
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — checks DEFS first, then mini-dict, then API
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  const raw  = el.dataset.word;   // lowercase
+  lookedUp.add(raw);
+
+  const helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent  = "";
+  document.getElementById("helperDef").innerHTML    =
+    `<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up…</span>`;
+
+  // Wire up TTS button (clone to remove old listeners)
+  const ttsBtn    = document.getElementById("helperTtsBtn");
+  const newTtsBtn = ttsBtn.cloneNode(true);
+  ttsBtn.parentNode.replaceChild(newTtsBtn, ttsBtn);
+  newTtsBtn.addEventListener("click", () => {
+    newTtsBtn.classList.add("speaking");
+    speakWordOnly(raw, () => newTtsBtn.classList.remove("speaking"));
+  });
+
+  // ── Helper: display result ──
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      `<span style="color:#1c1c1c;display:block;margin-bottom:3px">${enText}</span>` +
+      `<span style="color:#6a4c93;font-family:'Noto Serif TC',serif;font-size:0.9rem">${cnText}</span>`;
+  }
+
+  // ── Stemmer: strip common suffixes to find base form ──
+  function stem(w) {
+    return w
+      .replace(/investors?$/i,  'investor')
+      .replace(/companies$/i,   'company')
+      .replace(/ies$/i,         'y')
+      .replace(/ves$/i,         'fe')
+      .replace(/(\w{3,})ness$/i,'$1')
+      .replace(/(\w{3,})tion$/i,'$1te')
+      .replace(/(\w{4,})ing$/i, '$1')
+      .replace(/(\w{4,})ings$/i,'$1')
+      .replace(/(\w{4,})ed$/i,  '$1')
+      .replace(/(\w{3,})ers?$/i,'$1')
+      .replace(/(\w{4,})ly$/i,  '$1')
+      .replace(/(\w{3,})es$/i,  '$1')
+      .replace(/(\w{3,})s$/i,   '$1');
+  }
+
+  // ── Look up in a combined map: DEFS + MINI_DICT ──
+  function findInLocal(word) {
+    const w = word.toLowerCase();
+    // exact DEFS match
+    if (DEFS[w]) return { pos: DEFS[w].pos, en: DEFS[w].en, cn: DEFS[w].cn };
+    // exact MINI_DICT match
+    if (MINI_DICT[w]) return { pos: MINI_DICT[w].pos, en: MINI_DICT[w].en, cn: MINI_DICT[w].cn };
+    // DEFS key starts-with
+    const dk = Object.keys(DEFS).find(k => k.toLowerCase() === w || k.toLowerCase().startsWith(w + ' '));
+    if (dk) return { pos: DEFS[dk].pos, en: DEFS[dk].en, cn: DEFS[dk].cn };
+    return null;
+  }
+
+  // 1️⃣ Exact match in local data
+  let result = findInLocal(raw);
+  if (result) { showResult(result.pos, result.en, result.cn); return; }
+
+  // 2️⃣ Try stemmed form
+  const stemmed = stem(raw);
+  if (stemmed !== raw) {
+    result = findInLocal(stemmed);
+    if (result) { showResult(result.pos, result.en, result.cn); return; }
+  }
+
+  // 3️⃣ Free Dictionary API — and try to pair CN from local data
+  try {
+    const res  = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${raw}`);
+    if (!res.ok) throw new Error("not found");
+    const data = await res.json();
+    const meaning = data[0]?.meanings?.[0];
+    if (!meaning) throw new Error("no meaning");
+
+    const posText = meaning.partOfSpeech || "";
+    const enText  = meaning.definitions[0]?.definition || "No definition available.";
+
+    // Try to find Chinese from local data using the API's base word
+    const baseWord = data[0]?.word?.toLowerCase() || raw;
+    const localCn  = findInLocal(baseWord) || findInLocal(stem(baseWord));
+    const cnText   = localCn
+      ? localCn.cn
+      : `<em style="font-size:0.82rem;color:var(--color-muted)">(中文翻譯暫無，請查字典)</em>`;
+
+    showResult(posText, enText, cnText);
+  } catch {
+    // 4️⃣ Final fallback — try the stemmed word with API
+    try {
+      if (stemmed !== raw) {
+        const res2 = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${stemmed}`);
+        if (!res2.ok) throw new Error();
+        const data2 = await res2.json();
+        const m2    = data2[0]?.meanings?.[0];
+        if (!m2) throw new Error();
+        const posText = m2.partOfSpeech || "";
+        const enText  = m2.definitions[0]?.definition || "";
+        const localCn = findInLocal(stemmed) || findInLocal(data2[0]?.word?.toLowerCase() || stemmed);
+        const cnText  = localCn
+          ? localCn.cn
+          : `<em style="font-size:0.82rem;color:var(--color-muted)">(中文翻譯暫無，請查字典)</em>`;
+        showResult(posText, enText, cnText);
+        return;
+      }
+    } catch {}
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      `<em style="color:var(--color-muted)">Try clicking a different word.</em>`;
+  }
+}
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push(q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = wk + (isAns ? " ✓" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = wk;
+    wordTts.addEventListener("click", () => speakText(wk));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/__________/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>
