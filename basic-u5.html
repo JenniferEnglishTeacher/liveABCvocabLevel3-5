@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic U5 – LiveABC Vocab Quiz</title>
+    <style>
+        :root {
+            --primary: #4a6fa5;
+            --primary-hover: #3b5984;
+            --secondary: #f4f7f6;
+            --text: #2c3e50;
+            --success: #2ec4b6;
+            --danger: #e71d36;
+            --border: #dcdde1;
+        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #fafbfc; color: var(--text); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { max-width: 800px; width: 100%; background: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--secondary); padding-bottom: 15px; margin-bottom: 25px; }
+        .badge { background: #e8f0fe; color: var(--primary); padding: 6px 12px; border-radius: 20px; font-weight: 6px; font-size: 0.9rem; }
+        h1 { margin: 0; font-size: 1.5rem; color: var(--primary); }
+        .setup-screen, .quiz-screen, .result-screen { display: none; }
+        .active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; }
+        input[type="text"] { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 1rem; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px 24px; border-radius: 6px; font-size: 1rem; cursor: pointer; transition: background 0.2s; width: 100%; font-weight: 600; }
+        .btn:hover { background: var(--primary-hover); }
+        .progress-bar { height: 6px; background: var(--secondary); border-radius: 3px; margin-bottom: 25px; overflow: hidden; }
+        .progress-inner { height: 100%; background: var(--primary); width: 0%; transition: width 0.3s; }
+        .question-box { margin-bottom: 25px; }
+        .sentence-cn { color: #7f8c8d; font-size: 1.05rem; margin-bottom: 12px; line-height: 1.5; }
+        .sentence-en { font-size: 1.25rem; line-height: 1.6; word-spacing: 2px; margin-bottom: 20px; font-weight: 500; }
+        .clickable-word { cursor: pointer; border-bottom: 1px dashed #bdc3c7; transition: color 0.1s; display: inline-block; }
+        .clickable-word:hover { color: var(--primary); background: #f0f3f7; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+        .option-card { background: white; border: 2px solid var(--border); border-radius: 8px; padding: 15px; cursor: pointer; font-size: 1.1rem; font-weight: 500; transition: all 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .option-card:hover { border-color: var(--primary); background: #fdfdfd; }
+        .option-card.correct { border-color: var(--success); background: #e6f9f7; color: #0f5132; }
+        .option-card.wrong { border-color: var(--danger); background: #fde8e9; color: #842029; }
+        .feedback { font-size: 1.1rem; margin-top: 15px; font-weight: 600; display: none; padding: 12px; border-radius: 6px; }
+        .feedback.correct { background: #e6f9f7; color: var(--success); display: block; }
+        .feedback.wrong { background: #fde8e9; color: var(--danger); display: block; }
+        .def-box { margin-top: 10px; font-size: 0.95rem; font-weight: normal; color: #555; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 8px; }
+        .result-screen text-align: center;
+        .score-display { font-size: 3rem; font-weight: bold; color: var(--primary); margin: 20px 0; }
+        .dict-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); justify-content: center; align-items: center; z-index: 1000; padding: 15px; }
+        .dict-content { background: white; padding: 25px; border-radius: 10px; max-width: 500px; width: 100%; box-shadow: 0 5px 20px rgba(0,0,0,0.15); position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; cursor: pointer; color: #95a5a6; }
+        .dict-title { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .dict-body { font-size: 1rem; line-height: 1.5; color: var(--text); }
+        .tts-icon { cursor: pointer; color: var(--primary); display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; vertical-align: middle; margin-left: 5px; }
+        .tts-icon svg { width: 20px; height: 20px; }
+        @media(max-width: 600px) {
+            .options-grid { grid-template-columns: 1fr; }
+            body { padding: 10px; }
+            .container { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Basic U5 · Vocab Quiz</h1>
+        <div class="badge">Basic U5 · LiveABC</div>
+    </div>
+
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="setup-screen active">
+        <div class="form-group">
+            <label for="student-name">學生姓名 (Student Name):</label>
+            <input type="text" id="student-name" placeholder="請輸入您的英文或中文姓名" autocomplete="off">
+        </div>
+        <button class="btn" onclick="startQuiz()">開始測驗 (Start Quiz)</button>
+    </div>
+
+    <!-- QUIZ SCREEN -->
+    <div id="quiz-screen" class="quiz-screen">
+        <div class="progress-bar">
+            <div id="progress-inner" class="progress-inner"></div>
+        </div>
+        <div class="question-box">
+            <div id="sentence-cn" class="sentence-cn"></div>
+            <div id="sentence-en" class="sentence-en"></div>
+        </div>
+        <div id="options-grid" class="options-grid"></div>
+        <div id="feedback" class="feedback"></div>
+        <button id="next-btn" class="btn" style="display:none; margin-top:15px;" onclick="nextQuestion()">下一題 (Next)</button>
+    </div>
+
+    <!-- RESULT SCREEN -->
+    <div id="result-screen" class="result-screen" style="text-align: center;">
+        <h2>測驗完成！</h2>
+        <div class="score-display"><span id="score-num">0</span>%</div>
+        <p id="result-meta" style="color:#7f8c8d;"></p>
+        <button class="btn" onclick="location.reload()">重新挑戰 (Retry)</button>
+    </div>
+</div>
+
+<!-- ONLINE DICTIONARY MODAL -->
+<div id="dict-modal" class="dict-modal" onclick="closeDict(event)">
+    <div class="dict-content" onclick="event.stopPropagation()">
+        <span class="close-modal" onclick="document.getElementById('dict-modal').style.display='none'">&times;</span>
+        <div class="dict-title">
+            <span id="dict-word">Word</span>
+            <span class="tts-icon" onclick="playDictTTS()"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg></span>
+        </div>
+        <div id="dict-body" class="dict-body">查詢中...</div>
+    </div>
+</div>
+
+<script>
+// 1. DATA DEFINITIONS
+const DATA = [
+    { word: "tribe", pos: "n.", cat: "tribe", synonyms: ["tribe", "tribal", "tribal chief", "tribal warfare"], def_en: "a social division in a traditional society consisting of linked families", def_cn: "部落", text_cn: "這個原住民部落幾千年來一直與周圍的自然環境完美和諧地生活著。", text_en: "The indigenous _______ has lived perfectly in harmony with the surrounding natural environment for several thousands of years." },
+    { word: "tribal", pos: "adj.", cat: "tribe", synonyms: ["tribe", "tribal", "tribal chief", "tribal warfare"], def_en: "relating to a tribe or tribes", def_cn: "部落的", text_cn: "經驗豐富的嚮導穿著傳統的部落的服裝，帶領遊客穿過茂密的叢林。", text_en: "The experienced guide was dressed in traditional _______ clothing as he led the tourists through the dense jungle." },
+    { word: "tribal chief", pos: "phr.", cat: "tribe", synonyms: ["tribe", "tribal", "tribal chief", "tribal warfare"], def_en: "the head or leader of a tribe", def_cn: "部落首領", text_cn: "聰明的部落首領把所有家庭聚集在一起，討論如何為即將到來的嚴冬做準備。", text_en: "The wise _______ _______ gathered all the families together to discuss how to prepare for the approaching harsh winter." },
+    { word: "tribal warfare", pos: "phr.", cat: "tribe", synonyms: ["tribe", "tribal", "tribal chief", "tribal warfare"], def_en: "violent conflict between two or more tribes", def_cn: "部落戰爭", text_cn: "這個古老的地區被數十年的激烈部落戰爭徹底摧毀，導致許多人沒有家或食物。", text_en: "The ancient region was completely destroyed by decades of bitter _______ _______, leaving many people without homes or food." },
+    { word: "violent", pos: "adj.", cat: "violence", synonyms: ["violent", "violently", "violence", "domestic violence"], def_en: "using or involving physical force intended to hurt or damage", def_cn: "暴力的", text_cn: "蒂娜嚴格不讓她年幼的孩子玩那款暴力的電玩遊戲，因為她覺得那完全不合適。", text_en: "Tina strictly wouldn't let her young children play the _______ video game because she felt it was completely inappropriate." },
+    { word: "violently", pos: "adv.", cat: "violence", synonyms: ["violent", "violently", "violence", "domestic violence"], def_en: "in a forceful, passionate, or destructive manner", def_cn: "猛烈地；暴力地", text_cn: "憤怒的抗議者對新政府政策做出了猛烈地反應，在市中心扔石頭並打破窗戶。", text_en: "The angry protesters reacted _______ to the new government policies, throwing rocks and breaking windows in the city center." },
+    { word: "violence", pos: "n.", cat: "violence", synonyms: ["violent", "violently", "violence", "domestic violence"], def_en: "behavior involving physical force intended to hurt or kill", def_cn: "暴力", text_cn: "警察局長承諾將顯著降低一直讓當地社區感到害怕的街頭暴力程度。", text_en: "The police chief promised to significantly reduce the level of street _______ that has been frightening the local community." },
+    { word: "domestic violence", pos: "phr.", cat: "violence", synonyms: ["violent", "violently", "violence", "domestic violence"], def_en: "violent or aggressive behavior within the home", def_cn: "家庭暴力", text_cn: "這個新社會組織的建立專門是為了幫助家庭暴力的受害者安全逃離他們危險的生活環境。", text_en: "The new social organization was established specifically to help victims of _______ _______ escape their dangerous living situations safely." },
+    { word: "reside in", pos: "v.", cat: "reside", synonyms: ["reside in", "residence", "resident", "residential", "residential area"], def_en: "to have one's permanent home in a particular place", def_cn: "居住", text_cn: "彼得以前住在台灣，但他現在居住在法國南部一個安靜的小鎮。", text_en: "Peter used to live in Taiwan, but he now _______ _______ a small, quiet town in southern France." },
+    { word: "residence", pos: "n.", cat: "reside", synonyms: ["reside in", "residence", "resident", "residential", "residential area"], def_en: "a person's home; the place where someone lives", def_cn: "住所", text_cn: "在科技產業賺了一大筆錢後，這位執行長在陽光明媚的海灘附近買了一棟豪華的住所。", text_en: "After making a massive fortune in the technology industry, the CEO purchased a luxurious _______ near the sunny beach." },
+    { word: "resident", pos: "n.", cat: "reside", synonyms: ["reside in", "residence", "resident", "residential", "residential area"], def_en: "a person who lives somewhere permanently", def_cn: "居民", text_cn: "當大聲的火災警報突然響起時，這棟公寓的每一位居民都被迫迅速撤離。", text_en: "Every single _______ of the apartment building was forced to evacuate quickly when the loud fire alarm suddenly rang." },
+    { word: "residential", pos: "adj.", cat: "reside", synonyms: ["reside in", "residence", "resident", "residential", "residential area"], def_en: "designed for people to live in", def_cn: "住宅的", text_cn: "我們決定搬離嘈雜的市中心，在一個寧靜的住宅的社區找一棟安靜的房子。", text_en: "We decided to move away from the noisy city center and find a quiet house in a peaceful _______ neighborhood." },
+    { word: "residential area", pos: "phr.", cat: "reside", synonyms: ["reside in", "residence", "resident", "residential", "residential area"], def_en: "land used in which housing predominates", def_cn: "住宅區", text_cn: "因為這是一個嚴格的住宅區，所以夜間完全禁止重型卡車和嘈雜的施工。", text_en: "Because this is a strictly _______ _______, heavy trucks and loud construction are completely forbidden during the night hours." },
+    { word: "invade", pos: "v.", cat: "invade", synonyms: ["invade", "invader", "invasion", "invasive"], def_en: "to enter a place in large numbers, especially with intrusive effect", def_cn: "入侵", text_cn: "這部刺激的科幻電影是關於來自木星的小藍人無情地入侵我們美麗星球的故事。", text_en: "The exciting science fiction movie is about little blue men from Jupiter who ruthlessly _______ our beautiful planet." },
+    { word: "invader", pos: "n.", cat: "invade", synonyms: ["invade", "invader", "invasion", "invasive"], def_en: "a person or group that invades a country or region", def_cn: "入侵者", text_cn: "勇敢且忠誠的士兵不知疲倦地戰鬥了幾個月，以保護他們深愛的家園免受無情的外國入侵者的侵害。", text_en: "The brave and loyal soldiers fought tirelessly for months to protect their beloved homeland from the ruthless foreign _______." },
+    { word: "invasion", pos: "n.", cat: "invade", synonyms: ["invade", "invader", "invasion", "invasive"], def_en: "an instance of invading a country with an armed force", def_cn: "侵略；入侵", text_cn: "突然且出乎意料的軍事侵略導致數千名驚恐的平民逃越國境尋求安全。", text_en: "The sudden and unexpected military _______ caused thousands of terrified civilians to flee across the border to seek safety." },
+    { word: "invasive", pos: "adj.", cat: "invade", synonyms: ["invade", "invader", "invasion", "invasive"], def_en: "tending to spread prolifically and undesirably", def_cn: "侵入性的", text_cn: "環保人士正努力移除目前正在破壞當地森林生態系統的高度侵入性的植物物種。", text_en: "Environmentalists are working hard to remove the highly _______ plant species that is currently destroying the local forest ecosystem." },
+    { word: "conquer", pos: "v.", cat: "conquer", synonyms: ["conquer", "conqueror", "conquer one's fear", "conquered territory"], def_en: "to overcome and take control of a place by military force", def_cn: "征服；克服", text_cn: "我極度想要停止跑步，但我成功地克服了我可怕的疲勞並堅持到了終點線。", text_en: "I desperately wanted to stop running, but I successfully _______ed my terrible tiredness and kept going to the finish line." },
+    { word: "conqueror", pos: "n.", cat: "conquer", synonyms: ["conquer", "conqueror", "conquer one's fear", "conquered territory"], def_en: "a person who conquers a place or people", def_cn: "征服者", text_cn: "這位雄心勃勃的歷史征服者橫跨大陸，擊敗了龐大的軍隊並將所有寶貴的土地據為己有。", text_en: "The ambitious historical _______ traveled across the continent, defeating massive armies and claiming all the valuable land for himself." },
+    { word: "conquer one's fear", pos: "phr.", cat: "conquer", synonyms: ["conquer", "conqueror", "conquer one's fear", "conquered territory"], def_en: "to successfully overcome a feeling of being afraid", def_cn: "克服恐懼", text_cn: "這花了幾個月的治療，但她終於成功地克服了她對搭飛機的恐懼。", text_en: "It took several months of therapy, but she finally managed to _______ _______ _______ of flying in an airplane." },
+    { word: "conquered territory", pos: "phr.", cat: "conquer", synonyms: ["conquer", "conqueror", "conquer one's fear", "conquered territory"], def_en: "land that has been taken over by military force", def_cn: "被征服的領土", text_cn: "強大的國王對被征服的領土實施嚴格的新法律和高稅收，以維持對人民的完全控制。", text_en: "The powerful king imposed strict new laws and high taxes on the _______ _______ to maintain complete control over the people." },
+    { word: "clan", pos: "n.", cat: "clan", synonyms: ["clan", "rival clan"], def_en: "a group of close-knit and interrelated families", def_cn: "氏族；家族", text_cn: "和平地生活在這個偏遠山村的人們，實際上都是來自完全相同的一個古老家族氏族。", text_en: "The people living peacefully in this remote mountain village are actually all from the exact same ancient family _______." },
+    { word: "rival clan", pos: "phr.", cat: "clan", synonyms: ["clan", "rival clan"], def_en: "a competing or opposing family group", def_cn: "敵對家族", text_cn: "這兩個強大的團體過去是經常戰鬥的敵對家族，但他們最終簽署了一項和平條約。", text_en: "The two powerful groups used to be a _______ _______ that fought constantly, but they eventually signed a peace treaty." },
+    { word: "warrior", pos: "n.", cat: "warrior", synonyms: ["warrior", "brave warrior", "fierce warrior", "warrior spirit"], def_en: "a brave or experienced soldier or fighter", def_cn: "戰士", text_cn: "訓練有素的戰士勇敢地與危險的敵人進行了一場漫長且血腥的戰鬥以保護城堡。", text_en: "The highly trained _______ bravely fought a long and bloody battle against their dangerous enemy to protect the castle." },
+    { word: "brave warrior", pos: "phr.", cat: "warrior", synonyms: ["warrior", "brave warrior", "fierce warrior", "warrior spirit"], def_en: "a fighter who shows courage", def_cn: "勇敢的戰士", text_cn: "這位勇敢的戰士拒絕逃跑，反而選擇堅定地站著並猛烈地保護無助的村民免受攻擊。", text_en: "The _______ _______ refused to run away, choosing instead to stand firmly and fiercely protect the helpless villagers from the attack." },
+    { word: "fierce warrior", pos: "phr.", cat: "warrior", synonyms: ["warrior", "brave warrior", "fierce warrior", "warrior spirit"], def_en: "an aggressive and powerful fighter", def_cn: "勇猛的戰士", text_cn: "在歷史上，維京人以勇猛的戰士聞名於歐洲，他們從極快的木船上攻擊沿海城鎮。", text_en: "Historically, the Vikings were known across Europe as _______ _______s who attacked coastal towns from their incredibly fast wooden ships." },
+    { word: "warrior spirit", pos: "phr.", cat: "warrior", synonyms: ["warrior", "brave warrior", "fierce warrior", "warrior spirit"], def_en: "a mindset of courage, determination, and resilience", def_cn: "戰士精神", text_cn: "儘管受了重傷，這位運動員展現了真正的戰士精神，並回到場上完成了比賽。", text_en: "Despite his severe injuries, the athlete showed a true _______ _______ and returned to the field to finish the game." },
+    { word: "scatter", pos: "v.", cat: "scatter", synonyms: ["scatter", "be scattered with", "scatter around", "widely scattered"], def_en: "to throw in various random directions", def_cn: "散開；撒", text_cn: "當吵雜的警車突然開到房子前時，受驚的罪犯立刻朝著完全不同的方向散開。", text_en: "The frightened criminals immediately _______ed in completely different directions when the noisy police car suddenly drove up to the house." },
+    { word: "be scattered with", pos: "phr.", cat: "scatter", synonyms: ["scatter", "be scattered with", "scatter around", "widely scattered"], def_en: "to be covered with things thrown randomly", def_cn: "散佈著...", text_cn: "當我回家時，我注意到整個客廳地板都散佈著孩子忘記收好的玩具。", text_en: "When I came home, I noticed that the entire living room floor _______ _______ _______ toys that the child had forgotten to put away." },
+    { word: "scatter around", pos: "phr.", cat: "scatter", synonyms: ["scatter", "be scattered with", "scatter around", "widely scattered"], def_en: "to place or leave things in different places", def_cn: "散落一地", text_cn: "他的髒衣服懶散地散落一地在臥室裡，讓整個地方看起來極其凌亂且完全沒有條理。", text_en: "His dirty clothes were lazily _______ed _______ the bedroom, making the whole place look incredibly messy and completely unorganized." },
+    { word: "widely scattered", pos: "phr.", cat: "scatter", synonyms: ["scatter", "be scattered with", "scatter around", "widely scattered"], def_en: "spread over a large area", def_cn: "廣泛散佈的", text_cn: "古老的遺跡廣泛散佈的在浩瀚的沙漠中，使得科學家極難適當地研究它們。", text_en: "The ancient ruins are _______ _______ across the vast desert, making it extremely difficult for scientists to study them properly." },
+    { word: "expand", pos: "v.", cat: "expand", synonyms: ["expand", "expansion", "expansive", "business expansion"], def_en: "to become or make larger or more extensive", def_cn: "擴大；膨脹", text_cn: "由於顧客需求的大幅增加，這家麵包店計畫在明年擴大店面並增加一個座位區。", text_en: "Due to the massive increase in customer demand, the bakery plans to _______ its store and add a seating area next year." },
+    { word: "expansion", pos: "n.", cat: "expand", synonyms: ["expand", "expansion", "expansive", "business expansion"], def_en: "the action of becoming larger or more extensive", def_cn: "擴張；擴展", text_cn: "這家國際科技公司的快速擴張自然導致了立刻僱用許多新的軟體員工。", text_en: "The rapid _______ of the international technology company naturally led to the immediate hiring of many new software employees." },
+    { word: "expansive", pos: "adj.", cat: "expand", synonyms: ["expand", "expansion", "expansive", "business expansion"], def_en: "covering a wide area in terms of space or scope", def_cn: "廣闊的；開闊的", text_cn: "從高聳的摩天大樓頂端，你可以輕鬆地看到極其廣闊的城市天際線綿延數英里。", text_en: "From the top of the towering skyscraper, you can easily see the incredibly _______ city skyline stretching out for miles." },
+    { word: "business expansion", pos: "phr.", cat: "expand", synonyms: ["expand", "expansion", "expansive", "business expansion"], def_en: "the growth of a company's operations", def_cn: "業務擴展", text_cn: "執行長要求一份詳細的財務報告，以查看他們是否有足夠的資金來資助備受期待的業務擴展。", text_en: "The CEO requested a detailed financial report to see if they had enough money to fund the highly anticipated _______ _______." },
+    { word: "vast", pos: "adj.", cat: "vast", synonyms: ["vast", "the vast majority", "vast area", "immense"], def_en: "of very great extent or quantity; immense", def_cn: "廣大的；巨大的", text_cn: "這場刺激的搖滾演唱會是在一個可以輕鬆容納超過10,000名尖叫人群的廣大的地下大廳舉行的。", text_en: "The exciting rock concert took place in a _______ underground hall that could easily hold more than 10,000 screaming people." },
+    { word: "the vast majority", pos: "phr.", cat: "vast", synonyms: ["vast", "the vast majority", "vast area", "immense"], def_en: "almost all of a group", def_cn: "絕大多數", text_cn: "絕大多數的工廠工人強烈同意他們理應因為專注的辛勤工作而獲得公平的加薪。", text_en: "_______ _______ _______ of the factory workers strongly agreed that they deserved a fair salary increase for their dedicated hard work." },
+    { word: "vast area", pos: "phr.", cat: "vast", synonyms: ["vast", "the vast majority", "vast area", "immense"], def_en: "a very large expanse of space or land", def_cn: "廣闊的地區", text_cn: "可怕的夏季野火迅速蔓延過國家公園的一大片廣闊的地區，摧毀了數千棵古樹。", text_en: "The terrible summer wildfire quickly spread across a _______ _______ of the national park, destroying thousands of ancient trees." },
+    { word: "immense", pos: "adj.", cat: "vast", synonyms: ["vast", "the vast majority", "vast area", "immense"], def_en: "extremely large or great, especially in scale or degree", def_cn: "極大的", text_cn: "經過幾週日以繼夜的學習，當這名學生終於通過了困難的考試時，他感到了一種極大的如釋重負的感覺。", text_en: "After weeks of studying night and day, the student felt an _______ sense of relief when he finally passed the difficult exam." },
+    { word: "empire", pos: "n.", cat: "empire", synonyms: ["empire", "emperor", "Roman Empire"], def_en: "an extensive group of states or countries under a single supreme authority", def_cn: "帝國", text_cn: "在其歷史的最高峰時期，大英帝國令人印象深刻地包含了世界上超過百分之二十的總土地面積。", text_en: "At the peak of its historical height, the British _______ impressively included more than 20 percent of the world's total land area." },
+    { word: "emperor", pos: "n.", cat: "empire", synonyms: ["empire", "emperor", "Roman Empire"], def_en: "a sovereign ruler of great power and rank", def_cn: "皇帝", text_cn: "強大的羅馬皇帝完全控制著龐大的軍隊，並且可以單槍匹馬地制定每個人都必須盲目遵守的法律。", text_en: "The powerful Roman _______ completely controlled the vast army and could single-handedly make laws that everyone had to follow blindly." },
+    { word: "Roman Empire", pos: "phr.", cat: "empire", synonyms: ["empire", "emperor", "Roman Empire"], def_en: "the post-Republican period of ancient Rome", def_cn: "羅馬帝國", text_cn: "影響深遠的羅馬帝國的衰亡徹底永遠改變了古代歐洲的政治和文化景觀。", text_en: "The fall of the deeply influential _______ _______ drastically changed the political and cultural landscape of ancient Europe forever." },
+    { word: "the Pacific Ocean", pos: "phr.", cat: "pacific", synonyms: ["the Pacific Ocean", "Pacific coast"], def_en: "the largest and deepest of Earth's oceanic divisions", def_cn: "太平洋", text_cn: "太平洋被普遍認為是世界上最大的海洋，覆蓋的面積比所有陸地面積的總和還要大。", text_en: "_______ _______ _______ is universally recognized as the world's largest ocean, covering more area than all the landmasses combined." },
+    { word: "Pacific coast", pos: "phr.", cat: "pacific", synonyms: ["the Pacific Ocean", "Pacific coast"], def_en: "the coastline along the Pacific Ocean", def_cn: "太平洋海岸", text_cn: "沿著令人驚嘆的太平洋海岸長途開車，為遊客提供了該國一些最令人驚豔的海景。", text_en: "Taking a long drive along the breathtaking _______ _______ provides tourists with some of the most stunning ocean views in the country." },
+    { word: "crush",  pos: "v.", cat: "crush", synonyms: ["crush", "have a crush on somebody", "crushed"], def_en: "to deform, pulverize, or force inwards by compressing forcefully", def_cn: "壓碎；使極度傷心", text_cn: "派對結束後，頑皮的男孩們故意用厚重的鞋子壓碎空紙杯，並大聲笑著。", text_en: "The naughty boys laughed loudly as they intentionally _______ed the empty paper cups under their heavy shoes after the party ended." },
+    { word: "have a crush on somebody", pos: "phr.", cat: "crush", synonyms: ["crush", "have a crush on somebody", "crushed"], def_en: "to have a feeling of romantic love for someone", def_cn: "迷戀某人", text_cn: "薩米緊張地傳了一張手寫紙條給珍妮，秘密地說自從學期開始他就非常迷戀她。", text_en: "Sammy nervously passed a handwritten note to Jenny that secretly said he _______ _______ a huge _______ _______ _______ since the semester began." },
+    { word: "crushed", pos: "adj.", cat: "crush", synonyms: ["crush", "have a crush on somebody", "crushed"], def_en: "greatly disappointed or deeply saddened", def_cn: "極度傷心的", text_cn: "當興奮的孩子們悲傷地發現他們備受期待的週末迪士尼樂園之旅突然被取消時，他們感到完全極度傷心的。", text_en: "The excited children were completely _______ when they sadly found out their highly anticipated weekend trip to Disneyland was suddenly cancelled." },
+    { word: "oppose", pos: "v.", cat: "oppose", synonyms: ["oppose", "opposition", "be opposed to"], def_en: "to disapprove of and attempt to prevent", def_cn: "反對", text_cn: "一些憤怒的公民強烈反對主席令人驚訝的決定，而其他人則完全同意這是現有最好的選擇。", text_en: "Some angry citizens strongly _______ed the chairperson's surprising decision, while others fully agreed that it was the best choice available." },
+    { word: "opposition", pos: "n.", cat: "oppose", synonyms: ["oppose", "opposition", "be opposed to"], def_en: "resistance or dissent, expressed in action or argument", def_cn: "反對", text_cn: "儘管面臨保守派政治人物激烈的反對，這項進步的新醫療保健法案昨晚終於成功通過了。", text_en: "Despite facing fierce _______ from the conservative politicians, the progressive new healthcare law was finally passed successfully last night." },
+    { word: "be opposed to", pos: "phr.", cat: "oppose", synonyms: ["oppose", "opposition", "be opposed to"], def_en: "to be against or disagree with something", def_cn: "反對...", text_cn: "彼得強烈反對新的稅法，並且他已經生氣地寫了幾封投訴信給當地報紙談論此事。", text_en: "Peter _______ strongly _______ _______ the new tax law, and he has angrily written several complaint letters to the local newspaper about it." },
+    { word: "submit", pos: "v.", cat: "submit", synonyms: ["submit", "submit a report", "submit an assignment", "submissive", "submit to"], def_en: "to accept or yield to a superior force; to present for consideration", def_cn: "屈服；提交", text_cn: "疲憊的執行長固執地沒有向具攻擊性的投資者要求他立即辭去領導職位的要求屈服。", text_en: "The exhausted CEO stubbornly did not _______ to the aggressive investors' demands to immediately step down from his leadership position." },
+    { word: "submit a report", pos: "phr.", cat: "submit", synonyms: ["submit", "submit a report", "submit an assignment", "submissive", "submit to"], def_en: "to hand in a document for review or grading", def_cn: "提交報告", text_cn: "每個學生都必須在星期五嚴格的截止日期過去之前，適當地提交一份報告，詳細說明他們的科學發現。", text_en: "Every student is required to properly _______ _______ _______ detailing their scientific findings before the strict deadline strictly passes on Friday." },
+    { word: "submit an assignment", pos: "phr.", cat: "submit", synonyms: ["submit", "submit a report", "submit an assignment", "submissive", "submit to"], def_en: "To hand in a piece of schoolwork or a task to a teacher or instructor", def_cn: "繳交作業", text_cn: "老師提醒學生們，他們必須在午夜前透過線上平台繳交作業，否則他們的期末成績將會被扣百分之十。", text_en: "The teacher reminded the students that they must _______ _______ _______ through the online portal before midnight, or they would lose ten percent of their final grade." },
+    { word: "submissive", pos: "adj.", cat: "submit", synonyms: ["submit", "submit a report", "submit an assignment", "submissive", "submit to"], def_en: "ready to conform to the authority or will of others", def_cn: "順從的", text_cn: "殘酷的獨裁者總是期望他受驚的公民是完全順從的，並且從不質疑他的任何嚴苛規定。", text_en: "The cruel dictator always expected his terrified citizens to be completely _______ and never question any of his harsh rules." },
+    { word: "submit to", pos: "phr.", cat: "submit", synonyms: ["submit", "submit a report", "submit an assignment", "submissive", "submit to"], def_en: "to yield or give in to someone or something", def_cn: "屈服於...", text_cn: "這位勇敢的叛軍領袖發誓，無論戰鬥多麼艱難，他的人民永遠不會屈服於壓迫的敵軍。", text_en: "The brave rebel leader vowed that his people would never _______ _______ the oppressive enemy forces, no matter how hard the fight was." },
+    { word: "endure", pos: "v.", cat: "endure", synonyms: ["endure", "enduring", "endurance"], def_en: "to suffer something painful or difficult patiently", def_cn: "忍受", text_cn: "這位盡責的士兵在激烈的戰爭中，勇敢地在炎熱的沙漠中在完全沒有水的情況下忍受了極其漫長的時間。", text_en: "The dedicated soldier bravely _______d terribly long hours in the hot desert completely without water during the intense war." },
+    { word: "enduring", pos: "adj.", cat: "endure", synonyms: ["endure", "enduring", "endurance"], def_en: "continuing or long-lasting", def_cn: "持久的", text_cn: "這部才華洋溢的經典小說具有一種持久的吸引力，神祕地每年持續吸引數千名新的年輕讀者。", text_en: "The brilliant classic novel has an _______ appeal that mysteriously continues to attract thousands of new young readers every single year." },
+    { word: "endurance", pos: "n.", cat: "endure", synonyms: ["endure", "enduring", "endurance"], def_en: "the fact or power of enduring an unpleasant process", def_cn: "忍耐力", text_cn: "在極端的夏日酷暑中跑一場艱苦的馬拉松不僅需要體力，還需要令人難以置信的心理忍耐力。", text_en: "Running a grueling marathon in the extreme summer heat requires not only physical strength but also incredible mental _______." },
+    { word: "bear-bore-born", pos: "v.", cat: "bear", synonyms: ["bear-bore-born", "stand-stood-stood", "tolerate"], def_en: "to endure an ordeal or difficulty", def_cn: "忍受", text_cn: "蜜雪兒其實不介意炎熱的溫度，但她就是無法忍受這座熱帶島嶼令人窒息的濕度。", text_en: "Michelle didn't really mind the hot temperature, but she simply couldn't _______ the suffocating humidity of the tropical island." },
+    { word: "stand-stood-stood", pos: "v.", cat: "bear", synonyms: ["bear-bore-born", "stand-stood-stood", "tolerate"], def_en: "to be able to endure or tolerate", def_cn: "忍受", text_cn: "我體法忍受那些在重要的早會總是遲到且從不為自己的不良行為道歉的懶惰員工。", text_en: "I really can't _______ lazy employees who are always late for important morning meetings and never apologize for their bad behavior." },
+    { word: "tolerate", pos: "v.", cat: "bear", synonyms: ["bear-bore-born", "stand-stood-stood", "tolerate"], def_en: "to allow the existence or occurrence of something", def_cn: "容忍", text_cn: "嚴格的老闆堅定地表示他不會容忍你這麼常遲到，所以盡你所能準時到這裡。", text_en: "The strict boss firmly stated that he will not _______ you being late so often, so try your best to get here on time." },
+    { word: "resemble", pos: "v.", cat: "resemble", synonyms: ["resemble", "resemblance", "bear a resemblance to", "closely resemble"], def_en: "to have qualities or features in common with", def_cn: "像；與...相似", text_cn: "許多人經常說我非常像我美麗的母親，尤其是當我為了拍照而燦爛地微笑時。", text_en: "Many people frequently say that I closely _______ my beautiful mother, especially when I smile broadly for a photograph." },
+    { word: "resemblance", pos: "n.", cat: "resemble", synonyms: ["resemble", "resemblance", "bear a resemblance to", "closely resemble"], def_en: "the state of resembling or being alike", def_cn: "相似之處", text_cn: "這兩個沒有血緣關係的男人之間奇怪的身體相似之處是如此令人難以置信地強烈，以至於每個人都誤以為他們是雙胞胎兄弟。", text_en: "The strange physical _______ between the two unrelated men is so incredibly strong that everyone mistakenly thinks they are twin brothers." },
+    { word: "bear a resemblance to", pos: "phr.", cat: "resemble", synonyms: ["resemble", "resemblance", "bear a resemblance to", "closely resemble"], def_en: "to look like or be similar to someone or something", def_cn: "與...有相似之處", text_cn: "我私下認識一個工作上很有趣的人，他實際上與著名的好萊塢演員休·傑克曼有極為密切的相似之處。", text_en: "I personally know a funny person at work who actually _______ a close _______ _______ the famous Hollywood actor, Hugh Jackman." },
+    { word: "closely resemble", pos: "phr.", cat: "resemble", synonyms: ["resemble", "resemblance", "bear a resemblance to", "closely resemble"], def_en: "to be very similar in appearance or nature", def_cn: "非常相似", text_cn: "新發現的昆蟲物種似乎非常相似於一片普通的葉子，這完美地幫助牠聰明地躲避危險的掠食者。", text_en: "The newly discovered insect species seems to _______ _______ a common leaf, which perfectly helps it cleverly hide from dangerous predators." },
+    { word: "slave", pos: "n.", cat: "slave", synonyms: ["slave", "slavery", "enslave"], def_en: "a person who is the legal property of another", def_cn: "奴隸", text_cn: "絕望的奴隸勇敢地在漆黑的午夜計畫了一次危險的逃跑，以最終獲得他寶貴的自由。", text_en: "The desperate _______ courageously planned a dangerous escape in the middle of the dark night to finally gain his precious freedom." },
+    { word: "slavery", pos: "n.", cat: "slave", synonyms: ["slave", "slavery", "enslave"], def_en: "the state or condition of being a slave", def_cn: "奴隸制度", text_cn: "在歷史上的美國，奴隸制度的殘酷行為最終在血腥且分裂的內戰期間被定為完全非法。", text_en: "In the historical United States, the cruel practice of _______ was finally made entirely illegal during the bloody and divisive Civil War." },
+    { word: "enslave", pos: "v.", cat: "slave", synonyms: ["slave", "slavery", "enslave"], def_en: "to make someone a slave", def_cn: "奴役", text_cn: "具攻擊性的入侵軍隊不幸地在暴力且混亂的攻擊中，成功俘虜並殘忍地奴役了數百名無辜的村民。", text_en: "The aggressive invading army unfortunately managed to capture and brutally _______ hundreds of innocent villagers during the violent and chaotic attack." },
+    { word: "hemisphere", pos: "n.", cat: "hemisphere", synonyms: [], def_en: "a half of the earth", def_cn: "半球", text_cn: "如果你編巧舒適地住在南半球，令人驚訝地，寒冷的冬季是發生在六月到八月。", text_en: "If you happen to live comfortably in the southern _______, the freezing winter season surprisingly takes place from June through August." },
+    { word: "iron fist", pos: "phr.", cat: "ironfist", synonyms: [], def_en: "rigorous or severe control", def_cn: "鐵腕（統治）", text_cn: "這位不屈服的獨裁者用鐵腕嚴厲統治這個貧窮國家三十年，猛烈地鎮壓任何叛亂的跡象。", text_en: "The unyielding dictator harshly ruled the poor country with an _______ _______ for three decades, fiercely crushing any signs of rebellion." },
+    { word: "subject", pos: "n.", cat: "subject", synonyms: [], def_en: "a member of a state other than its ruler", def_cn: "臣民", text_cn: "每當皇家國王自豪地走過宏偉的宮殿大廳時，忠誠的臣民都恭敬地在完全的沉默中低下頭。", text_en: "The loyal _______s respectfully bowed their heads in complete silence whenever the royal king proudly walked through the grand palace hall." }
+];
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// 2. STATE APP VARIABLES
+let studentName = "";
+let currentIdx = 0;
+let score = 0;
+let wrongWords = [];
+let lookedUpWords = [];
+let shuffledQuiz = [];
+let activeTargetWord = "";
+
+// Shuffle helper
+function shuffleArray(arr) {
+    return arr.sort(() => Math.random() - 0.5);
+}
+
+// Start Quiz Session
+function startQuiz() {
+    const nameInput = document.getElementById("student-name").value.trim();
+    if (!nameInput) {
+        alert("請輸入學生姓名以開始測驗！");
+        return;
+    }
+    studentName = nameInput;
+    document.getElementById("setup-screen").classList.remove("active");
+    document.getElementById("quiz-screen").classList.add("active");
+    
+    // Shuffle entire dataset for full coverage testing
+    shuffledQuiz = [...DATA];
+    shuffleArray(shuffledQuiz);
+    
+    currentIdx = 0;
+    score = 0;
+    wrongWords = [];
+    lookedUpWords = [];
+    
+    showQuestion();
+}
+
+// Render Question View
+function showQuestion() {
+    document.getElementById("next-btn").style.display = "none";
+    document.getElementById("feedback").className = "feedback";
+    
+    const progressPercent = (currentIdx / shuffledQuiz.length) * 100;
+    document.getElementById("progress-inner").style.width = progressPercent + "%";
+    
+    const item = shuffledQuiz[currentIdx];
+    document.getElementById("sentence-cn").textContent = item.text_cn;
+    
+    // Transform English sentence to include live click-to-lookup tokens
+    const enContainer = document.getElementById("sentence-en");
+    enContainer.innerHTML = "";
+    
+    // Build tokenized text layout safely supporting blanks
+    const parts = item.text_en.split(" ");
+    parts.forEach(part => {
+        if(part.includes("_______")) {
+            const spanBlank = document.createElement("span");
+            spanBlank.style.borderBottom = "2px solid var(--text)";
+            spanBlank.style.padding = "0 15px";
+            spanBlank.style.fontWeight = "bold";
+            spanBlank.style.color = "var(--primary)";
+            spanBlank.id = "blank-word-anchor";
+            spanBlank.innerHTML = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+            enContainer.appendChild(spanBlank);
+            enContainer.appendChild(document.createTextNode(" "));
+        } else {
+            const cleanToken = part.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?"']/g,"");
+            const wordSpan = document.createElement("span");
+            wordSpan.className = "clickable-word";
+            wordSpan.textContent = part;
+            wordSpan.onclick = () => openDict(cleanToken);
+            enContainer.appendChild(wordSpan);
+            enContainer.appendChild(document.createTextNode(" "));
+        }
+    });
+    
+    // Generate Distractors following the strict same-category filtering rule
+    generateOptions(item);
+}
+
+// Build 4 Multiple Choice Buttons with Advanced Distractor Protection
+function generateOptions(currentItem) {
+    const optionsGrid = document.getElementById("options-grid");
+    optionsGrid.innerHTML = "";
+    
+    // Filter distractors avoiding any direct or reciprocal bidirectional synonyms
+    let pool = DATA.filter(x => {
+        if (x.word === currentItem.word) return false;
+        // Block explicitly defined local synonyms grouping
+        if (currentItem.synonyms && currentItem.synonyms.includes(x.word)) return false;
+        if (x.synonyms && x.synonyms.includes(currentItem.word)) return false;
+        return true;
+    });
+    
+    // Tier 1: Try gathering options with identical Parts Of Speech (POS)
+    let samePosPool = pool.filter(x => x.pos === currentItem.pos);
+    if (samePosPool.length < 3) {
+        samePosPool = pool; // Fallback to general pool if parts of speech are scarce
+    }
+    
+    shuffleArray(samePosPool);
+    let options = [currentItem];
+    for(let i=0; i<samePosPool.length; i++) {
+        if(options.length >= 4) break;
+        if(!options.some(opt => opt.word === samePosPool[i].word)) {
+            options.push(samePosPool[i]);
+        }
+    }
+    
+    // Final defensive shuffle ensuring correct option doesn't stay stuck at first position
+    shuffleArray(options);
+    
+    options.forEach(opt => {
+        const card = document.createElement("div");
+        card.className = "option-card";
+        card.innerHTML = `<span><b>${opt.word}</b> <small style="color:#7f8c8d;">${opt.pos}</small></span>`;
+        card.onclick = () => checkAnswer(card, opt.word, currentItem.word);
+        optionsGrid.appendChild(card);
+    });
+}
+
+// Handle Multiple Choice Click Selection
+function checkAnswer(selectedCard, chosenWord, correctWord) {
+    // Prevent duplicated submissions on clicked elements
+    const cards = document.querySelectorAll(".option-card");
+    cards.forEach(c => c.onclick = null);
+    
+    const feedback = document.getElementById("feedback");
+    const currentItem = shuffledQuiz[currentIdx];
+    
+    // Reveal correct item onto the display blank placeholder
+    const blankAnchor = document.getElementById("blank-word-anchor");
+    if(blankAnchor) {
+        blankAnchor.textContent = correctWord;
+    }
+    
+    if (chosenWord === correctWord) {
+        score++;
+        selectedCard.classList.add("correct");
+        feedback.className = "feedback correct";
+        feedback.innerHTML = `✓ 正確！<div class="def-box"><b>${currentItem.word}</b> (${currentItem.pos}): ${currentItem.def_en}<br>解說：${currentItem.def_cn}</div>`;
+    } else {
+        selectedCard.classList.add("wrong");
+        feedback.className = "feedback wrong";
+        feedback.innerHTML = `✗ 錯誤！正確答案應為 <b>${correctWord}</b>。<div class="def-box"><b>${currentItem.word}</b> (${currentItem.pos}): ${currentItem.def_en}<br>解說：${currentItem.def_cn}</div>`;
+        if(!wrongWords.includes(correctWord)) {
+            wrongWords.push(correctWord);
+        }
+        
+        // Visual indicator enhancement highlighting exact correct target card
+        cards.forEach(c => {
+            if(c.textContent.trim().startsWith(correctWord)) {
+                c.classList.add("correct");
+            }
+        });
+    }
+    
+    // Play Web Audio Text-To-Speech Synthesis instantly for sentence immersive comprehension
+    playTTS(currentItem.text_en.replace("_______", correctWord));
+    
+    document.getElementById("next-btn").style.display = "block";
+}
+
+// Move to next card or submit scoring
+function nextQuestion() {
+    currentIdx++;
+    if(currentIdx < shuffledQuiz.length) {
+        showQuestion();
+    } else {
+        finishQuiz();
+    }
+}
+
+// Finish Exam and trigger submission pipelines
+function finishQuiz() {
+    document.getElementById("quiz-screen").classList.remove("active");
+    document.getElementById("result-screen").classList.add("active");
+    
+    const percent = Math.round((score / shuffledQuiz.length) * 100);
+    document.getElementById("score-num").textContent = percent;
+    document.getElementById("result-meta").innerHTML = `學生：${studentName}<br>答對題數：${score} / ${shuffledQuiz.length}`;
+    
+    // Push logs remotely to Google Sheets Spreadsheet backend via Apps Script CORS API
+    const payload = {
+        timestamp: new Date().toISOString(),
+        studentName: studentName,
+        scorePercent: percent,
+        wrongWords: wrongWords.join(", ") || "無",
+        lookedUpWords: lookedUpWords.join(", ") || "無"
+    };
+    
+    fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+    }).catch(err => console.log("Logging framework metrics offline saved.", err));
+}
+
+// Immersive Web Audio Speech Synth Api Wrapper
+function playTTS(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        window.speechSynthesis.speak(u);
+    }
+}
+
+// Dictionary Modal Open Trigger
+function openDict(word) {
+    if(!word) return;
+    activeTargetWord = word;
+    document.getElementById("dict-word").textContent = word;
+    document.getElementById("dict-body").textContent = "查詢中...";
+    document.getElementById("dict-modal").style.display = "flex";
+    
+    if(!lookedUpWords.includes(word)) {
+        lookedUpWords.push(word);
+    }
+    
+    // Dynamic Cloud Dictionary fetch directly to free translation proxy engine
+    const api = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|zh-TW`;
+    fetch(api)
+        .then(res => res.json())
+        .then(data => {
+            if(data && data.responseData) {
+                document.getElementById("dict-body").innerHTML = `
+                    <p style="font-size:1.15rem; color:#2c3e50; margin-bottom:5px;"><b>翻譯結果：</b></p>
+                    <p style="font-size:1.3rem; color:#e67e22; font-weight:bold;">${data.responseData.translatedText}</p>
+                    <small style="color:#95a5a6; display:block; margin-top:15px; border-top:1px solid #eee; padding-top:5px;">* 線上字典提供即時外部翻譯參考</small>
+                `;
+            }
+        })
+        .catch(() => {
+            document.getElementById("dict-body").textContent = "無法取得即時網路連線翻譯。";
+        });
+}
+
+function closeDict(e) {
+    if(e.target.id === "dict-modal") {
+        document.getElementById("dict-modal").style.display = "none";
+    }
+}
+
+function playDictTTS() {
+    if(activeTargetWord) {
+        playTTS(activeTargetWord);
+    }
+}
+</script>
+</body>
+</html>
