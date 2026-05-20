@@ -1,0 +1,2795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced U8 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Advanced U8
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Advanced U8 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "withdraw  withdrew  withdrawn": {
+    "word": "withdraw / withdrew / withdrawn",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to take back, remove, or move away from a place or situation",
+    "cn": "提款；撤回；退出",
+    "ex": "Robert decided to withdraw his bid on the house after finding serious structural problems."
+  },
+  "withdrawal": {
+    "word": "withdrawal",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the act of taking back or removing something, or taking money from a bank",
+    "cn": "提領；撤退；收回",
+    "ex": "The bank charges a small fee for every withdrawal you make from an international ATM."
+  },
+  "withdraw from": {
+    "word": "withdraw from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially stop participating in a competition, organization, or activity",
+    "cn": "退出（學校、比賽等）",
+    "ex": "The tennis champion had to withdraw the tournament due to a sudden knee injury."
+  },
+  "admission": {
+    "word": "admission",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the act of agreeing that something is true, or permission to enter a place",
+    "cn": "入場許可；承認；入學",
+    "ex": "You need to be 18 to gain admission to this movie because of its violent content."
+  },
+  "admit  admitted  admitted": {
+    "word": "admit / admitted / admitted",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to agree that something is true, especially unwillingly",
+    "cn": "承認；准許進入",
+    "ex": "Although he didn't want to tell the truth, he had to admit that he made a mistake."
+  },
+  "adjust to": {
+    "word": "adjust to",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to change something slightly to make it fit or work better in a new situation",
+    "cn": "調整；適應（環境）",
+    "ex": "It took the international student several months to adjust to the cold winter weather."
+  },
+  "adjustment": {
+    "word": "adjustment",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a small change made to something in order to correct or improve it",
+    "cn": "調整；適應",
+    "ex": "The employees will go through a period of adjustment while the new management takes over."
+  },
+  "adapt to": {
+    "word": "adapt to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to change one's behavior, routines, or ideas in order to deal successfully with a new situation",
+    "cn": "適應...",
+    "ex": "The newly recruited technology consultants had to adapt to the fast-paced corporate environment within a few weeks."
+  },
+  "adaptation": {
+    "word": "adaptation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a dynamic process or physical characteristic that helps an organism survive and reproduce in its environment",
+    "cn": "（生物學的）適應；適應特徵",
+    "ex": "The biology professor thoroughly explained how evolutionary adaptation helps rare desert organisms conserve scarce water resources."
+  },
+  "adapted": {
+    "word": "adapted",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "modified, rewritten, or altered from an original book or play to make it suitable for a film or stage script",
+    "cn": "改編的（劇本/作品）",
+    "ex": "The historical drama series is adapted from a brilliant award-winning novel written by a prominent local author."
+  },
+  "based on": {
+    "word": "based on",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "utilizing a specific fact, idea, or foundational event as the core ground for something",
+    "cn": "根據...；基於...",
+    "ex": "The experienced consultant designed a customizable learning platform based on the students' specific tech preferences."
+  },
+  "according to": {
+    "word": "according to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "as stated, reported, or indicated by a particular person, authoritative source, or rule",
+    "cn": "根據...；依照...",
+    "ex": "according to the latest financial report, the manufacturing sector exported massive manufactured goods last quarter."
+  },
+  "compared to": {
+    "word": "compared to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "examined or evaluated in contrast with another entity to note the relative differences",
+    "cn": "與...相比",
+    "ex": "The annual revenue of our technology corporation increased significantly this year compared to that of last year."
+  },
+  "judging from": {
+    "word": "judging from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "forming an opinion or making a logical conclusion based on specific evidence or appearance",
+    "cn": "從...來看；根據...來判斷",
+    "ex": "judging from his athletic performance during the training session, the athlete is eager to win the championship."
+  },
+  "normal": {
+    "word": "normal",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "ordinary or expected; conforming to a standard or regular pattern",
+    "cn": "正常的；一般的",
+    "ex": "It was just a normal day at the office until he heard the terrifying scream from down the hall."
+  },
+  "abnormal": {
+    "word": "abnormal",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "different from what is usual or expected, typically in a way that is worrying",
+    "cn": "異常的；不正常的",
+    "ex": "The medical tests showed abnormal results, so the doctor ordered a series of further examinations."
+  },
+  "under normal circumstances": {
+    "word": "under normal circumstances",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "in ordinary conditions or situations without unexpected events",
+    "cn": "在正常情況下",
+    "ex": "under I would not need you to help me, but this project is too urgent."
+  },
+  "normally": {
+    "word": "normally",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "usually or in a regular, ordinary way",
+    "cn": "通常；正常地",
+    "ex": "The train normally arrives on time, but today it was delayed by the heavy snowstorm."
+  },
+  "abnormal__2": {
+    "word": "abnormal",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "deviating from what is normal, usual, or expected, typically in a way that is undesirable",
+    "cn": "異常的；反常的",
+    "ex": "The automated monitoring system immediately detected an abnormal temperature spike inside the primary database server."
+  },
+  "anomaly": {
+    "word": "anomaly",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "something that deviates from what is standard, normal, or expected; an irregularity",
+    "cn": "異常事物；不正常現象",
+    "ex": "The senior financial analyst noticed a strange anomaly in the corporation's annual revenue records last night."
+  },
+  "canon": {
+    "word": "canon",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a large, powerful gun fixed to two wheels, used in old warfare",
+    "cn": "大砲",
+    "ex": "Old canons were placed all around the outside of the castle to protect it from attackers."
+  },
+  "cannonball": {
+    "word": "cannonball",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a round metal or stone ball fired from a cannon",
+    "cn": "砲彈",
+    "ex": "The museum displays a heavy iron cannonball that was found near the battlefield."
+  },
+  "worthy of": {
+    "word": "worthy of",
+    "pos": "(adj.)",
+    "cat": "phr",
+    "en": "deserving effort, attention, or respect",
+    "cn": "值得的；配得上...的",
+    "ex": "Eric is worthy of being elected president of our class because he always helps others."
+  },
+  "worth": {
+    "word": "worth",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having a particular value, especially in terms of money or importance",
+    "cn": "值得；價值...",
+    "ex": "This car is worth one million NT dollars, but the owner refuses to sell it."
+  },
+  "is worth v-ing": {
+    "word": "is worth V-ing",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "deserving to be treated or processed in a specific active way",
+    "cn": "值得（做某事）",
+    "ex": "This book is is reading because it offers valuable insights into modern history."
+  },
+  "worthwhile": {
+    "word": "worthwhile",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "useful, important, or rewarding enough to be worth the time or money spent",
+    "cn": "值得花時間/金錢的",
+    "ex": "Volunteering at the local hospital is a worthwhile experience that will change your perspective."
+  },
+  "noteworthy": {
+    "word": "noteworthy",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "deserving to be noticed or to receive attention because of being important",
+    "cn": "值得注意的；顯著的",
+    "ex": "There are several noteworthy changes in the new policy that every employee should study carefully."
+  },
+  "trustworthy": {
+    "word": "trustworthy",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "able to be relied on as honest or truthful",
+    "cn": "值得信賴的；可靠的",
+    "ex": "You can share your secrets with her because she is a very trustworthy person."
+  },
+  "contest": {
+    "word": "contest",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to formally object to a statement, decision, or the ownership of something",
+    "cn": "爭奪；對...提出質疑",
+    "ex": "The two countries contested ownership of the trade route for more than three decades."
+  },
+  "contest__2": {
+    "word": "contest",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a competition to do better than other people, usually judged by experts",
+    "cn": "比賽；競賽",
+    "ex": "Sandra desperately wanted to win the beauty contest to launch her professional modeling career."
+  },
+  "contestant": {
+    "word": "contestant",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who takes part in a contest or competition",
+    "cn": "參賽者",
+    "ex": "Each contestant will have three minutes to present their project to the panel of judges."
+  },
+  "revive": {
+    "word": "revive",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to bring something back to life, health, existence, or popularity",
+    "cn": "使復甦；使再度流行",
+    "ex": "The successful film reviveed interest in traditional handicrafts among young generations."
+  },
+  "revival": {
+    "word": "revival",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an improvement in the condition or popularity of something",
+    "cn": "復興；復甦；再現",
+    "ex": "The city center is experiencing an economic revival after the opening of the new shopping mall."
+  },
+  "capture": {
+    "word": "capture",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to catch a person or animal, or to take distinct control of a place",
+    "cn": "捕捉；捕獲；佔領",
+    "ex": "The experienced doctors captureed the sick bear safely and treated its deep wounds."
+  },
+  "capture somebody's imagination": {
+    "word": "capture somebody's imagination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to interpret or stimulate someone's creative thoughts strongly",
+    "cn": "擄獲某人的想像力；吸引住某人",
+    "ex": "The creative short story captureed the children's somebody's during the afternoon library reading session."
+  },
+  "scholar": {
+    "word": "scholar",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who studies an academic subject and knows a lot about it",
+    "cn": "學者",
+    "ex": "The elderly professor is a visiting scholar from a prestigious university in England."
+  },
+  "academic": {
+    "word": "academic",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to schools, colleges, and universities, or to connected study",
+    "cn": "學術的",
+    "ex": "The university offers high academic standards and excellent research facilities for its students."
+  },
+  "scholarship": {
+    "word": "scholarship",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an amount of money given by a school or organization to pay for studies",
+    "cn": "獎學金",
+    "ex": "She received a full scholarship to study medicine because of her outstanding high school grades."
+  },
+  "scholarly": {
+    "word": "scholarly",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "containing a lot of deep knowledge, or typical of a serious scholar",
+    "cn": "學術性的；博學的",
+    "ex": "The journal published a scholarly article that analyzed the social impact of the industrial revolution."
+  },
+  "excel": {
+    "word": "excel",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to art, or showing skill and imagination in creating beautiful things",
+    "cn": "藝術的；有藝術天分的",
+    "ex": "The excel bowl is meant to be looked at, not to be used as a soup bowl."
+  },
+  "artistic talent": {
+    "word": "artistic talent",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "natural ability to create good art, music, or literature",
+    "cn": "藝術天分",
+    "ex": "Cynthia has no artistic talent at all, but she is very good with financial numbers."
+  },
+  "distinct": {
+    "word": "distinct",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "clearly noticeable, separate, or different from others",
+    "cn": "明顯不同的；清晰的",
+    "ex": "The two species of birds have distinct singing patterns that help scientists identify them."
+  },
+  "distinction": {
+    "word": "distinction",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a difference between similar things, or an award given for high quality",
+    "cn": "榮譽；優秀；區別",
+    "ex": "The hard-working student earned a distinction for her well-written essay on environmental protection."
+  },
+  "distinctive": {
+    "word": "distinctive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having a special feature that makes something easily recognizable",
+    "cn": "有特色的；獨特的",
+    "ex": "The coffee shop is famous for its distinctive aroma that attracts customers from blocks away."
+  },
+  "excel in": {
+    "word": "excel in",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to be exceptionally good at or proficient in an activity or subject",
+    "cn": "擅長；勝過他人",
+    "ex": "The young girl excels in mathematics and often wins national school competitions."
+  },
+  "sculptor": {
+    "word": "sculptor",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an artist who creates three-dimensional shapes out of stone, wood, or metal",
+    "cn": "雕刻家",
+    "ex": "The innovative sculptor incorporates many different materials like glass and metal into his works."
+  },
+  "sculpture": {
+    "word": "sculpture",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a three-dimensional work of art made by carving or molding material",
+    "cn": "雕塑品",
+    "ex": "They placed a large marble sculpture of a horse in the center of the garden."
+  },
+  "sportsman": {
+    "word": "sportsman",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who takes part in sports, especially as a professional",
+    "cn": "運動員",
+    "ex": "He has been a keen sportsman all his life, playing soccer and tennis every weekend."
+  },
+  "sportsmanship": {
+    "word": "sportsmanship",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "fair and generous behavior or treatment of others in a sports contest",
+    "cn": "運動員精神；風度",
+    "ex": "Showing good sportsmanship means shaking hands with your opponent after you lose a match."
+  },
+  "athlete": {
+    "word": "athlete",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who is proficient in sports and other forms of physical exercise",
+    "cn": "運動員",
+    "ex": "The dedicated athlete trained for hours daily to prepare for the upcoming international sports meet."
+  },
+  "athletic": {
+    "word": "athletic",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "physically strong, fit, and active, or relating to sports and athletes",
+    "cn": "運動的；體育的；強壯的",
+    "ex": "The school board decided to invest more revenue into upgrading the stadium's athletic facilities this year."
+  },
+  "tournament": {
+    "word": "tournament",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a series of contests between a number of competitors, who compete for an overall prize",
+    "cn": "錦標賽；聯賽",
+    "ex": "Thousands of excited fans gathered at the central stadium to watch the final football tournament."
+  },
+  "champion": {
+    "word": "champion",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person, team, or animal that has won a contest or competition, especially in sports",
+    "cn": "冠軍",
+    "ex": "The humble tennis player thanked her supportive coach after officially becoming the regional champion last night."
+  },
+  "championship": {
+    "word": "championship",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a high-level contest held to determine the overall winner or champion of a sport",
+    "cn": "冠軍賽；冠軍稱號",
+    "ex": "The engineering team won the national robotics championship after presenting their highly innovative automated device."
+  },
+  "compete": {
+    "word": "compete",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to try to be more successful than others in a game, business, or contest",
+    "cn": "競爭；比賽",
+    "ex": "Most professional athletes will not compete without warming up thoroughly first."
+  },
+  "compete for": {
+    "word": "compete for",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to try to win or achieve a specific prize, position, or reward against others",
+    "cn": "爭奪...",
+    "ex": "The two young businessmen competeed for the position of regional sales manager."
+  },
+  "compete with  against": {
+    "word": "compete with / against",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to struggle against a specific rival or opponent to achieve a goal",
+    "cn": "與...競爭",
+    "ex": "Our small company has to compete with large international corporations in the market."
+  },
+  "competition": {
+    "word": "competition",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an organized event in which people try to win, or the act of competing",
+    "cn": "競爭；比賽",
+    "ex": "The local school hosted a chess competition that attracted students from all over the city."
+  },
+  "competitive": {
+    "word": "competitive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "involving competition, or having a strong desire to win or be successful",
+    "cn": "競爭激烈的；好勝的",
+    "ex": "This university is highly competitive since it doesn't accept many international students."
+  },
+  "competitor": {
+    "word": "competitor",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person, team, or company that takes part in a commercial or sports competition",
+    "cn": "競爭者；對手",
+    "ex": "Ten competitors will swim against each时 other in the final race tomorrow morning."
+  },
+  "contest__3": {
+    "word": "contest",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a competition, game, or speech match in which people try to win a specific prize",
+    "cn": "比賽；競賽",
+    "ex": "The prominent technology corporation sponsored a national programming contest to discover young engineering talents."
+  },
+  "contestant__2": {
+    "word": "contestant",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who takes part in a game, competition, or contest to strive for victory",
+    "cn": "參賽者；競爭者",
+    "ex": "Every single contestant in the speech competition received customizable feedback from the supportive coordinator."
+  },
+  "hover": {
+    "word": "hover",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to stay in one place in the air, flying without moving forward",
+    "cn": "盤旋",
+    "ex": "Some small insects can hover in the air, while others have to keep moving forward."
+  },
+  "hover over": {
+    "word": "hover over",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to stay suspended in the air directly above a specific object or area",
+    "cn": "在...上空盤旋",
+    "ex": "The rescue helicopter hovered over the exact area where the young diver went missing."
+  },
+  "crater": {
+    "word": "crater",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a large, bowl-shaped cavity in the ground or on the surface of a planet",
+    "cn": "火山口；隕石坑",
+    "ex": "The heavy meteorite left an immense crater where it struck the rocky ground centuries ago."
+  },
+  "establish": {
+    "word": "establish",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to start a company, organization, or system that will continue for a long time",
+    "cn": "建立；設立",
+    "ex": "The successful entrepreneur plans to establish a new research foundation next year."
+  },
+  "established": {
+    "word": "established",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "generally accepted or familiar, having existed for a long period of time",
+    "cn": "既定的；確立的；著名的",
+    "ex": "The established medical community is beginning to study the benefits of traditional herbal medicine."
+  },
+  "sprint": {
+    "word": "sprint",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a short, fast race in which everyone runs or swims at maximum speed",
+    "cn": "短跑；衝刺",
+    "ex": "Jason had the fastest time on the track team for the 100-meter sprint."
+  },
+  "sprint__2": {
+    "word": "sprint",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to run or swim a short distance as fast as possible",
+    "cn": "疾跑；全力衝刺",
+    "ex": "The commuter had to sprint down the platform to catch the last train before it left."
+  },
+  "sprinter": {
+    "word": "sprinter",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an athlete who races in short, high-speed running or swimming events",
+    "cn": "短跑選手",
+    "ex": "The Olympic sprinter trained for four hours every single day to improve his start technique."
+  },
+  "tug of war": {
+    "word": "tug of war",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a game in which two teams pull at opposite ends of a rope",
+    "cn": "拔河比賽",
+    "ex": "The company organized a tug of war during the annual sports day to build teamwork."
+  },
+  "roll one's eyes": {
+    "word": "roll one's eyes",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to move one's eyes upwards to express annoyance, boredom, or disbelief",
+    "cn": "翻白眼",
+    "ex": "The teacher could only roll one's eyes when the student gave the same old excuse for being late."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "withdraw  withdrew  withdrawn",
+    "Robert decided to __________ his bid on the house after finding serious structural problems.",
+    "在發現嚴重的結構問題後，羅伯特決定撤回他對這棟房子的出價。",
+    [
+      "robert",
+      "decided",
+      "house"
+    ]
+  ],
+  [
+    "withdrawal",
+    "The bank charges a small fee for every __________ you make from an international ATM.",
+    "銀行會對您從國際自動提款機進行的每次提款收取少許費用。",
+    [
+      "charges",
+      "small",
+      "every"
+    ]
+  ],
+  [
+    "withdraw from",
+    "The tennis champion had to __________ the tournament due to a sudden knee injury.",
+    "這位網球冠軍因突發的膝蓋傷勢而不得不退出這場錦標賽。",
+    [
+      "tennis",
+      "champion",
+      "tournament"
+    ]
+  ],
+  [
+    "admission",
+    "You need to be 18 to gain __________ to this movie because of its violent content.",
+    "由於這部電影含有暴力內容，你必須滿十八歲才能獲得入場許可。",
+    [
+      "movie",
+      "violent",
+      "content"
+    ]
+  ],
+  [
+    "admit  admitted  admitted",
+    "Although he didn't want to tell the truth, he had to __________ that he made a mistake.",
+    "雖然他不想說出實話，但他不得不承認自己犯了個錯誤。",
+    [
+      "although",
+      "didn't",
+      "truth"
+    ]
+  ],
+  [
+    "adjust to",
+    "It took the international student several months to __________ __________ the cold winter weather.",
+    "這位留學生花了幾個月的時間才適應了寒冷的冬季氣候。",
+    [
+      "international",
+      "student",
+      "several"
+    ]
+  ],
+  [
+    "adjustment",
+    "The employees will go through a period of __________ while the new management takes over.",
+    "在新管理層接管期間，員工們將會經歷一段適應期。",
+    [
+      "employees",
+      "period",
+      "management"
+    ]
+  ],
+  [
+    "adapt to",
+    "The newly recruited technology consultants had to __________ __________ the fast-paced corporate environment within a few weeks.",
+    "新招募的科技顧問必須在幾週內適應快節奏的公司環境。",
+    [
+      "newly",
+      "recruited",
+      "technology"
+    ]
+  ],
+  [
+    "adaptation",
+    "The biology professor thoroughly explained how evolutionary __________ helps rare desert organisms conserve scarce water resources.",
+    "生物學教授詳細解釋了演化上的適應如何幫助罕見的沙漠生物保存稀缺的水資源。",
+    [
+      "biology",
+      "professor",
+      "thoroughly"
+    ]
+  ],
+  [
+    "adapted",
+    "The historical drama series is __________ from a brilliant award-winning novel written by a prominent local author.",
+    "這部歷史劇集是改編自一位當地著名作家所寫的精彩得獎小說。",
+    [
+      "historical",
+      "drama",
+      "series"
+    ]
+  ],
+  [
+    "based on",
+    "The experienced consultant designed a customizable learning platform __________ __________ the students' specific tech preferences.",
+    "這位經驗豐富的顧問根據學生們特定的科技偏好，設計了一個客製化的學習平台。",
+    [
+      "experienced",
+      "consultant",
+      "designed"
+    ]
+  ],
+  [
+    "according to",
+    "__________ __________ the latest financial report, the manufacturing sector exported massive manufactured goods last quarter.",
+    "根據最新的財務報告，製造業上季出口了大量的工業製品。",
+    [
+      "latest",
+      "financial",
+      "report"
+    ]
+  ],
+  [
+    "compared to",
+    "The annual revenue of our technology corporation increased significantly this year __________ __________ that of last year.",
+    "與去年相比，我們科技公司今年的年度營收顯著增加。",
+    [
+      "annual",
+      "revenue",
+      "technology"
+    ]
+  ],
+  [
+    "judging from",
+    "__________ __________ his athletic performance during the training session, the athlete is eager to win the championship.",
+    "從他在訓練期間的運動表現來看，這位運動員非常渴望贏得冠軍。",
+    [
+      "athletic",
+      "performance",
+      "training"
+    ]
+  ],
+  [
+    "normal",
+    "It was just a __________ day at the office until he heard the terrifying scream from down the hall.",
+    "直到他聽到走廊盡頭傳來恐怖的尖叫聲，這本來只是辦公室裡普通的一天。",
+    [
+      "office",
+      "until",
+      "heard"
+    ]
+  ],
+  [
+    "abnormal",
+    "The medical tests showed __________ results, so the doctor ordered a series of further examinations.",
+    "醫療檢查顯示出異常的結果，因此醫生安排了一系列進一步的檢查。",
+    [
+      "medical",
+      "tests",
+      "showed"
+    ]
+  ],
+  [
+    "under normal circumstances",
+    "__________ I would not need you to help me, but this project is too urgent.",
+    "在正常情況下我是不需要你來幫我的，但這個專案實在太緊急了。",
+    [
+      "project",
+      "urgent"
+    ]
+  ],
+  [
+    "normally",
+    "The train __________ arrives on time, but today it was delayed by the heavy snowstorm.",
+    "火車通常都會準時抵達，但今天因為暴風雪而延誤了。",
+    [
+      "train",
+      "arrives",
+      "today"
+    ]
+  ],
+  [
+    "abnormal__2",
+    "The automated monitoring system immediately detected an __________ temperature spike inside the primary database server.",
+    "自動化監控系統立刻在主要資料庫伺服器內部偵測到異常的溫度飆升。",
+    [
+      "automated",
+      "monitoring",
+      "system"
+    ]
+  ],
+  [
+    "anomaly",
+    "The senior financial analyst noticed a strange __________ in the corporation's annual revenue records last night.",
+    "資深財務分析師昨晚在公司的年度營收紀錄中注意到一個奇怪的異常現象。",
+    [
+      "senior",
+      "financial",
+      "analyst"
+    ]
+  ],
+  [
+    "canon",
+    "Old __________s were placed all around the outside of the castle to protect it from attackers.",
+    "古老的大砲被安置在城堡周圍的各個角落，以保護它免受攻擊者的傷害。",
+    [
+      "placed",
+      "around",
+      "outside"
+    ]
+  ],
+  [
+    "cannonball",
+    "The museum displays a heavy iron __________ that was found near the battlefield.",
+    "這家博物館展示了一枚在戰場附近被發現的沉重鐵製砲彈。",
+    [
+      "museum",
+      "displays",
+      "heavy"
+    ]
+  ],
+  [
+    "worthy of",
+    "Eric is __________ __________ being elected president of our class because he always helps others.",
+    "艾瑞克配得上被選為我們班的班長，因為他總是幫助別人。",
+    [
+      "elected",
+      "president",
+      "class"
+    ]
+  ],
+  [
+    "worth",
+    "This car is __________ one million NT dollars, but the owner refuses to sell it.",
+    "這輛車價值一百萬新台幣，但車主拒絕將它出售。",
+    [
+      "million",
+      "dollars",
+      "owner"
+    ]
+  ],
+  [
+    "is worth v-ing",
+    "This book is __________ reading because it offers valuable insights into modern history.",
+    "這本書非常值得一讀，因為它對現代歷史提供了珍貴的見解。",
+    [
+      "reading",
+      "offers",
+      "valuable"
+    ]
+  ],
+  [
+    "worthwhile",
+    "Volunteering at the local hospital is a __________ experience that will change your perspective.",
+    "在當地醫院擔任志工是一段值得付出的經歷，它會改變你的觀點。",
+    [
+      "volunteering",
+      "local",
+      "hospital"
+    ]
+  ],
+  [
+    "noteworthy",
+    "There are several __________ changes in the new policy that every employee should study carefully.",
+    "新政策中有幾處值得注意的改變，每位員工都應該仔細研究。",
+    [
+      "there",
+      "several",
+      "changes"
+    ]
+  ],
+  [
+    "trustworthy",
+    "You can share your secrets with her because she is a very __________ person.",
+    "你可以和她分享你的祕密，因為她是一個非常值得信賴的人。",
+    [
+      "share",
+      "secrets",
+      "person"
+    ]
+  ],
+  [
+    "contest",
+    "The two countries __________ed ownership of the trade route for more than three decades.",
+    "這兩個國家對這條貿易路線的所有權爭奪了三十多年。",
+    [
+      "countries",
+      "ownership",
+      "trade"
+    ]
+  ],
+  [
+    "contest__2",
+    "Sandra desperately wanted to win the beauty __________ to launch her professional modeling career.",
+    "珊卓極渴望贏得這場選美比賽，以展開她的專業模特兒生涯。",
+    [
+      "sandra",
+      "desperately",
+      "wanted"
+    ]
+  ],
+  [
+    "contestant",
+    "Each __________ will have three minutes to present their project to the panel of judges.",
+    "每位參賽者將有三分鐘的時間向評審團簡報他們的專案。",
+    [
+      "three",
+      "minutes",
+      "present"
+    ]
+  ],
+  [
+    "revive",
+    "The successful film __________ed interest in traditional handicrafts among young generations.",
+    "這部成功的電影在年輕一代中，重新激發了對傳統手工藝的興趣。",
+    [
+      "successful",
+      "interest",
+      "traditional"
+    ]
+  ],
+  [
+    "revival",
+    "The city center is experiencing an economic __________ after the opening of the new shopping mall.",
+    "在新購物中心開幕後，市中心正經歷著一場經濟復甦。",
+    [
+      "center",
+      "experiencing",
+      "economic"
+    ]
+  ],
+  [
+    "capture",
+    "The experienced doctors __________ed the sick bear safely and treated its deep wounds.",
+    "經驗豐富的醫生們安全地捕獲了這隻生病的熊，並治療了牠的深層傷口。",
+    [
+      "experienced",
+      "doctors",
+      "safely"
+    ]
+  ],
+  [
+    "capture somebody's imagination",
+    "The creative short story __________ed the children's __________ during the afternoon library reading session.",
+    "這篇有創意的短篇故事在下午的圖書館閱讀時間裡，擄獲了孩子們的想像力。",
+    [
+      "creative",
+      "short",
+      "story"
+    ]
+  ],
+  [
+    "scholar",
+    "The elderly professor is a visiting __________ from a prestigious university in England.",
+    "這位年長的教授是一位來自英國知名學府的訪問學者。",
+    [
+      "elderly",
+      "professor",
+      "visiting"
+    ]
+  ],
+  [
+    "academic",
+    "The university offers high __________ standards and excellent research facilities for its students.",
+    "這所大學為其學生提供高水準的學術規格與優秀的研究設施。",
+    [
+      "university",
+      "offers",
+      "standards"
+    ]
+  ],
+  [
+    "scholarship",
+    "She received a full __________ to study medicine because of her outstanding high school grades.",
+    "由於她優秀的高中成績，她獲得了全額獎學金來攻讀醫學。",
+    [
+      "received",
+      "study",
+      "medicine"
+    ]
+  ],
+  [
+    "scholarly",
+    "The journal published a __________ article that analyzed the social impact of the industrial revolution.",
+    "這家期刊發表了一篇學術性文章，分析了工業革命所帶來的社會影響。",
+    [
+      "journal",
+      "published",
+      "article"
+    ]
+  ],
+  [
+    "excel",
+    "The __________ bowl is meant to be looked at, not to be used as a soup bowl.",
+    "這個具有藝術感的碗是用來觀賞的，而不是用來當作湯碗使用的。",
+    [
+      "meant",
+      "looked"
+    ]
+  ],
+  [
+    "artistic talent",
+    "Cynthia has no __________ __________ at all, but she is very good with financial numbers.",
+    "辛西亞完全沒有藝術天分，但她對財務數字非常拿手。",
+    [
+      "cynthia",
+      "financial",
+      "numbers"
+    ]
+  ],
+  [
+    "distinct",
+    "The two species of birds have __________ singing patterns that help scientists identify them.",
+    "這兩種鳥類有著明顯不同的鳴叫模式，這有助於科學家們辨識牠們。",
+    [
+      "species",
+      "birds",
+      "singing"
+    ]
+  ],
+  [
+    "distinction",
+    "The hard-working student earned a __________ for her well-written essay on environmental protection.",
+    "這位努力的學生因其撰寫優秀的環保論文而獲得了榮譽嘉獎。",
+    [
+      "hard-working",
+      "student",
+      "earned"
+    ]
+  ],
+  [
+    "distinctive",
+    "The coffee shop is famous for its __________ aroma that attracts customers from blocks away.",
+    "這家咖啡廳以其獨特的香氣而聞名，吸引了數個街區外的顧客。",
+    [
+      "coffee",
+      "famous",
+      "aroma"
+    ]
+  ],
+  [
+    "excel in",
+    "The young girl __________s __________ mathematics and often wins national school competitions.",
+    "這個年輕女孩非常擅長數學，經常在全國學校比賽中獲獎。",
+    [
+      "young",
+      "mathematics",
+      "often"
+    ]
+  ],
+  [
+    "sculptor",
+    "The innovative __________ incorporates many different materials like glass and metal into his works.",
+    "這位創新的雕刻家將許多不同的材料（如玻璃和金屬）融入他的作品中。",
+    [
+      "innovative",
+      "incorporates",
+      "different"
+    ]
+  ],
+  [
+    "sculpture",
+    "They placed a large marble __________ of a horse in the center of the garden.",
+    "他們在花園中央放置了一座大型的大理石馬匹雕塑。",
+    [
+      "placed",
+      "large",
+      "marble"
+    ]
+  ],
+  [
+    "sportsman",
+    "He has been a keen __________ all his life, playing soccer and tennis every weekend.",
+    "他一生都是個熱衷的運動員，每個週末都會踢足球和打網球。",
+    [
+      "playing",
+      "soccer",
+      "tennis"
+    ]
+  ],
+  [
+    "sportsmanship",
+    "Showing good __________ means shaking hands with your opponent after you lose a match.",
+    "展現良好的運動員風度意味著在輸掉比賽後與你的對手握手。",
+    [
+      "showing",
+      "means",
+      "shaking"
+    ]
+  ],
+  [
+    "athlete",
+    "The dedicated __________ trained for hours daily to prepare for the upcoming international sports meet.",
+    "這位敬業的運動員每天訓練數小時，為即將到來的國際運動會做準備。",
+    [
+      "dedicated",
+      "trained",
+      "hours"
+    ]
+  ],
+  [
+    "athletic",
+    "The school board decided to invest more revenue into upgrading the stadium's __________ facilities this year.",
+    "學校董事會決定今年投入更多營收來升級體育場的體育設施。",
+    [
+      "school",
+      "board",
+      "decided"
+    ]
+  ],
+  [
+    "tournament",
+    "Thousands of excited fans gathered at the central stadium to watch the final football __________.",
+    "數千名興奮的球迷聚集在中央體育場，觀看這場最終的足球錦標賽。",
+    [
+      "thousands",
+      "excited",
+      "gathered"
+    ]
+  ],
+  [
+    "champion",
+    "The humble tennis player thanked her supportive coach after officially becoming the regional __________ last night.",
+    "這位謙遜的網球選手在昨晚正式成為區域冠軍後，向給予支持的教練表示感謝。",
+    [
+      "humble",
+      "tennis",
+      "player"
+    ]
+  ],
+  [
+    "championship",
+    "The engineering team won the national robotics __________ after presenting their highly innovative automated device.",
+    "這支工程團隊在展示了他們高度創新的自動化裝置後，贏得了全國機器人冠軍賽。",
+    [
+      "engineering",
+      "national",
+      "robotics"
+    ]
+  ],
+  [
+    "compete",
+    "Most professional athletes will not __________ without warming up thoroughly first.",
+    "大多數專業運動員在沒有先進行徹底的暖身之前，是不會參加比賽的。",
+    [
+      "professional",
+      "athletes",
+      "without"
+    ]
+  ],
+  [
+    "compete for",
+    "The two young businessmen __________ed __________ the position of regional sales manager.",
+    "這兩位年輕的商人爭奪著區域銷售經理的職位。",
+    [
+      "young",
+      "businessmen",
+      "position"
+    ]
+  ],
+  [
+    "compete with  against",
+    "Our small company has to __________ __________ large international corporations in the market.",
+    "我們的小公司在市場上必須與大型的國際企業進行競爭。",
+    [
+      "small",
+      "company",
+      "large"
+    ]
+  ],
+  [
+    "competition",
+    "The local school hosted a chess __________ that attracted students from all over the city.",
+    "當地學校舉辦了一場西洋棋比賽，吸引了來自全市各地的學生。",
+    [
+      "local",
+      "school",
+      "hosted"
+    ]
+  ],
+  [
+    "competitive",
+    "This university is highly __________ since it doesn't accept many international students.",
+    "這所大學的競爭非常激烈，因為它不接受太多國際學生。",
+    [
+      "university",
+      "highly",
+      "since"
+    ]
+  ],
+  [
+    "competitor",
+    "Ten __________s will swim against each时 other in the final race tomorrow morning.",
+    "十名競爭者將在明天早上的決賽中彼此進行游泳比賽。",
+    [
+      "against",
+      "other",
+      "final"
+    ]
+  ],
+  [
+    "contest__3",
+    "The prominent technology corporation sponsored a national programming __________ to discover young engineering talents.",
+    "這家著名的科技公司贊助了一項全國程式設計比賽，以發掘年輕的工程人才。",
+    [
+      "prominent",
+      "technology",
+      "corporation"
+    ]
+  ],
+  [
+    "contestant__2",
+    "Every single __________ in the speech competition received customizable feedback from the supportive coordinator.",
+    "演講比賽中的每一位參賽者都從給予支持的協調員那裡獲得了客製化的回饋。",
+    [
+      "every",
+      "single",
+      "speech"
+    ]
+  ],
+  [
+    "hover",
+    "Some small insects can __________ in the air, while others have to keep moving forward.",
+    "一些小昆蟲可以在空中盤旋，而其他昆蟲則必須不斷向前移動。",
+    [
+      "small",
+      "insects",
+      "others"
+    ]
+  ],
+  [
+    "hover over",
+    "The rescue helicopter __________ed __________ the exact area where the young diver went missing.",
+    "救援直升機在年輕潛水員失蹤的確切區域上空盤旋。",
+    [
+      "rescue",
+      "helicopter",
+      "exact"
+    ]
+  ],
+  [
+    "crater",
+    "The heavy meteorite left an immense __________ where it struck the rocky ground centuries ago.",
+    "這顆沉重的隕石在數個世紀前撞擊岩石地面處留下了一個巨大的隕石坑。",
+    [
+      "heavy",
+      "meteorite",
+      "immense"
+    ]
+  ],
+  [
+    "establish",
+    "The successful entrepreneur plans to __________ a new research foundation next year.",
+    "這位成功的企業家計劃明年成立一個全新的研究基金會。",
+    [
+      "successful",
+      "entrepreneur",
+      "plans"
+    ]
+  ],
+  [
+    "established",
+    "The __________ medical community is beginning to study the benefits of traditional herbal medicine.",
+    "著名的醫學界正開始研究傳統草藥醫學的好處。",
+    [
+      "medical",
+      "community",
+      "beginning"
+    ]
+  ],
+  [
+    "sprint",
+    "Jason had the fastest time on the track team for the 100-meter __________.",
+    "傑森在田徑隊的一百公尺短跑中擁有最快的紀錄。",
+    [
+      "jason",
+      "fastest",
+      "track"
+    ]
+  ],
+  [
+    "sprint__2",
+    "The commuter had to __________ down the platform to catch the last train before it left.",
+    "為了趕上最後一班列車離開，通勤族不得不沿著月台全力衝刺。",
+    [
+      "commuter",
+      "platform",
+      "catch"
+    ]
+  ],
+  [
+    "sprinter",
+    "The Olympic __________ trained for four hours every single day to improve his start technique.",
+    "這位奧運短跑選手每天訓練四個小時，以改良他的起跑技術。",
+    [
+      "olympic",
+      "trained",
+      "hours"
+    ]
+  ],
+  [
+    "tug of war",
+    "The company organized a __________ __________ __________ during the annual sports day to build teamwork.",
+    "公司在年度運動會期間舉辦了一場拔河比賽，以建立團隊合作。",
+    [
+      "company",
+      "organized",
+      "annual"
+    ]
+  ],
+  [
+    "roll one's eyes",
+    "The teacher could only __________ __________ __________ when the student gave the same old excuse for being late.",
+    "當學生為遲到給出同樣的舊藉口時，老師只能無奈地翻白眼。",
+    [
+      "teacher",
+      "student",
+      "excuse"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Advanced U8
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "withdraw  withdrew  withdrawn": new Set([]),
+  "withdrawal": new Set([]),
+  "withdraw from": new Set([]),
+  "admission": new Set([]),
+  "admit  admitted  admitted": new Set([]),
+  "adjust to": new Set([]),
+  "adjustment": new Set([]),
+  "adapt to": new Set([]),
+  "adaptation": new Set([]),
+  "adapted": new Set([]),
+  "based on": new Set([]),
+  "according to": new Set([]),
+  "compared to": new Set([]),
+  "judging from": new Set([]),
+  "normal": new Set([]),
+  "abnormal": new Set(["abnormal__2"]),
+  "under normal circumstances": new Set([]),
+  "normally": new Set([]),
+  "abnormal__2": new Set(["abnormal"]),
+  "anomaly": new Set([]),
+  "canon": new Set([]),
+  "cannonball": new Set([]),
+  "worthy of": new Set([]),
+  "worth": new Set([]),
+  "is worth v-ing": new Set([]),
+  "worthwhile": new Set([]),
+  "noteworthy": new Set([]),
+  "trustworthy": new Set([]),
+  "contest": new Set(["contest__2", "contest__3"]),
+  "contest__2": new Set(["contest", "contest__3"]),
+  "contestant": new Set(["contestant__2"]),
+  "revive": new Set([]),
+  "revival": new Set([]),
+  "capture": new Set([]),
+  "capture somebody's imagination": new Set([]),
+  "scholar": new Set([]),
+  "academic": new Set([]),
+  "scholarship": new Set([]),
+  "scholarly": new Set([]),
+  "excel": new Set([]),
+  "artistic talent": new Set([]),
+  "distinct": new Set([]),
+  "distinction": new Set([]),
+  "distinctive": new Set([]),
+  "excel in": new Set([]),
+  "sculptor": new Set([]),
+  "sculpture": new Set([]),
+  "sportsman": new Set([]),
+  "sportsmanship": new Set([]),
+  "athlete": new Set([]),
+  "athletic": new Set([]),
+  "tournament": new Set([]),
+  "champion": new Set([]),
+  "championship": new Set([]),
+  "compete": new Set(["compete for", "compete with  against", "competition", "competitive"]),
+  "compete for": new Set(["compete", "compete with  against", "competition", "competitive"]),
+  "compete with  against": new Set(["compete", "compete for", "competition", "competitive"]),
+  "competition": new Set(["compete", "compete for", "compete with  against", "competitive"]),
+  "competitive": new Set(["compete", "compete for", "compete with  against", "competition"]),
+  "competitor": new Set([]),
+  "contest__3": new Set(["contest", "contest__2"]),
+  "contestant__2": new Set(["contestant"]),
+  "hover": new Set([]),
+  "hover over": new Set([]),
+  "crater": new Set([]),
+  "establish": new Set([]),
+  "established": new Set([]),
+  "sprint": new Set(["sprint__2"]),
+  "sprint__2": new Set(["sprint"]),
+  "sprinter": new Set([]),
+  "tug of war": new Set([]),
+  "roll one's eyes": new Set([]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>

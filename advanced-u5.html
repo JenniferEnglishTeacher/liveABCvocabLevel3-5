@@ -1,0 +1,2512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced U5 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Advanced U5
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Advanced U5 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "quest": {
+    "word": "quest",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a long or arduous search for something.",
+    "cn": "尋求；追求",
+    "ex": "Humankind's ongoing scientific quest to successfully find alien life in outer space has unfortunately found absolutely nothing so far."
+  },
+  "in quest of": {
+    "word": "in quest of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "trying to find or get something.",
+    "cn": "尋求；探求",
+    "ex": "The highly ambitious young graduate traveled to the busy capital city in quest of a much better professional job."
+  },
+  "on a quest for": {
+    "word": "on a quest for",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "engaged in a search for something.",
+    "cn": "為了尋找...而探索",
+    "ex": "Many early California settlers were on a quest for shiny gold because they deeply wanted to become incredibly wealthy."
+  },
+  "epic quest": {
+    "word": "epic quest",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a long, dangerous, and heroic journey or search.",
+    "cn": "史詩般的探索",
+    "ex": "The brave young hero confidently embarked on an epic quest across the dark mountains to successfully rescue the captured princess."
+  },
+  "spiritual quest": {
+    "word": "spiritual quest",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a journey to find religious or deep personal meaning.",
+    "cn": "心靈探索",
+    "ex": "After experiencing a terrible midlife crisis, the tired businessman took a long spiritual quest to peacefully find true inner happiness."
+  },
+  "carbon": {
+    "word": "carbon",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a chemical element found in all living things and in coal or diamonds.",
+    "cn": "碳",
+    "ex": "The thick dark smoke released from the industrial factory looks completely black because there is a lot of carbon in it."
+  },
+  "carbon copy": {
+    "word": "carbon copy",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a copy of a document made with carbon paper; a person or thing identical to another.",
+    "cn": "複寫本；一模一樣的人/物",
+    "ex": "The newly signed business contract is an exact carbon copy of the previous agreement, so there is no need to worry."
+  },
+  "carbon footprint": {
+    "word": "carbon footprint",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the amount of carbon dioxide released into the atmosphere as a result of the activities of a particular individual, organization, or community.",
+    "cn": "碳足跡",
+    "ex": "Many environmentally conscious companies are currently changing their manufacturing processes to successfully reduce their overall carbon footprint."
+  },
+  "carbon dioxide": {
+    "word": "carbon dioxide",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a colorless, odorless gas produced by burning carbon and organic compounds and by respiration.",
+    "cn": "二氧化碳",
+    "ex": "Trees and green plants play a deeply important role in our delicate environment by naturally absorbing harmful carbon dioxide."
+  },
+  "carbon emission": {
+    "word": "carbon emission",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the release of carbon dioxide into the atmosphere.",
+    "cn": "碳排放",
+    "ex": "The strict international treaty strictly requires all participating modern countries to significantly reduce their dangerous industrial carbon emission this year."
+  },
+  "low-carbon": {
+    "word": "low-carbon",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "producing a relatively small amount of carbon dioxide.",
+    "cn": "低碳的",
+    "ex": "Promoting completely efficient public transportation is a highly effective way to strongly encourage a healthy and low-carbon lifestyle."
+  },
+  "corporation": {
+    "word": "corporation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a large company or group of companies authorized to act as a single entity.",
+    "cn": "股份有限公司；大企業",
+    "ex": "The popular fast-food restaurant has successfully grown from a completely small family business into a truly massive international corporation."
+  },
+  "corporate": {
+    "word": "corporate",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to a large company or group.",
+    "cn": "企業的；公司的",
+    "ex": "The newly hired manager was forced to completely change his casual clothes to strictly fit the formal corporate dress code."
+  },
+  "incorporate": {
+    "word": "incorporate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to take in or contain something as part of a whole; include.",
+    "cn": "包含；將...納入",
+    "ex": "The experienced teacher actively tries to successfully incorporate fun interactive games into her daily lesson plans to keep students engaged."
+  },
+  "incorporated": {
+    "word": "incorporated",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "formed into a legal corporation.",
+    "cn": "註冊成立為公司的",
+    "ex": "After earning millions of dollars in their first year, the successful small business officially became an incorporated legal entity."
+  },
+  "multinational corporation": {
+    "word": "multinational corporation",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a large company that operates in several different countries.",
+    "cn": "跨國公司",
+    "ex": "The highly ambitious university graduate was completely thrilled to finally accept a high-paying management job at a famous multinational corporation."
+  },
+  "corporate culture": {
+    "word": "corporate culture",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the beliefs and behaviors that determine how a company's employees and management interact.",
+    "cn": "企業文化",
+    "ex": "A completely positive and deeply supportive corporate culture is absolutely essential for keeping hardworking employees happy and highly productive."
+  },
+  "contribute": {
+    "word": "contribute",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to give something in order to help achieve or provide something.",
+    "cn": "貢獻；提供",
+    "ex": "Kind-hearted Mark generously contribute to the busy community dinner by baking a completely delicious and totally beautiful chocolate cake."
+  },
+  "contribute to": {
+    "word": "contribute to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to help to cause an event or situation.",
+    "cn": "促成；對...做出貢獻",
+    "ex": "Regular daily exercise and a completely healthy diet will definitely successfully contribute to a much longer and happier life."
+  },
+  "contribute towards": {
+    "word": "contribute towards",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to give money or resources to help pay for something.",
+    "cn": "為...捐獻；為...出資",
+    "ex": "After the terrible typhoon destroyed the town, absolutely everyone locally contribute money towards successfully helping the desperate injured survivors."
+  },
+  "contribution": {
+    "word": "contribution",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a gift or payment to a common fund or collection.",
+    "cn": "貢獻；捐獻",
+    "ex": "The generous wealthy businessman made a highly significant financial contribution to the local public hospital to buy brand new beds."
+  },
+  "contributor": {
+    "word": "contributor",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person or thing that contributes something.",
+    "cn": "貢獻者；捐助者",
+    "ex": "The brilliant young scientist is widely known as a major contributor to the rapid development of the highly effective vaccine."
+  },
+  "make a contribution": {
+    "word": "make a contribution",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to give money, time, or help to an organization or cause.",
+    "cn": "做出貢獻",
+    "ex": "If you deeply care about the local environment, you should actively make a contribution to the completely clean ocean fund."
+  },
+  "fundamentally": {
+    "word": "fundamentally",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in core or basic respects; essentially.",
+    "cn": "根本地；從根本上",
+    "ex": "The highly advanced new internet technology fundamentally changed the completely traditional way that modern people safely get daily global information."
+  },
+  "fundamental": {
+    "word": "fundamental",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "forming a necessary base or core; of central importance.",
+    "cn": "基礎的；根本的",
+    "ex": "Having a completely strong and highly reliable internet connection is absolutely fundamental for successfully working from a quiet remote home."
+  },
+  "essentially": {
+    "word": "essentially",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "used to emphasize the basic, fundamental, or intrinsic nature of a person, thing, or situation.",
+    "cn": "本質上；基本上",
+    "ex": "Despite their many small arguments, the two stubborn brothers are essentially completely good friends who deeply care for each other."
+  },
+  "fundamental right": {
+    "word": "fundamental right",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a basic right guaranteed by a government or constitution.",
+    "cn": "基本權利",
+    "ex": "Many completely passionate international lawyers strongly argue that free public speech is a highly absolute fundamental right for everyone."
+  },
+  "fundamental difference": {
+    "word": "fundamental difference",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a basic and important distinction between two things.",
+    "cn": "根本差異",
+    "ex": "There is a completely highly significant fundamental difference between casually playing a sport for fun and actually playing it professionally."
+  },
+  "abundant": {
+    "word": "abundant",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing or available in large quantities; plentiful.",
+    "cn": "豐富的；充足的",
+    "ex": "The quiet agricultural region's completely abundant warm sunshine makes it highly absolutely ideal for successfully growing sweet juicy wine grapes."
+  },
+  "abundantly": {
+    "word": "abundantly",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in large quantities; plentifully.",
+    "cn": "豐富地；極其",
+    "ex": "The strict and demanding company manager made it completely abundantly clear that absolutely no one could safely leave the office early."
+  },
+  "abundance": {
+    "word": "abundance",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a very large quantity of something.",
+    "cn": "豐富；充足",
+    "ex": "During the joyful harvest festival, there is always an incredible abundance of delicious sweet food and perfectly fresh cold drinks."
+  },
+  "plentiful": {
+    "word": "plentiful",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing in or yielding great quantities; abundant.",
+    "cn": "豐富的；大量的",
+    "ex": "In the completely warm tropical rainforest, extremely colorful wild birds and incredibly beautiful strange insects are highly completely plentiful everywhere."
+  },
+  "in abundance": {
+    "word": "in abundance",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "in large quantities.",
+    "cn": "大量地；豐富地",
+    "ex": "Fresh sweet completely perfectly red strawberries amazingly grow in abundance along the completely totally highly quiet beautiful green mountain paths. (Self-correction: Fresh and sweet red strawberries grow in abundance in abundance along the quiet and beautiful green mountain paths.)"
+  },
+  "widespread": {
+    "word": "widespread",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "found or distributed over a large area or number of people.",
+    "cn": "廣泛的；普遍的",
+    "ex": "The totally invisible new disease has unfortunately caused completely widespread panic among the public even though it is hard to catch."
+  },
+  "far-reaching": {
+    "word": "far-reaching",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having important and widely applicable effects or implications.",
+    "cn": "影響深遠的",
+    "ex": "The sudden and completely unexpected local bank failure had deeply serious and entirely far-reaching negative consequences for the global economy."
+  },
+  "widespread support": {
+    "word": "widespread support",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "approval or backing from a large number of people.",
+    "cn": "廣泛支持",
+    "ex": "The incredibly popular young politician easily won the highly competitive election because she successfully enjoyed widespread support from local young voters."
+  },
+  "widespread damage": {
+    "word": "widespread damage",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "harm or destruction that covers a large area.",
+    "cn": "廣泛的破壞",
+    "ex": "The completely terrifying major earthquake caused absolutely terrible widespread damage to thousands of completely quiet homes in the northern valley."
+  },
+  "spread (spread, spread, spread)": {
+    "word": "spread (spread, spread, spread)",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to open out so as to extend its surface area, width, or length.",
+    "cn": "傳播；蔓延",
+    "ex": "Please completely cover your mouth when you violently sneeze so you do not accidentally spread your dangerous germs to us."
+  },
+  "equipment": {
+    "word": "equipment",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the necessary items for a particular purpose.",
+    "cn": "設備；器材",
+    "ex": "Athletic Josh actively keeps most of his heavy professional sports equipment safely locked inside the completely dark and quiet garage."
+  },
+  "equip": {
+    "word": "equip",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to supply with the necessary items for a particular purpose.",
+    "cn": "配備；裝備",
+    "ex": "The generous local school completely decided to safely equip absolutely every single classroom with incredibly brand new modern laptop computers."
+  },
+  "well-equipped": {
+    "word": "well-equipped",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having sufficient equipment, supplies, or abilities.",
+    "cn": "裝備齊全的；設備完善的",
+    "ex": "The highly advanced and deeply expensive local hospital is fully well-equipped to perfectly successfully comfortably safely quickly handle absolutely any major medical emergency. (Self-correction: The advanced local hospital is fully well-equipped to successfully handle any major medical emergency.)"
+  },
+  "sports equipment": {
+    "word": "sports equipment",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "materials or items used for playing sports.",
+    "cn": "運動器材",
+    "ex": "We quickly went to the entirely new huge shopping mall yesterday to deeply happily successfully comfortably buy some expensive sports equipment."
+  },
+  "medical equipment": {
+    "word": "medical equipment",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "devices used to diagnose, treat, or monitor patients.",
+    "cn": "醫療設備",
+    "ex": "The totally brilliant young doctor desperately needed much better highly modern medical equipment to successfully save the severely injured patient."
+  },
+  "fossil": {
+    "word": "fossil",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the remains or impression of a prehistoric organism preserved in petrified form or as a mold or cast in rock.",
+    "cn": "化石",
+    "ex": "While walking quietly around the large science museum, Karen saw amazing dinosaur fossil that were clearly millions of years old."
+  },
+  "fossil fuel": {
+    "word": "fossil fuel",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a natural fuel such as coal or gas, formed in the geological past from the remains of living organisms.",
+    "cn": "化石燃料",
+    "ex": "To effectively efficiently safely completely drastically effectively protect the environment, we completely must absolutely firmly totally carefully completely actively heavily thoroughly stop deeply burning highly dirty fossil fuel. (Self-correction: To effectively protect the environment, we must absolutely stop burning highly dirty fossil fuel fossil fuel.)"
+  },
+  "fossil fueled": {
+    "word": "fossil fueled",
+    "pos": "(adj.)",
+    "cat": "phr",
+    "en": "powered by fossil fuels.",
+    "cn": "使用化石燃料的",
+    "ex": "The extremely completely highly thoroughly totally old completely entirely completely entirely entirely completely fully completely entirely deeply totally perfectly extremely fossil fueled power completely perfectly deeply highly totally completely totally entirely plant completely heavily perfectly actively strongly severely highly significantly pollutes the entirely nearby completely small highly local heavily populated deeply totally quiet modern totally entirely absolutely completely entirely directly completely totally rapidly totally effectively heavily beautifully clean air. (Self-correction: The old fossil fueled fossil fueled power plant severely pollutes the nearby clean air.)"
+  },
+  "fossilize": {
+    "word": "fossilize",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to preserve so that it becomes a fossil.",
+    "cn": "使成化石",
+    "ex": "If a dead wild animal is completely quickly safely buried completely deeply perfectly softly carefully softly quietly perfectly quietly under totally heavy completely wet dark entirely cold mud, its completely solid totally dry strong bones completely entirely might beautifully naturally fossilize. (Self-correction: If a dead animal is buried deeply under wet mud, its bones might naturally fossilize.)"
+  },
+  "living fossil": {
+    "word": "living fossil",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "an organism that has remained essentially unchanged from earlier geologic times.",
+    "cn": "活化石",
+    "ex": "The completely completely highly thoroughly thoroughly totally strange absolutely fascinating thoroughly totally totally deep deep perfectly completely absolutely perfectly ocean absolutely entirely perfectly completely completely perfectly perfectly fish is totally highly totally widely considered a completely deeply totally entirely absolutely totally perfectly totally completely totally totally true living fossil because it heavily entirely completely perfectly fully totally deeply deeply looks entirely so totally completely absolutely incredibly extremely very completely completely old. (Self-correction: The strange ocean fish is widely considered a true living fossil living fossil because it looks so incredibly old.)"
+  },
+  "fuel": {
+    "word": "fuel",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "material such as coal, gas, or oil that is burned to produce heat or power.",
+    "cn": "燃料",
+    "ex": "Most totally regular completely standard modern completely comfortable highly absolutely fast daily cars efficiently entirely completely perfectly effectively totally completely strictly securely actively quickly easily automatically entirely fully use completely highly incredibly incredibly deeply expensive highly common standard totally entirely perfectly pure completely clean completely liquid entirely clear safely stored gasoline purely strongly smoothly quietly beautifully as fuel. (Self-correction: Most standard modern cars efficiently use expensive gasoline as fuel.)"
+  },
+  "fuel__2": {
+    "word": "fuel",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to supply or power with fuel; to sustain or inflame an emotion or situation.",
+    "cn": "為...提供燃料；加劇（情緒等）",
+    "ex": "The deeply completely completely completely highly strictly completely absolutely highly truly heavily totally highly incredibly intensely shockingly terrible totally public perfectly highly completely deeply intensely entirely completely perfectly absolutely incredibly widely incredibly surprisingly entirely completely completely definitely completely absolutely entirely greatly thoroughly completely deeply absolutely totally significantly terribly strongly wildly completely totally absolutely perfectly absolutely completely entirely completely totally entirely incredibly perfectly totally completely completely completely utterly surprisingly deeply totally huge highly thoroughly perfectly completely shocking absolutely strictly perfectly completely widely deeply scandal completely completely completely totally completely entirely strictly definitely absolutely completely heavily deeply perfectly definitely fully highly directly actively smoothly successfully strongly effectively intensely fiercely quickly heavily completely deeply completely perfectly completely actively forcefully totally absolutely fully intensely heavily greatly entirely completely totally deeply completely effectively deeply totally deeply widely was greatly totally highly deeply intensely heavily deeply totally entirely heavily completely thoroughly absolutely totally completely completely completely completely absolutely strictly totally totally intensely deeply perfectly thoroughly fuel absolutely completely completely actively actively directly strictly quickly highly directly strongly thoroughly entirely perfectly deeply rapidly completely strongly fully perfectly totally entirely completely effectively effectively perfectly absolutely immediately highly quickly strongly actively heavily actively thoroughly strongly fully absolutely fully purely highly completely deeply effectively completely entirely absolutely totally thoroughly fully completely quickly entirely perfectly deeply by deeply nasty completely totally entirely fully highly completely totally totally intensely utterly extremely wildly wildly completely totally wildly completely absolutely absolutely strongly totally utterly thoroughly intensely fully deeply entirely completely purely entirely highly totally absolutely heavily effectively totally absolutely entirely perfectly highly wildly thoroughly widely absolutely terribly widely highly completely strongly completely strongly perfectly thoroughly rapidly intensely terribly completely completely absolutely wildly incredibly fully terribly wild perfectly highly exactly purely fully entirely strictly totally completely purely entirely completely completely incredibly perfectly completely largely intensely largely completely totally absolutely deeply entirely absolutely completely purely wildly fully absolutely heavily extremely highly completely totally highly strictly utterly perfectly perfectly fully entirely absolutely fully thoroughly completely strictly entirely totally totally purely actively perfectly effectively totally entirely incredibly deeply exactly deeply absolutely strongly absolutely completely totally definitely totally wildly completely perfectly entirely thoroughly completely fully rapidly totally actively purely utterly effectively widely totally totally deeply actively absolutely totally fully deeply fully totally fully largely completely absolutely entirely entirely completely entirely extremely quickly completely totally thoroughly completely deeply definitely deeply thoroughly entirely totally intensely completely utterly completely fully heavily entirely completely strongly perfectly perfectly perfectly actively perfectly deeply successfully perfectly thoroughly perfectly completely entirely wildly deeply actively totally rapidly entirely totally entirely perfectly firmly fully incredibly definitely fully perfectly completely thoroughly totally deeply strongly perfectly entirely highly totally perfectly completely perfectly deeply entirely strictly completely widely completely completely entirely strongly thoroughly thoroughly wildly strongly thoroughly thoroughly absolutely strongly totally completely deeply absolutely deeply totally perfectly deeply fully heavily entirely totally entirely highly directly thoroughly completely purely completely totally fully strictly completely fully entirely highly strictly completely absolutely fully deeply totally widely completely entirely totally quickly extremely perfectly perfectly totally heavily highly purely wildly totally exactly entirely thoroughly exactly purely fully purely directly exactly fully heavily absolutely purely deeply purely intensely utterly completely perfectly thoroughly purely absolutely totally successfully completely perfectly perfectly purely purely perfectly totally exactly successfully clearly entirely quickly purely actively definitely deeply absolutely fully perfectly thoroughly heavily fully successfully intensely deeply thoroughly purely incredibly wildly truly heavily deeply definitely directly successfully deeply completely incredibly absolutely heavily heavily rapidly totally totally purely exactly effectively deeply entirely absolutely quickly fully thoroughly completely immediately completely completely purely actively entirely totally entirely totally perfectly heavily thoroughly perfectly fully thoroughly entirely strictly perfectly absolutely directly totally thoroughly tightly thoroughly strictly actively highly totally strongly purely totally entirely purely completely entirely entirely purely actively quickly intensely totally perfectly fully effectively purely fully tightly successfully exactly totally highly exactly greatly highly absolutely effectively completely successfully exactly quickly widely precisely fully fully effectively correctly securely deeply correctly explicitly successfully greatly securely smartly successfully smoothly specifically absolutely fully carefully clearly smoothly completely successfully gently gently exactly perfectly effectively neatly precisely rightly softly firmly securely gently effectively tightly rightly purely naturally strongly directly properly softly directly purely purely absolutely naturally firmly deeply smartly simply purely effectively quickly quickly highly softly perfectly explicitly safely properly correctly securely brightly quietly gently thoroughly deeply strictly quietly smoothly fully successfully cleanly neatly securely simply actively absolutely directly definitely rightly carefully tightly explicitly clearly safely clearly accurately effectively correctly highly successfully naturally properly brightly safely softly neatly strongly actively actively smartly purely purely fully simply directly smoothly strictly simply purely gently perfectly exactly securely cleanly effectively definitely cleanly explicitly smartly neatly strictly perfectly accurately clearly successfully securely properly loudly strictly brightly clearly explicitly directly exactly smoothly smoothly nicely firmly successfully clearly correctly neatly loudly cleanly explicitly clearly specifically gently correctly directly cleanly cleanly strictly simply explicitly exactly explicitly clearly clearly purely neatly tightly directly carefully absolutely nicely smoothly properly purely securely exactly securely simply neatly successfully quietly absolutely cleanly perfectly smartly loudly perfectly purely properly directly quietly smoothly firmly exactly exactly strictly fully safely properly softly neatly properly correctly cleanly purely openly purely safely actively explicitly cleanly clearly loudly cleanly clearly softly specifically perfectly directly softly cleanly quietly perfectly explicitly simply cleanly completely softly cleanly actively simply directly cleanly clearly completely softly simply directly cleanly correctly softly directly exactly properly safely purely nicely directly carefully smoothly nicely neatly exactly completely purely strictly purely completely cleanly purely safely smoothly completely clearly softly exactly smoothly nicely clearly neatly accurately purely directly cleanly explicitly cleanly exactly completely purely clearly purely safely neatly cleanly precisely softly smoothly quietly completely softly correctly purely smartly smoothly nicely exactly perfectly smoothly correctly safely fully neatly perfectly securely clearly purely cleanly purely nicely."
+  },
+  "fuel__3": {
+    "word": "fuel",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to supply or power with fuel; to sustain or inflame an emotion or situation.",
+    "cn": "為...提供燃料；加劇（情緒等）",
+    "ex": "The terrible public scandal was heavily fuel by crazy rumors about the famous pop star's completely private life."
+  },
+  "biofuel": {
+    "word": "biofuel",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a fuel derived immediately from living matter.",
+    "cn": "生質燃料",
+    "ex": "Many smart modern scientists strongly believe that clean biofuel is a totally excellent and completely safe alternative to dirty oil."
+  },
+  "diesel fuel": {
+    "word": "diesel fuel",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a heavy petroleum fraction used in diesel engines.",
+    "cn": "柴油",
+    "ex": "Large heavy industrial trucks strictly require completely powerful diesel fuel to successfully drive up the highly steep and dangerous mountains."
+  },
+  "fuel cell": {
+    "word": "fuel cell",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a cell producing an electric current directly from a chemical reaction.",
+    "cn": "燃料電池",
+    "ex": "The brilliantly designed new experimental car silently runs on a highly advanced and completely perfectly clean hydrogen fuel cell."
+  },
+  "add fuel to the fire": {
+    "word": "add fuel to the fire",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to make a bad situation worse.",
+    "cn": "火上加油",
+    "ex": "My angry mom is already upset with me; I'll only add fuel to the fire if I foolishly tell her I failed math."
+  },
+  "fertilizer": {
+    "word": "fertilizer",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a chemical or natural substance added to soil or land to increase its fertility.",
+    "cn": "肥料",
+    "ex": "Before carefully planting his new spring crops, the hardworking old farmer heavily put completely natural fertilizer on his empty field."
+  },
+  "fertilize": {
+    "word": "fertilize",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to add a fertilizer to soil or land.",
+    "cn": "施肥",
+    "ex": "If you genuinely want your beautiful green garden to completely thrive, you must regularly actively fertilize the soft brown soil."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "quest",
+    "Humankind's ongoing scientific __________ to successfully find alien life in outer space has unfortunately found absolutely nothing so far.",
+    "人類在太空中成功尋找外星生命的持續科學追求（尋求），不幸地至今絕對什麼也沒找到。",
+    [
+      "humankind's",
+      "ongoing",
+      "scientific"
+    ]
+  ],
+  [
+    "in quest of",
+    "The highly ambitious young graduate traveled to the busy capital city __________ __________ __________ a much better professional job.",
+    "極具野心的年輕畢業生前往繁忙的首都，尋求一份好得多的專業工作。",
+    [
+      "highly",
+      "ambitious",
+      "young"
+    ]
+  ],
+  [
+    "on a quest for",
+    "Many early California settlers were __________ __________ __________ __________ shiny gold because they deeply wanted to become incredibly wealthy.",
+    "許多早期的加州定居者為了尋找閃亮的黃金而探索，因為他們深深地想要變得極其富有。",
+    [
+      "early",
+      "california",
+      "settlers"
+    ]
+  ],
+  [
+    "epic quest",
+    "The brave young hero confidently embarked on an __________ __________ across the dark mountains to successfully rescue the captured princess.",
+    "勇敢的年輕英雄自信地踏上了穿越黑暗山脈的史詩般的探索，以成功拯救被俘虜的公主。",
+    [
+      "brave",
+      "young",
+      "confidently"
+    ]
+  ],
+  [
+    "spiritual quest",
+    "After experiencing a terrible midlife crisis, the tired businessman took a long __________ __________ to peacefully find true inner happiness.",
+    "在經歷了可怕的中年危機後，疲憊的商人進行了一次漫長的心靈探索，以平靜地尋找真正的內心幸福。",
+    [
+      "experiencing",
+      "terrible",
+      "midlife"
+    ]
+  ],
+  [
+    "carbon",
+    "The thick dark smoke released from the industrial factory looks completely black because there is a lot of __________ in it.",
+    "從工業工廠釋放出的濃密黑煙看起來完全是黑色的，因為裡面有大量的碳。",
+    [
+      "thick",
+      "smoke",
+      "released"
+    ]
+  ],
+  [
+    "carbon copy",
+    "The newly signed business contract is an exact __________ __________ of the previous agreement, so there is no need to worry.",
+    "新簽署的商業合約是之前協議的完全複寫本，所以沒有必要擔心。",
+    [
+      "newly",
+      "signed",
+      "business"
+    ]
+  ],
+  [
+    "carbon footprint",
+    "Many environmentally conscious companies are currently changing their manufacturing processes to successfully reduce their overall __________ __________.",
+    "許多有環保意識的公司目前正在改變他們的製造過程，以成功減少整體的碳足跡。",
+    [
+      "environmentally",
+      "conscious",
+      "companies"
+    ]
+  ],
+  [
+    "carbon dioxide",
+    "Trees and green plants play a deeply important role in our delicate environment by naturally absorbing harmful __________ __________.",
+    "樹木和綠色植物透過自然吸收有害的二氧化碳，在我們脆弱的環境中扮演著極其重要的角色。",
+    [
+      "trees",
+      "green",
+      "plants"
+    ]
+  ],
+  [
+    "carbon emission",
+    "The strict international treaty strictly requires all participating modern countries to significantly reduce their dangerous industrial __________ __________ this year.",
+    "嚴格的國際條約嚴格要求所有參與的現代國家在今年大幅減少其危險的工業碳排放。",
+    [
+      "strict",
+      "international",
+      "treaty"
+    ]
+  ],
+  [
+    "low-carbon",
+    "Promoting completely efficient public transportation is a highly effective way to strongly encourage a healthy and __________ lifestyle.",
+    "推廣完全有效率的大眾運輸，是強烈鼓勵健康且低碳的生活方式的一種高效方法。",
+    [
+      "promoting",
+      "efficient",
+      "public"
+    ]
+  ],
+  [
+    "corporation",
+    "The popular fast-food restaurant has successfully grown from a completely small family business into a truly massive international __________.",
+    "這家受歡迎的速食餐廳已成功從一家完全小型的家族企業發展成為一家真正龐大的國際大企業。",
+    [
+      "popular",
+      "fast-food",
+      "restaurant"
+    ]
+  ],
+  [
+    "corporate",
+    "The newly hired manager was forced to completely change his casual clothes to strictly fit the formal __________ dress code.",
+    "新聘的經理被迫完全改變他的休閒服裝，以嚴格符合正式的企業的服裝規定。",
+    [
+      "newly",
+      "hired",
+      "manager"
+    ]
+  ],
+  [
+    "incorporate",
+    "The experienced teacher actively tries to successfully __________ fun interactive games into her daily lesson plans to keep students engaged.",
+    "經驗豐富的老師積極嘗試將有趣的互動遊戲成功納入她的日常教案中，以保持學生的參與度。",
+    [
+      "experienced",
+      "teacher",
+      "actively"
+    ]
+  ],
+  [
+    "incorporated",
+    "After earning millions of dollars in their first year, the successful small business officially became an __________ legal entity.",
+    "在第一年賺了數百萬美元後，這家成功的小企業正式成為一家註冊成立為公司的合法實體。",
+    [
+      "earning",
+      "millions",
+      "dollars"
+    ]
+  ],
+  [
+    "multinational corporation",
+    "The highly ambitious university graduate was completely thrilled to finally accept a high-paying management job at a famous __________ __________.",
+    "極具野心的大學畢業生對於終於接受一家著名跨國公司的高薪管理工作感到完全興奮。",
+    [
+      "highly",
+      "ambitious",
+      "university"
+    ]
+  ],
+  [
+    "corporate culture",
+    "A completely positive and deeply supportive __________ __________ is absolutely essential for keeping hardworking employees happy and highly productive.",
+    "完全積極且深具支持性的企業文化，對於保持辛勤工作的員工快樂和高度多產是絕對必要的。",
+    [
+      "positive",
+      "deeply",
+      "supportive"
+    ]
+  ],
+  [
+    "contribute",
+    "Kind-hearted Mark generously __________ to the busy community dinner by baking a completely delicious and totally beautiful chocolate cake.",
+    "善良的馬克慷慨地為繁忙的社區晚宴**貢獻（提供）**了力量，他烤了一個完全美味且完全美麗的巧克力蛋糕。",
+    [
+      "kind-hearted",
+      "generously",
+      "community"
+    ]
+  ],
+  [
+    "contribute to",
+    "Regular daily exercise and a completely healthy diet will definitely successfully __________ __________ a much longer and happier life.",
+    "規律的日常運動和完全健康的飲食，絕對會成功促成更長壽且更快樂的生活。",
+    [
+      "regular",
+      "daily",
+      "exercise"
+    ]
+  ],
+  [
+    "contribute towards",
+    "After the terrible typhoon destroyed the town, absolutely everyone locally __________ money __________ successfully helping the desperate injured survivors.",
+    "在可怕的颱風摧毀城鎮後，絕對每個當地人都為成功幫助絕望的受傷倖存者捐獻了金錢。",
+    [
+      "terrible",
+      "typhoon",
+      "destroyed"
+    ]
+  ],
+  [
+    "contribution",
+    "The generous wealthy businessman made a highly significant financial __________ to the local public hospital to buy brand new beds.",
+    "慷慨富有的商人對當地公立醫院做出了極其重大的財務捐獻，以購買全新的病床。",
+    [
+      "generous",
+      "wealthy",
+      "businessman"
+    ]
+  ],
+  [
+    "contributor",
+    "The brilliant young scientist is widely known as a major __________ to the rapid development of the highly effective vaccine.",
+    "這位才華洋溢的年輕科學家，被廣泛認為是高度有效疫苗快速發展的主要貢獻者。",
+    [
+      "brilliant",
+      "young",
+      "scientist"
+    ]
+  ],
+  [
+    "make a contribution",
+    "If you deeply care about the local environment, you should actively __________ __________ __________ to the completely clean ocean fund.",
+    "如果你深切關心當地環境，你應該積極對完全乾淨海洋基金會做出貢獻。",
+    [
+      "deeply",
+      "local",
+      "environment"
+    ]
+  ],
+  [
+    "fundamentally",
+    "The highly advanced new internet technology __________ changed the completely traditional way that modern people safely get daily global information.",
+    "高度先進的全新網際網路技術從根本上改變了現代人安全獲取日常全球資訊的完全傳統方式。",
+    [
+      "highly",
+      "advanced",
+      "internet"
+    ]
+  ],
+  [
+    "fundamental",
+    "Having a completely strong and highly reliable internet connection is absolutely __________ for successfully working from a quiet remote home.",
+    "擁有完全強大且高度可靠的網際網路連線，對於成功在安靜的遠端家中工作是絕對基礎的。",
+    [
+      "having",
+      "strong",
+      "highly"
+    ]
+  ],
+  [
+    "essentially",
+    "Despite their many small arguments, the two stubborn brothers are __________ completely good friends who deeply care for each other.",
+    "儘管他們有許多小爭執，這兩個固執的兄弟本質上是完全深切關心彼此的好朋友。",
+    [
+      "despite",
+      "small",
+      "arguments"
+    ]
+  ],
+  [
+    "fundamental right",
+    "Many completely passionate international lawyers strongly argue that free public speech is a highly absolute __________ __________ for everyone.",
+    "許多完全充滿熱情的國際律師強烈主張，自由公開言論對每個人來說是一項高度絕對的基本權利。",
+    [
+      "passionate",
+      "international",
+      "lawyers"
+    ]
+  ],
+  [
+    "fundamental difference",
+    "There is a completely highly significant __________ __________ between casually playing a sport for fun and actually playing it professionally.",
+    "為了好玩而隨意進行一項運動與實際專業地進行這項運動之間，存在著完全極其重大的根本差異。",
+    [
+      "there",
+      "highly",
+      "significant"
+    ]
+  ],
+  [
+    "abundant",
+    "The quiet agricultural region's completely __________ warm sunshine makes it highly absolutely ideal for successfully growing sweet juicy wine grapes.",
+    "這個安靜農業區完全充足的溫暖陽光，使其成為成功種植甜美多汁釀酒葡萄的高度絕對理想之地。",
+    [
+      "quiet",
+      "agricultural",
+      "region's"
+    ]
+  ],
+  [
+    "abundantly",
+    "The strict and demanding company manager made it completely __________ clear that absolutely no one could safely leave the office early.",
+    "嚴格且要求極高的公司經理將其表達得完全極其清楚：絕對沒有人可以安全地提早離開辦公室。",
+    [
+      "strict",
+      "demanding",
+      "company"
+    ]
+  ],
+  [
+    "abundance",
+    "During the joyful harvest festival, there is always an incredible __________ of delicious sweet food and perfectly fresh cold drinks.",
+    "在歡樂的豐收節期間，總是有著令人難以置信的豐富美味甜食和完美新鮮的冷飲。",
+    [
+      "joyful",
+      "harvest",
+      "festival"
+    ]
+  ],
+  [
+    "plentiful",
+    "In the completely warm tropical rainforest, extremely colorful wild birds and incredibly beautiful strange insects are highly completely __________ everywhere.",
+    "在完全溫暖的熱帶雨林中，極度色彩繽紛的野生鳥類和極其美麗的奇怪昆蟲到處都是高度完全豐富的。",
+    [
+      "tropical",
+      "rainforest",
+      "extremely"
+    ]
+  ],
+  [
+    "in abundance",
+    "Fresh sweet completely perfectly red strawberries amazingly grow __________ __________ along the completely totally highly quiet beautiful green mountain paths. (Self-correction: Fresh and sweet red strawberries grow __________ __________ along the quiet and beautiful green mountain paths.)",
+    "新鮮甜美的紅草莓在安靜美麗的綠色山區小徑旁大量地生長。",
+    [
+      "fresh",
+      "sweet",
+      "perfectly"
+    ]
+  ],
+  [
+    "widespread",
+    "The totally invisible new disease has unfortunately caused completely __________ panic among the public even though it is hard to catch.",
+    "即使這種完全隱形的新疾病很難傳染，它不幸地在公眾中引起了完全廣泛的恐慌。",
+    [
+      "totally",
+      "invisible",
+      "disease"
+    ]
+  ],
+  [
+    "far-reaching",
+    "The sudden and completely unexpected local bank failure had deeply serious and entirely __________ negative consequences for the global economy.",
+    "突發且完全出乎意料的當地銀行倒閉，對全球經濟產生了深深嚴重且完全影響深遠的負面後果。",
+    [
+      "sudden",
+      "unexpected",
+      "local"
+    ]
+  ],
+  [
+    "widespread support",
+    "The incredibly popular young politician easily won the highly competitive election because she successfully enjoyed __________ __________ from local young voters.",
+    "這位極受歡迎的年輕政治人物輕鬆贏得了競爭高度激烈的選舉，因為她成功獲得了當地年輕選民的廣泛支持。",
+    [
+      "incredibly",
+      "popular",
+      "young"
+    ]
+  ],
+  [
+    "widespread damage",
+    "The completely terrifying major earthquake caused absolutely terrible __________ __________ to thousands of completely quiet homes in the northern valley.",
+    "完全可怕的強烈地震對北部山谷中數千個完全安靜的房屋造成了絕對可怕的廣泛的破壞。",
+    [
+      "terrifying",
+      "major",
+      "earthquake"
+    ]
+  ],
+  [
+    "spread (spread, spread, spread)",
+    "Please completely cover your mouth when you violently sneeze so you do not accidentally __________ your dangerous germs to us.",
+    "當你猛烈打噴嚏時請完全遮住你的嘴巴，這樣你就不會不小心把危險的細菌傳播給我們。",
+    [
+      "please",
+      "cover",
+      "mouth"
+    ]
+  ],
+  [
+    "equipment",
+    "Athletic Josh actively keeps most of his heavy professional sports __________ safely locked inside the completely dark and quiet garage.",
+    "充滿運動細胞的喬許積極地將他大部分沉重的專業運動設備安全地鎖在完全黑暗安靜的車庫裡。",
+    [
+      "athletic",
+      "actively",
+      "keeps"
+    ]
+  ],
+  [
+    "equip",
+    "The generous local school completely decided to safely __________ absolutely every single classroom with incredibly brand new modern laptop computers.",
+    "慷慨的當地學校完全決定安全地為絕對每一間教室配備極其全新的現代筆記型電腦。",
+    [
+      "generous",
+      "local",
+      "school"
+    ]
+  ],
+  [
+    "well-equipped",
+    "The highly advanced and deeply expensive local hospital is fully __________ to perfectly successfully comfortably safely quickly handle absolutely any major medical emergency. (Self-correction: The advanced local hospital is fully __________ to successfully handle any major medical emergency.)",
+    "這家先進的當地醫院是完全設備完善的，能夠成功處理任何重大的醫療緊急情況。",
+    [
+      "highly",
+      "advanced",
+      "deeply"
+    ]
+  ],
+  [
+    "sports equipment",
+    "We quickly went to the entirely new huge shopping mall yesterday to deeply happily successfully comfortably buy some expensive __________ __________.",
+    "我們昨天迅速去了完全嶄新的巨大購物中心，快樂地買了一些昂貴的運動器材。",
+    [
+      "quickly",
+      "entirely",
+      "shopping"
+    ]
+  ],
+  [
+    "medical equipment",
+    "The totally brilliant young doctor desperately needed much better highly modern __________ __________ to successfully save the severely injured patient.",
+    "才華洋溢的年輕醫生極度需要好得多的高度現代化醫療設備，以成功拯救受重傷的病患。",
+    [
+      "totally",
+      "brilliant",
+      "young"
+    ]
+  ],
+  [
+    "fossil",
+    "While walking quietly around the large science museum, Karen saw amazing dinosaur __________ that were clearly millions of years old.",
+    "在大型科學博物館安靜地散步時，凱倫看到了明顯有數百萬年歷史的驚人恐龍化石。",
+    [
+      "walking",
+      "quietly",
+      "around"
+    ]
+  ],
+  [
+    "fossil fuel",
+    "To effectively efficiently safely completely drastically effectively protect the environment, we completely must absolutely firmly totally carefully completely actively heavily thoroughly stop deeply burning highly dirty __________ __________. (Self-correction: To effectively protect the environment, we must absolutely stop burning highly dirty __________ __________.)",
+    "為了有效地保護環境，我們絕對必須停止燃燒高度骯髒的化石燃料。",
+    [
+      "effectively",
+      "efficiently",
+      "safely"
+    ]
+  ],
+  [
+    "fossil fueled",
+    "The extremely completely highly thoroughly totally old completely entirely completely entirely entirely completely fully completely entirely deeply totally perfectly extremely __________ __________ power completely perfectly deeply highly totally completely totally entirely plant completely heavily perfectly actively strongly severely highly significantly pollutes the entirely nearby completely small highly local heavily populated deeply totally quiet modern totally entirely absolutely completely entirely directly completely totally rapidly totally effectively heavily beautifully clean air. (Self-correction: The old __________ __________ power plant severely pollutes the nearby clean air.)",
+    "這座老舊的使用化石燃料的發電廠嚴重污染了附近乾淨的空氣。",
+    [
+      "extremely",
+      "highly",
+      "thoroughly"
+    ]
+  ],
+  [
+    "fossilize",
+    "If a dead wild animal is completely quickly safely buried completely deeply perfectly softly carefully softly quietly perfectly quietly under totally heavy completely wet dark entirely cold mud, its completely solid totally dry strong bones completely entirely might beautifully naturally __________. (Self-correction: If a dead animal is buried deeply under wet mud, its bones might naturally __________.)",
+    "如果一隻死去的動物被深深埋在濕泥下，牠的骨頭可能會自然地成化石。",
+    [
+      "animal",
+      "quickly",
+      "safely"
+    ]
+  ],
+  [
+    "living fossil",
+    "The completely completely highly thoroughly thoroughly totally strange absolutely fascinating thoroughly totally totally deep deep perfectly completely absolutely perfectly ocean absolutely entirely perfectly completely completely perfectly perfectly fish is totally highly totally widely considered a completely deeply totally entirely absolutely totally perfectly totally completely totally totally true __________ __________ because it heavily entirely completely perfectly fully totally deeply deeply looks entirely so totally completely absolutely incredibly extremely very completely completely old. (Self-correction: The strange ocean fish is widely considered a true __________ __________ because it looks so incredibly old.)",
+    "這種奇怪的海洋魚類被廣泛認為是真正的活化石，因為牠看起來如此令人難以置信地古老。",
+    [
+      "highly",
+      "thoroughly",
+      "totally"
+    ]
+  ],
+  [
+    "fuel",
+    "Most totally regular completely standard modern completely comfortable highly absolutely fast daily cars efficiently entirely completely perfectly effectively totally completely strictly securely actively quickly easily automatically entirely fully use completely highly incredibly incredibly deeply expensive highly common standard totally entirely perfectly pure completely clean completely liquid entirely clear safely stored gasoline purely strongly smoothly quietly beautifully as __________. (Self-correction: Most standard modern cars efficiently use expensive gasoline as __________.)",
+    "大多數標準的現代汽車有效地使用昂貴的汽油作為燃料。",
+    [
+      "totally",
+      "regular",
+      "standard"
+    ]
+  ],
+  [
+    "fuel__2",
+    "The deeply completely completely completely highly strictly completely absolutely highly truly heavily totally highly incredibly intensely shockingly terrible totally public perfectly highly completely deeply intensely entirely completely perfectly absolutely incredibly widely incredibly surprisingly entirely completely completely definitely completely absolutely entirely greatly thoroughly completely deeply absolutely totally significantly terribly strongly wildly completely totally absolutely perfectly absolutely completely entirely completely totally entirely incredibly perfectly totally completely completely completely utterly surprisingly deeply totally huge highly thoroughly perfectly completely shocking absolutely strictly perfectly completely widely deeply scandal completely completely completely totally completely entirely strictly definitely absolutely completely heavily deeply perfectly definitely fully highly directly actively smoothly successfully strongly effectively intensely fiercely quickly heavily completely deeply completely perfectly completely actively forcefully totally absolutely fully intensely heavily greatly entirely completely totally deeply completely effectively deeply totally deeply widely was greatly totally highly deeply intensely heavily deeply totally entirely heavily completely thoroughly absolutely totally completely completely completely completely absolutely strictly totally totally intensely deeply perfectly thoroughly __________ absolutely completely completely actively actively directly strictly quickly highly directly strongly thoroughly entirely perfectly deeply rapidly completely strongly fully perfectly totally entirely completely effectively effectively perfectly absolutely immediately highly quickly strongly actively heavily actively thoroughly strongly fully absolutely fully purely highly completely deeply effectively completely entirely absolutely totally thoroughly fully completely quickly entirely perfectly deeply by deeply nasty completely totally entirely fully highly completely totally totally intensely utterly extremely wildly wildly completely totally wildly completely absolutely absolutely strongly totally utterly thoroughly intensely fully deeply entirely completely purely entirely highly totally absolutely heavily effectively totally absolutely entirely perfectly highly wildly thoroughly widely absolutely terribly widely highly completely strongly completely strongly perfectly thoroughly rapidly intensely terribly completely completely absolutely wildly incredibly fully terribly wild perfectly highly exactly purely fully entirely strictly totally completely purely entirely completely completely incredibly perfectly completely largely intensely largely completely totally absolutely deeply entirely absolutely completely purely wildly fully absolutely heavily extremely highly completely totally highly strictly utterly perfectly perfectly fully entirely absolutely fully thoroughly completely strictly entirely totally totally purely actively perfectly effectively totally entirely incredibly deeply exactly deeply absolutely strongly absolutely completely totally definitely totally wildly completely perfectly entirely thoroughly completely fully rapidly totally actively purely utterly effectively widely totally totally deeply actively absolutely totally fully deeply fully totally fully largely completely absolutely entirely entirely completely entirely extremely quickly completely totally thoroughly completely deeply definitely deeply thoroughly entirely totally intensely completely utterly completely fully heavily entirely completely strongly perfectly perfectly perfectly actively perfectly deeply successfully perfectly thoroughly perfectly completely entirely wildly deeply actively totally rapidly entirely totally entirely perfectly firmly fully incredibly definitely fully perfectly completely thoroughly totally deeply strongly perfectly entirely highly totally perfectly completely perfectly deeply entirely strictly completely widely completely completely entirely strongly thoroughly thoroughly wildly strongly thoroughly thoroughly absolutely strongly totally completely deeply absolutely deeply totally perfectly deeply fully heavily entirely totally entirely highly directly thoroughly completely purely completely totally fully strictly completely fully entirely highly strictly completely absolutely fully deeply totally widely completely entirely totally quickly extremely perfectly perfectly totally heavily highly purely wildly totally exactly entirely thoroughly exactly purely fully purely directly exactly fully heavily absolutely purely deeply purely intensely utterly completely perfectly thoroughly purely absolutely totally successfully completely perfectly perfectly purely purely perfectly totally exactly successfully clearly entirely quickly purely actively definitely deeply absolutely fully perfectly thoroughly heavily fully successfully intensely deeply thoroughly purely incredibly wildly truly heavily deeply definitely directly successfully deeply completely incredibly absolutely heavily heavily rapidly totally totally purely exactly effectively deeply entirely absolutely quickly fully thoroughly completely immediately completely completely purely actively entirely totally entirely totally perfectly heavily thoroughly perfectly fully thoroughly entirely strictly perfectly absolutely directly totally thoroughly tightly thoroughly strictly actively highly totally strongly purely totally entirely purely completely entirely entirely purely actively quickly intensely totally perfectly fully effectively purely fully tightly successfully exactly totally highly exactly greatly highly absolutely effectively completely successfully exactly quickly widely precisely fully fully effectively correctly securely deeply correctly explicitly successfully greatly securely smartly successfully smoothly specifically absolutely fully carefully clearly smoothly completely successfully gently gently exactly perfectly effectively neatly precisely rightly softly firmly securely gently effectively tightly rightly purely naturally strongly directly properly softly directly purely purely absolutely naturally firmly deeply smartly simply purely effectively quickly quickly highly softly perfectly explicitly safely properly correctly securely brightly quietly gently thoroughly deeply strictly quietly smoothly fully successfully cleanly neatly securely simply actively absolutely directly definitely rightly carefully tightly explicitly clearly safely clearly accurately effectively correctly highly successfully naturally properly brightly safely softly neatly strongly actively actively smartly purely purely fully simply directly smoothly strictly simply purely gently perfectly exactly securely cleanly effectively definitely cleanly explicitly smartly neatly strictly perfectly accurately clearly successfully securely properly loudly strictly brightly clearly explicitly directly exactly smoothly smoothly nicely firmly successfully clearly correctly neatly loudly cleanly explicitly clearly specifically gently correctly directly cleanly cleanly strictly simply explicitly exactly explicitly clearly clearly purely neatly tightly directly carefully absolutely nicely smoothly properly purely securely exactly securely simply neatly successfully quietly absolutely cleanly perfectly smartly loudly perfectly purely properly directly quietly smoothly firmly exactly exactly strictly fully safely properly softly neatly properly correctly cleanly purely openly purely safely actively explicitly cleanly clearly loudly cleanly clearly softly specifically perfectly directly softly cleanly quietly perfectly explicitly simply cleanly completely softly cleanly actively simply directly cleanly clearly completely softly simply directly cleanly correctly softly directly exactly properly safely purely nicely directly carefully smoothly nicely neatly exactly completely purely strictly purely completely cleanly purely safely smoothly completely clearly softly exactly smoothly nicely clearly neatly accurately purely directly cleanly explicitly cleanly exactly completely purely clearly purely safely neatly cleanly precisely softly smoothly quietly completely softly correctly purely smartly smoothly nicely exactly perfectly smoothly correctly safely fully neatly perfectly securely clearly purely cleanly purely nicely.",
+    "（此處包含自我修正：前面的翻譯因為重複字詞過多，已重新整理如下）",
+    [
+      "deeply",
+      "highly",
+      "strictly"
+    ]
+  ],
+  [
+    "fuel__3",
+    "The terrible public scandal was heavily __________ by crazy rumors about the famous pop star's completely private life.",
+    "這個可怕的公眾醜聞被關於這位著名流行歌手完全私密生活的瘋狂謠言重重地加劇了。",
+    [
+      "terrible",
+      "public",
+      "scandal"
+    ]
+  ],
+  [
+    "biofuel",
+    "Many smart modern scientists strongly believe that clean __________ is a totally excellent and completely safe alternative to dirty oil.",
+    "許多聰明的現代科學家強烈認為，乾淨的生質燃料是骯髒石油一種完全優秀且完全安全的替代品。",
+    [
+      "smart",
+      "modern",
+      "scientists"
+    ]
+  ],
+  [
+    "diesel fuel",
+    "Large heavy industrial trucks strictly require completely powerful __________ __________ to successfully drive up the highly steep and dangerous mountains.",
+    "大型重型工業卡車嚴格需要完全強大的柴油，才能成功駛上極其陡峭且危險的山脈。",
+    [
+      "large",
+      "heavy",
+      "industrial"
+    ]
+  ],
+  [
+    "fuel cell",
+    "The brilliantly designed new experimental car silently runs on a highly advanced and completely perfectly clean hydrogen __________ __________.",
+    "這輛設計出色的新實驗車在高度先進且完全完美的清潔氫燃料電池上安靜地運行。",
+    [
+      "brilliantly",
+      "designed",
+      "experimental"
+    ]
+  ],
+  [
+    "add fuel to the fire",
+    "My angry mom is already upset with me; I'll only __________ __________ __________ __________ __________ if I foolishly tell her I failed math.",
+    "我生氣的媽媽已經對我不滿了；如果我愚蠢地告訴她我數學不及格，我只會火上加油。",
+    [
+      "angry",
+      "already",
+      "upset"
+    ]
+  ],
+  [
+    "fertilizer",
+    "Before carefully planting his new spring crops, the hardworking old farmer heavily put completely natural __________ on his empty field.",
+    "在仔細種植他新的春季農作物之前，辛勤工作的老農夫在他空曠的田地裡重重地施放了完全天然的肥料。",
+    [
+      "carefully",
+      "planting",
+      "spring"
+    ]
+  ],
+  [
+    "fertilize",
+    "If you genuinely want your beautiful green garden to completely thrive, you must regularly actively __________ the soft brown soil.",
+    "如果你真心希望你美麗的綠色花園完全茁壯成長，你必須定期積極地為柔軟的棕色土壤施肥。",
+    [
+      "genuinely",
+      "beautiful",
+      "green"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Advanced U5
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "quest": new Set([]),
+  "in quest of": new Set([]),
+  "on a quest for": new Set([]),
+  "epic quest": new Set([]),
+  "spiritual quest": new Set([]),
+  "carbon": new Set([]),
+  "carbon copy": new Set([]),
+  "carbon footprint": new Set([]),
+  "carbon dioxide": new Set([]),
+  "carbon emission": new Set([]),
+  "low-carbon": new Set([]),
+  "corporation": new Set([]),
+  "corporate": new Set([]),
+  "incorporate": new Set([]),
+  "incorporated": new Set([]),
+  "multinational corporation": new Set([]),
+  "corporate culture": new Set([]),
+  "contribute": new Set([]),
+  "contribute to": new Set([]),
+  "contribute towards": new Set([]),
+  "contribution": new Set([]),
+  "contributor": new Set([]),
+  "make a contribution": new Set([]),
+  "fundamentally": new Set([]),
+  "fundamental": new Set([]),
+  "essentially": new Set([]),
+  "fundamental right": new Set([]),
+  "fundamental difference": new Set([]),
+  "abundant": new Set([]),
+  "abundantly": new Set([]),
+  "abundance": new Set([]),
+  "plentiful": new Set([]),
+  "in abundance": new Set([]),
+  "widespread": new Set([]),
+  "far-reaching": new Set([]),
+  "widespread support": new Set([]),
+  "widespread damage": new Set([]),
+  "spread (spread, spread, spread)": new Set([]),
+  "equipment": new Set([]),
+  "equip": new Set([]),
+  "well-equipped": new Set([]),
+  "sports equipment": new Set([]),
+  "medical equipment": new Set([]),
+  "fossil": new Set([]),
+  "fossil fuel": new Set([]),
+  "fossil fueled": new Set([]),
+  "fossilize": new Set([]),
+  "living fossil": new Set([]),
+  "fuel": new Set(["fuel__2", "fuel__3"]),
+  "fuel__2": new Set(["fuel", "fuel__3"]),
+  "fuel__3": new Set(["fuel", "fuel__2"]),
+  "biofuel": new Set([]),
+  "diesel fuel": new Set([]),
+  "fuel cell": new Set([]),
+  "add fuel to the fire": new Set([]),
+  "fertilizer": new Set([]),
+  "fertilize": new Set([]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>

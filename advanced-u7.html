@@ -1,0 +1,2831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Advanced U7 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Advanced U7
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Advanced U7 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "majesty": {
+    "word": "majesty",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the quality of being impressive, beautiful, or grand",
+    "cn": "雄偉；壯麗；皇權",
+    "ex": "Once you see the majesty of the mountains in Nepal, you will never forget them."
+  },
+  "my majesty": {
+    "word": "My Majesty",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a title of respect used when speaking to or about a king or queen",
+    "cn": "陛下",
+    "ex": "I am deeply honored to present this rare vintage wine to you, My。"
+  },
+  "majestic": {
+    "word": "majestic",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "beautiful, powerful, or causing great admiration and respect",
+    "cn": "雄偉的；壯麗的",
+    "ex": "The majestic eagle soared high above the snow-capped mountains, looking for its prey."
+  },
+  "admire the majesty of": {
+    "word": "admire the majesty of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to look at and enjoy the grand or impressive beauty of something",
+    "cn": "欣賞...的雄偉/壯麗",
+    "ex": "We stood on the deck for hours to admire the waterfall as it crashed into the river."
+  },
+  "recommend": {
+    "word": "recommend",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to advise someone to do something or choose something",
+    "cn": "推薦；建議",
+    "ex": "Nathan recommended that his sister take her money out of the stock market."
+  },
+  "recommend ...to ...": {
+    "word": "recommend ...to ...",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to suggest a particular thing to a person",
+    "cn": "向某人推薦某物",
+    "ex": "Jared recommended this book ...to me, but I didn't really like it."
+  },
+  "recommend somebody to v": {
+    "word": "recommend somebody to V",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to advise someone to do a specific action",
+    "cn": "建議某人去做某事",
+    "ex": "The school recommends students somebody arrive early for the basketball game."
+  },
+  "it's highly recommended that": {
+    "word": "It's highly recommended that",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "it is strongly advised or suggested that a certain action should be taken",
+    "cn": "強烈建議...（後接子句）",
+    "ex": "It's everyone backup their critical data to an external drive before updating the system."
+  },
+  "recommend that s (should) vr": {
+    "word": "recommend that S (should) VR",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to suggest that someone ought to perform a specific action",
+    "cn": "建議某人應該做某事",
+    "ex": "The financial advisor recommended that the couple S (should) invest their savings in low-risk bonds."
+  },
+  "recommendation": {
+    "word": "recommendation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a suggestion or proposal as to the best course of action",
+    "cn": "推薦；建議",
+    "ex": "The doctor gave me a strict recommendation to exercise more and eat fewer sweets."
+  },
+  "thoroughly": {
+    "word": "thoroughly",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "completely, very much, or with great attention to detail",
+    "cn": "徹底地；完全地",
+    "ex": "Ethan searched the house thoroughly but he couldn't find his camera."
+  },
+  "thorough": {
+    "word": "thorough",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "detailed and careful, leaving nothing overlooked",
+    "cn": "徹底的；仔細的",
+    "ex": "The police conducted a thorough investigation of the crime scene to find any clues."
+  },
+  "thoroughly examine": {
+    "word": "thoroughly examine",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to inspect or investigate something completely and with great attention to detail",
+    "cn": "徹底檢查；仔細審查",
+    "ex": "The mechanics will thoroughly the aircraft's engines before it is cleared for the long flight."
+  },
+  "thorough investigation": {
+    "word": "thorough investigation",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a complete and detailed examination of facts or a crime scene",
+    "cn": "徹底的調查",
+    "ex": "The police launched a thorough into the bank robbery to discover how the thieves escaped."
+  },
+  "landscape": {
+    "word": "landscape",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the appearance of an area of land, especially in the countryside",
+    "cn": "陸地風景；自然景觀",
+    "ex": "The artist painted a beautiful landscape of the countryside, featuring rolling hills and green fields."
+  },
+  "distinctive": {
+    "word": "distinctive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having a special quality or feature that makes something easily recognizable",
+    "cn": "有特色的；獨特的",
+    "ex": "The archaeologist could see the distinctive outline of several human shapes in the cave painting."
+  },
+  "distinct": {
+    "word": "distinct",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "clearly noticeable, separate, or different from others",
+    "cn": "獨特不同的；清晰的",
+    "ex": "Each of these two types of tea has a distinct flavor."
+  },
+  "distinction": {
+    "word": "distinction",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a difference or contrast between similar things or people",
+    "cn": "區別；差別",
+    "ex": "It is important to make a clear distinction between a factual report and personal opinion."
+  },
+  "architecture": {
+    "word": "architecture",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the art or practice of designing and constructing buildings",
+    "cn": "建築學；建築風格",
+    "ex": "Hong Kong has some of the most interesting modern architecture in the world."
+  },
+  "architectural": {
+    "word": "architectural",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to the design and construction of buildings",
+    "cn": "建築的；建築學的",
+    "ex": "The historic town is famous for its architectural beauty and well-preserved ancient structures."
+  },
+  "architect": {
+    "word": "architect",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who designs buildings and advises on their construction",
+    "cn": "建築師",
+    "ex": "The famous architect designed a modern library that uses solar power for all its energy."
+  },
+  "reserve": {
+    "word": "reserve",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to ask for a seat, table, or room to be kept for your use",
+    "cn": "預訂；保留",
+    "ex": "I would like to reserve a table for four people for this Friday evening."
+  },
+  "reservation": {
+    "word": "reservation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an arrangement to have something kept for you, such as a hotel room",
+    "cn": "預約；預訂",
+    "ex": "You won't be able to get a room in this hotel without a reservation。"
+  },
+  "make a reservation": {
+    "word": "make a reservation",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to book a seat, table, or room in advance",
+    "cn": "進行預約；訂位",
+    "ex": "Howard make a reservation at a nice restaurant for his parents' wedding anniversary."
+  },
+  "duration": {
+    "word": "duration",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the length of time that something continues or lasts",
+    "cn": "持續時間",
+    "ex": "The increased duration of the school day meant that students were very tired."
+  },
+  "for the duration": {
+    "word": "for the duration",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "until the end of a specific period or event",
+    "cn": "在整個期間",
+    "ex": "Mr. Wu hopes his newest assistant will be here for the duration of the project."
+  },
+  "durable": {
+    "word": "durable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "able to last a long time without becoming damaged",
+    "cn": "耐用的；持久的",
+    "ex": "These boots are made of durable leather, so they can withstand rough mountain trails."
+  },
+  "fascinate": {
+    "word": "fascinate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to attract or interest someone very strongly",
+    "cn": "使著迷；吸引",
+    "ex": "The bright colors and loud music of the parade fascinateed the child."
+  },
+  "fascinate someone with": {
+    "word": "fascinate someone with",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to strongly interest another person using a specific thing",
+    "cn": "用...使某人著迷",
+    "ex": "Kelly fascinateed us someone her stories about her recent travels around Africa."
+  },
+  "fascinating": {
+    "word": "fascinating",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "extremely interesting and attractive",
+    "cn": "迷人的；極有趣的",
+    "ex": "The museum features a fascinating collection of ancient Egyptian artifacts and golden jewelry."
+  },
+  "fascinated": {
+    "word": "fascinated",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "extremely interested in something or someone",
+    "cn": "感到著迷的；極感興趣的",
+    "ex": "The young students were fascinated by the scientist's presentation on deep-sea creatures."
+  },
+  "fascination": {
+    "word": "fascination",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state of being greatly interested or attracted by something",
+    "cn": "迷戀；吸引力",
+    "ex": "The young boy watched the stars with great fascination, dreaming of becoming an astronaut."
+  },
+  "gallery": {
+    "word": "gallery",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a room or building for the display or sale of works of art",
+    "cn": "畫廊；展覽館",
+    "ex": "Rachel has a show of her paintings at a gallery in the city."
+  },
+  "art gallery": {
+    "word": "art gallery",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a place where paintings, sculptures, and other artworks are exhibited",
+    "cn": "美術館；藝術畫廊",
+    "ex": "We spent the entire afternoon walking around the art to admire the classic oil paintings."
+  },
+  "contemporary": {
+    "word": "contemporary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing or happening now; modern",
+    "cn": "當代的；現代的",
+    "ex": "Some contemporary art that I've seen is difficult to understand."
+  },
+  "contemporary__2": {
+    "word": "contemporary",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person living or existing at the same time as another",
+    "cn": "同時代的人",
+    "ex": "Living a simple life, the politician is different from his contemporarys."
+  },
+  "overlook": {
+    "word": "overlook",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to have a view of something from above; to fail to notice something",
+    "cn": "俯瞰；忽略；漏看",
+    "ex": "The house overlooks the beach and you can usually hear the sound of the ocean."
+  },
+  "overlook the possibility of": {
+    "word": "overlook the possibility of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to fail to consider that something might happen",
+    "cn": "忽略...的可能性",
+    "ex": "Jack overlooked the possibility of rain when he was planning the outdoor picnic."
+  },
+  "cathedral": {
+    "word": "cathedral",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a very large and important church, usually the main one in an area",
+    "cn": "大教堂",
+    "ex": "It took almost 100 years to build the giant stone cathedral in the city center."
+  },
+  "massive": {
+    "word": "massive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "very large in size, amount, or degree",
+    "cn": "巨大的；大量的",
+    "ex": "The slippery roads during the ice storm caused a massive car accident on the highway."
+  },
+  "massively": {
+    "word": "massively",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "to a very great extent or degree",
+    "cn": "巨大地；極其",
+    "ex": "The new smartphone model became massively popular because of its long battery life."
+  },
+  "masterpiece": {
+    "word": "masterpiece",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a work of outstanding artistry, skill, or workmanship",
+    "cn": "傑作；名作",
+    "ex": "Hundreds of masterpieces by some of the most famous painters hung on the walls."
+  },
+  "heritage": {
+    "word": "heritage",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "features belonging to the culture of a society, such as traditions, languages, or buildings",
+    "cn": "文化遺產；傳統",
+    "ex": "These works of art are of great importance to Italy's cultural heritage。"
+  },
+  "cultural heritage": {
+    "word": "cultural heritage",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "the legacy of physical artifacts and intangible attributes inherited from past generations",
+    "cn": "文化遺產",
+    "ex": "The government is trying to protect the old temple because it is a valuable cultural heritage。"
+  },
+  "ornament": {
+    "word": "ornament",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an object that is used as a decoration in a room or garden",
+    "cn": "裝飾品",
+    "ex": "Every Christmas, we decorate a tree with lights and colorful ornaments."
+  },
+  "afford": {
+    "word": "afford",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to have enough money or time to be able to do something",
+    "cn": "負擔得起；提供",
+    "ex": "The holiday afforded Harold a little extra time to get his work done."
+  },
+  "afford to v": {
+    "word": "afford to V",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to be able to spend money or time on an action without serious trouble",
+    "cn": "負擔得起去（做某事）",
+    "ex": "We can't afford to trip to Europe because the flights are too expensive."
+  },
+  "marvel at": {
+    "word": "marvel at",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to show great surprise or admiration at something",
+    "cn": "感到驚異；讚嘆",
+    "ex": "Visitors often marvel at the beautiful ceiling paintings inside the ancient palace."
+  },
+  "marvelous": {
+    "word": "marvelous",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "causing wonder; causing great admiration; excellent",
+    "cn": "絕妙的；極好的",
+    "ex": "That restaurant we went out to last night was marvelous; the food was incredible."
+  },
+  "cuisine": {
+    "word": "cuisine",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a style or method of cooking, especially as characteristic of a particular country",
+    "cn": "烹飪；菜餚風味",
+    "ex": "When people think of American cuisine, they often think of hamburgers and hot dogs."
+  },
+  "traditional cuisine": {
+    "word": "traditional cuisine",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "food and dishes that are passed through generations within a culture",
+    "cn": "傳統料理",
+    "ex": "Sampling the local traditional cuisine is always my favorite part of traveling to a new country."
+  },
+  "fusion cuisine": {
+    "word": "fusion cuisine",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a style of cooking that combines elements of different culinary traditions",
+    "cn": "融合料理；創意料理",
+    "ex": "This modern restaurant is famous for its fusion which mixes traditional Japanese ingredients with French techniques."
+  },
+  "culinary": {
+    "word": "culinary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "connected with cooking or kitchens",
+    "cn": "烹飪的；廚房的",
+    "ex": "Winning the international competition was a major milestone in her professional culinary career."
+  },
+  "delicacy": {
+    "word": "delicacy",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a choice or expensive food that is considered rare or special in a specific culture",
+    "cn": "珍饈；佳餚",
+    "ex": "Caviar is considered an expensive delicacy in many western countries, often served at luxury parties."
+  },
+  "gourmet": {
+    "word": "gourmet",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to high-quality, rare, or expertly prepared food",
+    "cn": "高級美食的；精緻的",
+    "ex": "They spent the evening enjoying a gourmet meal paired with finest wines at a five-star hotel."
+  },
+  "raw": {
+    "word": "raw",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not cooked; in a natural state",
+    "cn": "生的；未煮過的",
+    "ex": "Lily prefers raw over cooked vegetables because she thinks they are healthier."
+  },
+  "raw material": {
+    "word": "raw material",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "basic material from which a product is made",
+    "cn": "原物料；原料",
+    "ex": "The factory imports raw materials from Canada to manufacture high-quality paper products."
+  },
+  "translate": {
+    "word": "translate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to change words into another language",
+    "cn": "翻譯",
+    "ex": "Please help me translate this document from Chinese into English."
+  },
+  "translate into": {
+    "word": "translate into",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to express words or text in another language or format",
+    "cn": "翻譯成...；轉化為",
+    "ex": "I'm looking for a program that can translate MP3 files into other file types."
+  },
+  "translation": {
+    "word": "translation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the process of translating words or text from one language into another",
+    "cn": "翻譯；譯文",
+    "ex": "The student provided an accurate translation of the difficult poem for his homework."
+  },
+  "interpret": {
+    "word": "interpret",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to change spoken words from one language into another immediately",
+    "cn": "口譯",
+    "ex": "The professional had to interpret the president's speech into three languages during the live broadcast."
+  },
+  "interpret__2": {
+    "word": "interpret",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to explain or understand the meaning of something, such as a poem or evidence",
+    "cn": "詮釋；理解",
+    "ex": "Different people might interpret the ending of the movie in completely distinct ways."
+  },
+  "interpreter": {
+    "word": "interpreter",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person whose job is to change spoken words from one language into another",
+    "cn": "口譯員",
+    "ex": "Without a reliable interpreter to translate the conversation, the business negotiation would have failed completely."
+  },
+  "interpretation": {
+    "word": "interpretation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an explanation or opinion of what something means",
+    "cn": "詮釋；解讀；翻譯",
+    "ex": "The lawyer offered a clever interpretation of the law to defend his client in court."
+  },
+  "mash": {
+    "word": "mash",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to crush something, especially food, until it is soft and smooth",
+    "cn": "搗碎；壓成泥",
+    "ex": "Rick used a spoon to mash the potatoes after they were thoroughly boiled."
+  },
+  "mashed potatoes": {
+    "word": "mashed potatoes",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "potatoes that have been boiled and crushed until they are smooth",
+    "cn": "馬鈴薯泥",
+    "ex": "We served grilled chicken with cream and a large bowl of mashed potatoes for dinner."
+  },
+  "slice": {
+    "word": "slice",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a flat, often thin, piece of food that has been cut from a larger piece",
+    "cn": "薄片；一片",
+    "ex": "There is nothing better than eating a slice of cold watermelon in the summer."
+  },
+  "slice__2": {
+    "word": "slice",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to cut something into flat, thin pieces",
+    "cn": "切成薄片",
+    "ex": "You will need a sharper knife to slice the potatoes into thin pieces."
+  },
+  "accompany": {
+    "word": "accompany",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to go somewhere with someone as a companion",
+    "cn": "陪同；伴隨",
+    "ex": "Olive of sometimes accompanyes her children on their walk to school in the morning."
+  },
+  "keep company": {
+    "word": "keep company",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to spend time with someone so that they do not feel lonely",
+    "cn": "陪伴；做伴",
+    "ex": "I stayed at home to keep my grandmother company while my parents went out shopping."
+  },
+  "company": {
+    "word": "company",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an organization that sells goods or services in order to make money",
+    "cn": "公司",
+    "ex": "The international tech company decided to open a new branch office in downtown Taipei next month."
+  },
+  "companion": {
+    "word": "companion",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person or animal with whom one spends a lot of time or travels",
+    "cn": "同伴；夥伴",
+    "ex": "She has been my loyal companion during this long journey, helping me overcome many difficulties."
+  },
+  "contemporary art": {
+    "word": "contemporary art",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "art produced at the present period in time, typically from the late 20th century to now",
+    "cn": "當代藝術",
+    "ex": "The city's new museum features a wide range of contemporary that puzzles many traditional critics."
+  },
+  "company__2": {
+    "word": "company",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the fact of being with another person or people, providing friendship",
+    "cn": "陪伴",
+    "ex": "When my grandfather lived alone, he kept a dog because he needed some company in the house."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "majesty",
+    "Once you see the __________ of the mountains in Nepal, you will never forget them.",
+    "一旦你看到尼泊爾山脈的雄偉，你將永遠不會忘記它們。",
+    [
+      "mountains",
+      "nepal",
+      "never"
+    ]
+  ],
+  [
+    "my majesty",
+    "I am deeply honored to present this rare vintage wine to you, __________。",
+    "我深感榮幸能將這款珍稀的年份葡萄酒奉獻給您，陛下。",
+    [
+      "deeply",
+      "honored",
+      "present"
+    ]
+  ],
+  [
+    "majestic",
+    "The __________ eagle soared high above the snow-capped mountains, looking for its prey.",
+    "雄偉的老鷹在白雪皚皚的山脈上空翱翔，尋找著獵物。",
+    [
+      "eagle",
+      "soared",
+      "above"
+    ]
+  ],
+  [
+    "admire the majesty of",
+    "We stood on the deck for hours to __________ the waterfall as it crashed into the river.",
+    "我們在甲板上站了幾個小時，只為了欣賞瀑布墜入河中的壯麗。",
+    [
+      "stood",
+      "hours",
+      "waterfall"
+    ]
+  ],
+  [
+    "recommend",
+    "Nathan __________ed that his sister take her money out of the stock market.",
+    "內森建議他的妹妹把錢從股市中拿出來。",
+    [
+      "nathan",
+      "sister",
+      "money"
+    ]
+  ],
+  [
+    "recommend ...to ...",
+    "Jared __________ed this book __________ me, but I didn't really like it.",
+    "傑瑞向我推薦了這本書，但我並沒有真正喜歡它。",
+    [
+      "jared",
+      "didn't"
+    ]
+  ],
+  [
+    "recommend somebody to v",
+    "The school __________s students __________ arrive early for the basketball game.",
+    "學校建議學生們早點到達以觀看籃球比賽。",
+    [
+      "school",
+      "students",
+      "arrive"
+    ]
+  ],
+  [
+    "it's highly recommended that",
+    "__________ everyone backup their critical data to an external drive before updating the system.",
+    "強烈建議每個人在更新系統之前，先將關鍵資料備份到外接硬碟中。",
+    [
+      "everyone",
+      "backup",
+      "critical"
+    ]
+  ],
+  [
+    "recommend that s (should) vr",
+    "The financial advisor __________ed __________ the couple __________ (should) invest their savings in low-risk bonds.",
+    "理財顧問建議這對夫婦應該將他們的儲蓄投資於低風險的債券。",
+    [
+      "financial",
+      "advisor",
+      "couple"
+    ]
+  ],
+  [
+    "recommendation",
+    "The doctor gave me a strict __________ to exercise more and eat fewer sweets.",
+    "醫生給了我一個嚴格的建議：多運動並少吃甜食。",
+    [
+      "doctor",
+      "strict",
+      "exercise"
+    ]
+  ],
+  [
+    "thoroughly",
+    "Ethan searched the house __________ but he couldn't find his camera.",
+    "伊森徹底地搜尋了這棟房子，但他找不到他的相機。",
+    [
+      "ethan",
+      "searched",
+      "house"
+    ]
+  ],
+  [
+    "thorough",
+    "The police conducted a __________ investigation of the crime scene to find any clues.",
+    "警方對犯罪現場進行了徹底的調查，以尋找任何線索。",
+    [
+      "police",
+      "conducted",
+      "investigation"
+    ]
+  ],
+  [
+    "thoroughly examine",
+    "The mechanics will __________ the aircraft's engines before it is cleared for the long flight.",
+    "機械師將在飛機獲准進行長途飛行前，徹底檢查其發動機。",
+    [
+      "mechanics",
+      "aircraft's",
+      "engines"
+    ]
+  ],
+  [
+    "thorough investigation",
+    "The police launched a __________ into the bank robbery to discover how the thieves escaped.",
+    "警方對這起銀行搶案展開了徹底的調查，以發現竊賊是如何逃脫的。",
+    [
+      "police",
+      "launched",
+      "robbery"
+    ]
+  ],
+  [
+    "landscape",
+    "The artist painted a beautiful __________ of the countryside, featuring rolling hills and green fields.",
+    "這位藝術家畫了一幅美麗的鄉村風景，畫中有起伏的山丘和綠色的田野。",
+    [
+      "artist",
+      "painted",
+      "beautiful"
+    ]
+  ],
+  [
+    "distinctive",
+    "The archaeologist could see the __________ outline of several human shapes in the cave painting.",
+    "考古學家在洞穴壁畫中可以看到幾個人形獨特的輪廓。",
+    [
+      "archaeologist",
+      "outline",
+      "several"
+    ]
+  ],
+  [
+    "distinct",
+    "Each of these two types of tea has a __________ flavor.",
+    "這兩種茶中的每一種都有其獨特的風味。",
+    [
+      "types",
+      "flavor"
+    ]
+  ],
+  [
+    "distinction",
+    "It is important to make a clear __________ between a factual report and personal opinion.",
+    "在事實報導與個人觀點之間做出清晰的區別是非常重要的。",
+    [
+      "important",
+      "clear",
+      "between"
+    ]
+  ],
+  [
+    "architecture",
+    "Hong Kong has some of the most interesting modern __________ in the world.",
+    "香港擁有世界上一些最有趣的現代建築風格。",
+    [
+      "interesting",
+      "modern",
+      "world"
+    ]
+  ],
+  [
+    "architectural",
+    "The historic town is famous for its __________ beauty and well-preserved ancient structures.",
+    "這座歷史小鎮以其建築美景和保存完好的古老結構而聞名。",
+    [
+      "historic",
+      "famous",
+      "beauty"
+    ]
+  ],
+  [
+    "architect",
+    "The famous __________ designed a modern library that uses solar power for all its energy.",
+    "這位著名的建築師設計了一座完全使用太陽能供電的現代圖書館。",
+    [
+      "famous",
+      "designed",
+      "modern"
+    ]
+  ],
+  [
+    "reserve",
+    "I would like to __________ a table for four people for this Friday evening.",
+    "我想要預訂本週五晚上四個人的位子。",
+    [
+      "table",
+      "people",
+      "friday"
+    ]
+  ],
+  [
+    "reservation",
+    "You won't be able to get a room in this hotel without a __________。",
+    "如果沒有預約，你將無法在這家飯店拿到房間。",
+    [
+      "won't",
+      "hotel",
+      "without"
+    ]
+  ],
+  [
+    "make a reservation",
+    "Howard __________ __________ __________ at a nice restaurant for his parents' wedding anniversary.",
+    "霍華德在一間不錯的餐廳進行了預約，準備慶祝他父母的結婚紀念日。",
+    [
+      "howard",
+      "restaurant",
+      "parents"
+    ]
+  ],
+  [
+    "duration",
+    "The increased __________ of the school day meant that students were very tired.",
+    "上學時間的持續時間增加，意味著學生們非常疲倦。",
+    [
+      "increased",
+      "school",
+      "meant"
+    ]
+  ],
+  [
+    "for the duration",
+    "Mr. Wu hopes his newest assistant will be here __________ __________ __________ of the project.",
+    "吳先生希望他的新助理在整個專案的期間內都能留在這裡。",
+    [
+      "hopes",
+      "newest",
+      "assistant"
+    ]
+  ],
+  [
+    "durable",
+    "These boots are made of __________ leather, so they can withstand rough mountain trails.",
+    "這些靴子是由耐用的皮革製成的，所以它們能經受住崎嶇山路的考驗。",
+    [
+      "boots",
+      "leather",
+      "withstand"
+    ]
+  ],
+  [
+    "fascinate",
+    "The bright colors and loud music of the parade __________ed the child.",
+    "遊行鮮豔的色彩和響亮的音樂吸引了這個孩子。",
+    [
+      "bright",
+      "colors",
+      "music"
+    ]
+  ],
+  [
+    "fascinate someone with",
+    "Kelly __________ed us __________ her stories about her recent travels around Africa.",
+    "凱莉用她最近環遊非洲的故事使我們著迷。",
+    [
+      "kelly",
+      "stories",
+      "recent"
+    ]
+  ],
+  [
+    "fascinating",
+    "The museum features a __________ collection of ancient Egyptian artifacts and golden jewelry.",
+    "這家博物館以其迷人的古埃及文物與黃金首飾收藏為特色。",
+    [
+      "museum",
+      "features",
+      "collection"
+    ]
+  ],
+  [
+    "fascinated",
+    "The young students were __________ by the scientist's presentation on deep-sea creatures.",
+    "年輕的學生們對科學家關於深海生物的簡報感到非常著迷。",
+    [
+      "young",
+      "students",
+      "scientist's"
+    ]
+  ],
+  [
+    "fascination",
+    "The young boy watched the stars with great __________, dreaming of becoming an astronaut.",
+    "這個年幼的男孩帶著極大的迷戀看著星星，夢想著成為一名太空人。",
+    [
+      "young",
+      "watched",
+      "stars"
+    ]
+  ],
+  [
+    "gallery",
+    "Rachel has a show of her paintings at a __________ in the city.",
+    "瑞秋在城市裡的一家畫廊舉辦了她的畫展。",
+    [
+      "rachel",
+      "paintings"
+    ]
+  ],
+  [
+    "art gallery",
+    "We spent the entire afternoon walking around the __________ to admire the classic oil paintings.",
+    "我們花了整個下午在美術館裡漫步，欣賞那些經典的油畫。",
+    [
+      "spent",
+      "entire",
+      "afternoon"
+    ]
+  ],
+  [
+    "contemporary",
+    "Some __________ art that I've seen is difficult to understand.",
+    "我看過的一些當代的藝術很難被理解。",
+    [
+      "difficult",
+      "understand"
+    ]
+  ],
+  [
+    "contemporary__2",
+    "Living a simple life, the politician is different from his __________s.",
+    "這位政治家過著簡單的生活，與他同時代的人大不相同。",
+    [
+      "living",
+      "simple",
+      "politician"
+    ]
+  ],
+  [
+    "overlook",
+    "The house __________s the beach and you can usually hear the sound of the ocean.",
+    "這棟房子俯瞰海灘，你通常可以聽到大海的聲音。",
+    [
+      "house",
+      "beach",
+      "usually"
+    ]
+  ],
+  [
+    "overlook the possibility of",
+    "Jack __________ed __________ __________ __________ rain when he was planning the outdoor picnic.",
+    "傑克在規劃戶外野餐時，忽略了下雨的可能性。",
+    [
+      "planning",
+      "outdoor",
+      "picnic"
+    ]
+  ],
+  [
+    "cathedral",
+    "It took almost 100 years to build the giant stone __________ in the city center.",
+    "花了將近 100 年才建造完市中心這座巨大的石頭大教堂。",
+    [
+      "almost",
+      "years",
+      "build"
+    ]
+  ],
+  [
+    "massive",
+    "The slippery roads during the ice storm caused a __________ car accident on the highway.",
+    "冰暴期間濕滑的道路導致了公路上的一場巨大的車禍。",
+    [
+      "slippery",
+      "roads",
+      "storm"
+    ]
+  ],
+  [
+    "massively",
+    "The new smartphone model became __________ popular because of its long battery life.",
+    "這款新智慧型手機型號因其超長續航力而變得極其受歡迎。",
+    [
+      "smartphone",
+      "model",
+      "became"
+    ]
+  ],
+  [
+    "masterpiece",
+    "Hundreds of __________s by some of the most famous painters hung on the walls.",
+    "牆上掛著數百幅由一些最著名畫家所創作的傑作。",
+    [
+      "hundreds",
+      "famous",
+      "painters"
+    ]
+  ],
+  [
+    "heritage",
+    "These works of art are of great importance to Italy's cultural __________。",
+    "這些藝術品對義大利的文化遺產具有極大的重要性。",
+    [
+      "works",
+      "great",
+      "importance"
+    ]
+  ],
+  [
+    "cultural heritage",
+    "The government is trying to protect the old temple because it is a valuable __________ __________。",
+    "政府正試圖保護這座古廟，因為它是非常珍貴的文化遺產。",
+    [
+      "government",
+      "trying",
+      "protect"
+    ]
+  ],
+  [
+    "ornament",
+    "Every Christmas, we decorate a tree with lights and colorful __________s.",
+    "每年聖誕節，我們都會用燈光和五彩繽紛的裝飾品來裝飾樹木。",
+    [
+      "every",
+      "christmas",
+      "decorate"
+    ]
+  ],
+  [
+    "afford",
+    "The holiday __________ed Harold a little extra time to get his work done.",
+    "假期為哈洛德提供了一點額外的時間來完成他的工作。",
+    [
+      "holiday",
+      "harold",
+      "little"
+    ]
+  ],
+  [
+    "afford to v",
+    "We can't __________ __________ trip to Europe because the flights are too expensive.",
+    "我們負擔不起去歐洲旅遊，因為機票實在太貴了。",
+    [
+      "can't",
+      "europe",
+      "flights"
+    ]
+  ],
+  [
+    "marvel at",
+    "Visitors often __________ __________ the beautiful ceiling paintings inside the ancient palace.",
+    "遊客們經常對這座古老宮殿內美麗的天花板壁畫感到讚嘆。",
+    [
+      "visitors",
+      "often",
+      "beautiful"
+    ]
+  ],
+  [
+    "marvelous",
+    "That restaurant we went out to last night was __________; the food was incredible.",
+    "我們昨晚去的那家餐廳真是太棒了；食物簡直不可思議。",
+    [
+      "restaurant",
+      "night",
+      "incredible"
+    ]
+  ],
+  [
+    "cuisine",
+    "When people think of American __________, they often think of hamburgers and hot dogs.",
+    "當人們想到美式料理時，他們通常會想到漢堡和熱狗。",
+    [
+      "people",
+      "think",
+      "american"
+    ]
+  ],
+  [
+    "traditional cuisine",
+    "Sampling the local __________ __________ is always my favorite part of traveling to a new country.",
+    "品嚐當地的傳統料理總是我去新國家旅遊時最喜歡的部分。",
+    [
+      "sampling",
+      "local",
+      "always"
+    ]
+  ],
+  [
+    "fusion cuisine",
+    "This modern restaurant is famous for its __________ which mixes traditional Japanese ingredients with French techniques.",
+    "這家現代餐廳以其融合料理而聞名，該料理將傳統日本食材與法國烹飪技術相結合。",
+    [
+      "modern",
+      "restaurant",
+      "famous"
+    ]
+  ],
+  [
+    "culinary",
+    "Winning the international competition was a major milestone in her professional __________ career.",
+    "在國際比賽中獲勝是她專業烹飪生涯中的一個重要里程碑。",
+    [
+      "winning",
+      "international",
+      "competition"
+    ]
+  ],
+  [
+    "delicacy",
+    "Caviar is considered an expensive __________ in many western countries, often served at luxury parties.",
+    "魚子醬在許多西方國家被視為昂貴的佳餚，經常在奢侈的派對上供應。",
+    [
+      "caviar",
+      "considered",
+      "expensive"
+    ]
+  ],
+  [
+    "gourmet",
+    "They spent the evening enjoying a __________ meal paired with finest wines at a five-star hotel.",
+    "他們在一家五星級飯店享用了一頓搭配頂級美酒的精緻美食，度過了這個夜晚。",
+    [
+      "spent",
+      "evening",
+      "enjoying"
+    ]
+  ],
+  [
+    "raw",
+    "Lily prefers __________ over cooked vegetables because she thinks they are healthier.",
+    "莉莉喜歡生的蔬菜更甚於煮過的蔬菜，因為她認為這樣比較健康。",
+    [
+      "prefers",
+      "cooked",
+      "vegetables"
+    ]
+  ],
+  [
+    "raw material",
+    "The factory imports __________ __________s from Canada to manufacture high-quality paper products.",
+    "這家工廠從加拿大進口原物料來製造高品質的紙製品。",
+    [
+      "factory",
+      "imports",
+      "canada"
+    ]
+  ],
+  [
+    "translate",
+    "Please help me __________ this document from Chinese into English.",
+    "請幫我把這份文件從中文翻譯成英文。",
+    [
+      "please",
+      "document",
+      "chinese"
+    ]
+  ],
+  [
+    "translate into",
+    "I'm looking for a program that can __________ MP3 files __________ other file types.",
+    "我正在尋找一個可以將 MP3 檔案轉換成其他檔案類型的程式。",
+    [
+      "looking",
+      "program",
+      "files"
+    ]
+  ],
+  [
+    "translation",
+    "The student provided an accurate __________ of the difficult poem for his homework.",
+    "這位學生為他的作業提供了那首艱深詩作的準確翻譯。",
+    [
+      "student",
+      "provided",
+      "accurate"
+    ]
+  ],
+  [
+    "interpret",
+    "The professional had to __________ the president's speech into three languages during the live broadcast.",
+    "這位專業人士必須在直播期間將總統的演講口譯成三種語言。",
+    [
+      "professional",
+      "president's",
+      "speech"
+    ]
+  ],
+  [
+    "interpret__2",
+    "Different people might __________ the ending of the movie in completely distinct ways.",
+    "不同的人可能會以完全不同的方式來詮釋這部電影的結局。",
+    [
+      "different",
+      "people",
+      "ending"
+    ]
+  ],
+  [
+    "interpreter",
+    "Without a reliable __________ to translate the conversation, the business negotiation would have failed completely.",
+    "如果沒有一位可靠的口譯員來翻譯對話，這場商業談判早就徹底失敗了。",
+    [
+      "without",
+      "reliable",
+      "translate"
+    ]
+  ],
+  [
+    "interpretation",
+    "The lawyer offered a clever __________ of the law to defend his client in court.",
+    "律師對法律進行了聰明的解讀，以在法庭上為他的 client 辯護。",
+    [
+      "lawyer",
+      "offered",
+      "clever"
+    ]
+  ],
+  [
+    "mash",
+    "Rick used a spoon to __________ the potatoes after they were thoroughly boiled.",
+    "瑞克在馬鈴薯被徹底煮熟後，用湯匙把它們壓成泥。",
+    [
+      "spoon",
+      "potatoes",
+      "thoroughly"
+    ]
+  ],
+  [
+    "mashed potatoes",
+    "We served grilled chicken with cream and a large bowl of __________ __________ for dinner.",
+    "我們晚餐提供了烤雞搭配鮮奶油以及一大碗的馬鈴薯泥。",
+    [
+      "served",
+      "grilled",
+      "chicken"
+    ]
+  ],
+  [
+    "slice",
+    "There is nothing better than eating a __________ of cold watermelon in the summer.",
+    "夏天沒有比吃一片冰涼的西瓜更棒的事了。",
+    [
+      "there",
+      "nothing",
+      "better"
+    ]
+  ],
+  [
+    "slice__2",
+    "You will need a sharper knife to __________ the potatoes into thin pieces.",
+    "你需要一把更鋒利的刀才能把馬鈴薯切成薄片。",
+    [
+      "sharper",
+      "knife",
+      "potatoes"
+    ]
+  ],
+  [
+    "accompany",
+    "Olive of sometimes __________es her children on their walk to school in the morning.",
+    "奧莉芙有時會在早上陪同長孩子們步行去學校。",
+    [
+      "olive",
+      "sometimes",
+      "children"
+    ]
+  ],
+  [
+    "keep company",
+    "I stayed at home to __________ my grandmother __________ while my parents went out shopping.",
+    "當我父母出去購物時，我留在家裡陪伴我的祖母。",
+    [
+      "stayed",
+      "grandmother",
+      "parents"
+    ]
+  ],
+  [
+    "company",
+    "The international tech __________ decided to open a new branch office in downtown Taipei next month.",
+    "這家國際科技公司決定下個月在台北市中心開設一家新的分公司。",
+    [
+      "international",
+      "decided",
+      "branch"
+    ]
+  ],
+  [
+    "companion",
+    "She has been my loyal __________ during this long journey, helping me overcome many difficulties.",
+    "在這段漫長的旅程中，她一直是我忠實的同伴，幫助我克服了許多困難。",
+    [
+      "loyal",
+      "journey",
+      "helping"
+    ]
+  ],
+  [
+    "contemporary art",
+    "The city's new museum features a wide range of __________ that puzzles many traditional critics.",
+    "這座城市的新博物館展示了各式各樣的當代藝術，這讓許多傳統評論家感到困惑。",
+    [
+      "city's",
+      "museum",
+      "features"
+    ]
+  ],
+  [
+    "company__2",
+    "When my grandfather lived alone, he kept a dog because he needed some __________ in the house.",
+    "當我祖父獨自居住時，他養了一隻狗，因為他在屋裡需要一些陪伴。",
+    [
+      "grandfather",
+      "lived",
+      "alone"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Advanced U7
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "majesty": new Set([]),
+  "my majesty": new Set([]),
+  "majestic": new Set([]),
+  "admire the majesty of": new Set([]),
+  "recommend": new Set([]),
+  "recommend ...to ...": new Set([]),
+  "recommend somebody to v": new Set([]),
+  "it's highly recommended that": new Set([]),
+  "recommend that s (should) vr": new Set([]),
+  "recommendation": new Set([]),
+  "thoroughly": new Set([]),
+  "thorough": new Set([]),
+  "thoroughly examine": new Set([]),
+  "thorough investigation": new Set([]),
+  "landscape": new Set([]),
+  "distinctive": new Set([]),
+  "distinct": new Set([]),
+  "distinction": new Set([]),
+  "architecture": new Set([]),
+  "architectural": new Set([]),
+  "architect": new Set([]),
+  "reserve": new Set([]),
+  "reservation": new Set([]),
+  "make a reservation": new Set([]),
+  "duration": new Set([]),
+  "for the duration": new Set([]),
+  "durable": new Set([]),
+  "fascinate": new Set([]),
+  "fascinate someone with": new Set([]),
+  "fascinating": new Set([]),
+  "fascinated": new Set([]),
+  "fascination": new Set([]),
+  "gallery": new Set([]),
+  "art gallery": new Set([]),
+  "contemporary": new Set(["contemporary__2"]),
+  "contemporary__2": new Set(["contemporary"]),
+  "overlook": new Set([]),
+  "overlook the possibility of": new Set([]),
+  "cathedral": new Set([]),
+  "massive": new Set([]),
+  "massively": new Set([]),
+  "masterpiece": new Set([]),
+  "heritage": new Set([]),
+  "cultural heritage": new Set([]),
+  "ornament": new Set([]),
+  "afford": new Set([]),
+  "afford to v": new Set([]),
+  "marvel at": new Set([]),
+  "marvelous": new Set([]),
+  "cuisine": new Set([]),
+  "traditional cuisine": new Set([]),
+  "fusion cuisine": new Set([]),
+  "culinary": new Set([]),
+  "delicacy": new Set([]),
+  "gourmet": new Set([]),
+  "raw": new Set([]),
+  "raw material": new Set([]),
+  "translate": new Set([]),
+  "translate into": new Set([]),
+  "translation": new Set([]),
+  "interpret": new Set(["interpret__2"]),
+  "interpret__2": new Set(["interpret"]),
+  "interpreter": new Set([]),
+  "interpretation": new Set([]),
+  "mash": new Set([]),
+  "mashed potatoes": new Set([]),
+  "slice": new Set(["slice__2"]),
+  "slice__2": new Set(["slice"]),
+  "accompany": new Set([]),
+  "keep company": new Set([]),
+  "company": new Set(["company__2"]),
+  "companion": new Set([]),
+  "contemporary art": new Set([]),
+  "company__2": new Set(["company"]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>
