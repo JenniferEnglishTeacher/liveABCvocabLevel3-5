@@ -1,0 +1,4412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic U18 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Basic U18
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Basic U18 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "blur": {
+    "word": "blur",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a thing that cannot be seen or heard clearly.",
+    "cn": "模糊不清的事物",
+    "ex": "The speeding sports car was just a fast red blur as it rapidly drove past the amazed crowd."
+  },
+  "blur__2": {
+    "word": "blur",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make or become unclear or less distinct.",
+    "cn": "使模糊",
+    "ex": "The innovative new science fiction film completely blur the traditional line between hilarious comedy and serious drama."
+  },
+  "blur the line between": {
+    "word": "blur the line between",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to make it difficult to distinguish between two different things.",
+    "cn": "模糊...之間的界線",
+    "ex": "Highly realistic modern video games often blur the line between exciting digital entertainment and real-life physical sports."
+  },
+  "blurred": {
+    "word": "blurred",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "unable to see or be seen clearly.",
+    "cn": "模糊不清的",
+    "ex": "Without his expensive prescription glasses, the frustrated student's vision was completely blurred in the bright classroom."
+  },
+  "blurry": {
+    "word": "blurry",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "lacking clear definition or focus.",
+    "cn": "模糊的",
+    "ex": "Because the camera lens was incredibly dirty, all the vacation photos turned out to be terribly blurry."
+  },
+  "formation": {
+    "word": "formation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of forming or process of being formed.",
+    "cn": "形成；構成",
+    "ex": "Her father's strict moral teachings undoubtedly contributed heavily to the early formation of her own political beliefs."
+  },
+  "cloud formation": {
+    "word": "cloud formation",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the arrangement or structure of clouds in the sky.",
+    "cn": "雲層結構",
+    "ex": "Anna confidently says that those dark and heavy cloud formation are a clear sign that a big storm is coming."
+  },
+  "form": {
+    "word": "form",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to bring together parts or combine to create; the visible shape or configuration of something.",
+    "cn": "形成；形狀",
+    "ex": "The intelligent students decided to officially form a dedicated study group to carefully prepare for the difficult final exams."
+  },
+  "form__2": {
+    "word": "form",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A type, kind, or appearance of something; or a document with blanks to fill in.",
+    "cn": "形式、類型；表格",
+    "ex": "Please fill out this application form with your prior work experience before submitting it to the HR manager."
+  },
+  "in the form of": {
+    "word": "in the form of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Having the shape, type, or appearance of a specific thing.",
+    "cn": "以…的形式、以…的方式",
+    "ex": "The university provided financial assistance to the low-income student in the form of a monthly scholarship."
+  },
+  "art form": {
+    "word": "art form",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "An activity or a field of expression that is considered a type of art, such as painting or dance.",
+    "cn": "藝術形式",
+    "ex": "Photography has been recognized as a serious art form that can capture deep human emotions."
+  },
+  "formation__2": {
+    "word": "formation",
+    "pos": "(n. [U, C])",
+    "cat": "n",
+    "en": "The process of bringing something into existence, or the specific way things are arranged.",
+    "cn": "形成、構成；隊形、排列",
+    "ex": "Extreme changes in temperature over millions of years led to the formation of these unique mountain rocks."
+  },
+  "formless": {
+    "word": "formless",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "without a clear or definite shape or structure.",
+    "cn": "無定形的",
+    "ex": "The mysterious magical creature appeared as a dark, formless shadow slowly moving across the completely silent room."
+  },
+  "development": {
+    "word": "development",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the process of developing or being developed.",
+    "cn": "發展",
+    "ex": "The rapid technological development of advanced smartphones has significantly changed how humans quickly communicate with each other."
+  },
+  "evolve": {
+    "word": "evolve",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to develop gradually, especially from a simple to a more complex form.",
+    "cn": "演變；進化",
+    "ex": "Our complicated science project eventually evolve into something that was quite remarkably different from what we originally planned."
+  },
+  "evolution": {
+    "word": "evolution",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the gradual development of something, especially from a simple to a more complex form.",
+    "cn": "演化；發展",
+    "ex": "The fascinating evolution of modern computer technology over the last few decades has completely changed human society."
+  },
+  "evolutionary": {
+    "word": "evolutionary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to the gradual development of something.",
+    "cn": "演化的",
+    "ex": "The brilliant biology professor taught a highly complex course about the evolutionary history of strange deep-sea creatures."
+  },
+  "involve": {
+    "word": "involve",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to have or include something as a necessary part.",
+    "cn": "包含；牽涉",
+    "ex": "This highly demanding corporate management job will definitely involve traveling to many different foreign countries every single month."
+  },
+  "be involved in": {
+    "word": "be involved in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To take part in an activity, event, or situation, or to be deeply connected with it.",
+    "cn": "參與…、涉入…、捲入…",
+    "ex": "Marcus decided to be actively involved in the local charity project to help low-income families."
+  },
+  "revolve": {
+    "word": "revolve",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to move in a circle on a central axis.",
+    "cn": "旋轉；圍繞",
+    "ex": "The knowledgeable astronomy teacher clearly explained that the Earth naturally revolve around the glowing sun once a year."
+  },
+  "revolve around": {
+    "word": "revolve around",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To move in a circular path around a central object; or to have something as the main interest or focus.",
+    "cn": "圍繞…旋轉、以…為中心",
+    "ex": "For the first few months, a new mother's daily schedule will completely revolve around her baby's needs."
+  },
+  "revolution": {
+    "word": "revolution",
+    "pos": "(n. [C, U])",
+    "cat": "n",
+    "en": "A complete circular movement made by an object around a central point.",
+    "cn": "環繞、旋轉、公轉",
+    "ex": "It takes about 365 days for the Earth to complete one full revolution around the sun."
+  },
+  "revolution__2": {
+    "word": "revolution",
+    "pos": "(n. [C, U])",
+    "cat": "n",
+    "en": "A violent or total change in a country's political system, or a major change in ideas or methods.",
+    "cn": "革命、重大變革",
+    "ex": "The Industrial revolution in the 18th century completely changed the way goods were manufactured and produced."
+  },
+  "revolutionary": {
+    "word": "revolutionary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Involving or causing a complete and dramatic change in ideas, methods, or systems.",
+    "cn": "革命性的、突破性的、大變革的",
+    "ex": "The research team developed a revolutionary new medicine that could successfully cure the genetic defect."
+  },
+  "revolutionize": {
+    "word": "revolutionize",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To completely change the way something is done, built, or thought about.",
+    "cn": "徹底改變、改革、帶來革命性變革",
+    "ex": "The invention of smartphones has completely revolutionized the way modern people communicate and access information on demand."
+  },
+  "exception": {
+    "word": "exception",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person or thing that is excluded from a general statement or does not follow a rule.",
+    "cn": "例外",
+    "ex": "I usually manage to sleep very peacefully at night, but last night's terrible loud thunderstorm was a major exception."
+  },
+  "exceptional": {
+    "word": "exceptional",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "unusually good; outstanding.",
+    "cn": "卓越的；例外的",
+    "ex": "Jerry is truly an exceptional employee who consistently works incredibly hard and contributes significantly to our modern company."
+  },
+  "exceptional circumstances": {
+    "word": "exceptional circumstances",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "highly unusual or uncommon situations.",
+    "cn": "例外情況",
+    "ex": "The strict international company naturally only tolerates employee lateness in highly exceptional circumstances, such as severe transportation strikes."
+  },
+  "exceptionally": {
+    "word": "exceptionally",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "to a greater degree than normal; unusually.",
+    "cn": "異常地；非常",
+    "ex": "Because the winter weather was exceptionally cold, the local government urgently opened extra shelters for the homeless citizens."
+  },
+  "extraordinary": {
+    "word": "extraordinary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "very unusual or remarkable.",
+    "cn": "非凡的",
+    "ex": "The brave young firefighter showed truly extraordinary courage when he bravely ran into the violently burning wooden house."
+  },
+  "span": {
+    "word": "span",
+    "pos": "(v.) / (n.)",
+    "cat": "n",
+    "en": "to extend across in space or time; the full extent of something from end to end.",
+    "cn": "橫跨；跨度",
+    "ex": "The terrible economic impact from the sudden financial crisis unfortunately span every single dark corner of the struggling economy."
+  },
+  "lifespan": {
+    "word": "lifespan",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the length of time for which a person or animal lives or a thing functions.",
+    "cn": "壽命",
+    "ex": "Because of highly advanced modern medicine, the average human lifespan has significantly increased over the past entire century."
+  },
+  "attention span": {
+    "word": "attention span",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "the length of time a person can concentrate on a task without becoming distracted.",
+    "cn": "注意力持續時間",
+    "ex": "Teachers frequently complain that young children who constantly watch short internet videos have an incredibly brief attention span."
+  },
+  "span across": {
+    "word": "span across",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to stretch completely from one side to another.",
+    "cn": "橫跨",
+    "ex": "The massive new steel bridge was specifically designed to beautifully span across the incredibly wide and deep river."
+  },
+  "apart from": {
+    "word": "apart from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "except for; in addition to.",
+    "cn": "除了...之外",
+    "ex": "apart from the friendly guy named Fred, clever Janice has also proudly won several expensive prizes for her competitive roller skating."
+  },
+  "apart": {
+    "word": "apart",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "separated by a distance; into pieces.",
+    "cn": "分開地",
+    "ex": "Because they live in completely different countries, the two loving brothers have sadly lived far apart for years."
+  },
+  "fall apart": {
+    "word": "fall apart",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to break into pieces; to lose one's capacity to cope.",
+    "cn": "散開；崩潰",
+    "ex": "The cheap old wooden chair finally began to completely fall apart after being left outside in the pouring rain."
+  },
+  "take apart": {
+    "word": "take apart",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to separate something into its individual pieces.",
+    "cn": "拆開",
+    "ex": "The curious young boy carefully managed to take apart the broken radio to see exactly how it worked inside."
+  },
+  "tell apart": {
+    "word": "tell apart",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to distinguish one person or thing from another.",
+    "cn": "分辨",
+    "ex": "The identical twin sisters look so incredibly similar that even their own closest friends cannot tell them apart easily."
+  },
+  "facilitate": {
+    "word": "facilitate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make an action or process easy or easier.",
+    "cn": "促進；使便利",
+    "ex": "The brand new interactive teaching material specifically facilitate incredibly fast and effective learning for the young students in class."
+  },
+  "facilitator": {
+    "word": "facilitator",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person or thing that makes an action or process easy or easier.",
+    "cn": "促進者；引導者",
+    "ex": "The highly trained professional facilitator ensured that the difficult business negotiation smoothly proceeded without any angry physical arguments."
+  },
+  "facility": {
+    "word": "facility",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a place, amenity, or piece of equipment provided for a particular purpose.",
+    "cn": "設施",
+    "ex": "The highly prestigious international university proudly boasts an incredibly modern sports facility available for all of its hardworking students."
+  },
+  "highly facilitated": {
+    "word": "highly facilitated",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "made significantly easier or smoother by someone or something.",
+    "cn": "高度促進的",
+    "ex": "The massive global trade agreement was highly facilitated by the dedicated efforts of the brilliant foreign political ambassadors."
+  },
+  "encounter": {
+    "word": "encounter",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an unexpected or casual meeting with someone or something; to unexpectedly experience.",
+    "cn": "相遇；遭遇",
+    "ex": "An exciting weekend trip to the massive city zoo gave little Jim his very first terrifying encounter with dangerous snakes."
+  },
+  "encounter__2": {
+    "word": "encounter",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To experience something unexpected or difficult, or to meet someone by chance.",
+    "cn": "遭遇（困難/問題）、不期而遇",
+    "ex": "The project team might encounter some technical difficulties when trying to update the online testing system."
+  },
+  "close encounter": {
+    "word": "close encounter",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a situation in which one comes very near to something dangerous or unusual.",
+    "cn": "近距離接觸",
+    "ex": "The brave hiker had an incredibly close encounter with a massive angry bear while wandering deep in the dark woods."
+  },
+  "unexpected encounter": {
+    "word": "unexpected encounter",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a meeting that happens without warning or planning.",
+    "cn": "意外相遇",
+    "ex": "Michelle had a completely unexpected encounter with a famous Hollywood movie star while nervously waiting at the busy international airport."
+  },
+  "bump into": {
+    "word": "bump into",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To meet someone you know completely by chance when you did not expect to see them.",
+    "cn": "巧遇、不期而遇、撞見",
+    "ex": "Marcus was surprised to bump into his former English teacher at the Japanese buffet restaurant last night."
+  },
+  "run into": {
+    "word": "run into",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To meet someone by accident, or to experience unexpected problems or difficulties.",
+    "cn": "巧遇、遇見；遭遇（困難）",
+    "ex": "While traveling in Tokyo, Chloe happened to run into an old college classmate she hadn't seen for years."
+  },
+  "face": {
+    "word": "face",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to confront and deal with or accept a difficult or unpleasant task or situation.",
+    "cn": "面對",
+    "ex": "The struggling company will inevitably face complete financial disaster if it doesn't heavily quickly improve its terrible daily sales."
+  },
+  "be faced with": {
+    "word": "be faced with",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To have to deal with a difficult situation, problem, or choice.",
+    "cn": "面臨…、面對…（通常指困難、挑戰）",
+    "ex": "When the manufacturing factory closed down, Marcus was be faced the urgent need to find a new job."
+  },
+  "in the face of": {
+    "word": "in the face of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "While experiencing or dealing with a difficult situation, danger, or opposition.",
+    "cn": "面對…、在…面前（通常指不畏艱難）",
+    "ex": "Chloe remained completely calm in the face of danger and successfully guided the lost tourists out of the dark cave."
+  },
+  "face-to-face communication": {
+    "word": "face-to-face communication",
+    "pos": "(n. [U])",
+    "cat": "phr",
+    "en": "The act of talking directly to another person while being in the same physical place.",
+    "cn": "面對面溝通",
+    "ex": "Although text messages are convenient, face-to-face-communication-face-to-face communication face-to-face communication is still the best way to resolve serious personal conflicts."
+  },
+  "enrich": {
+    "word": "enrich",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to improve or enhance the quality or value of.",
+    "cn": "豐富",
+    "ex": "The passionate history teacher uses deeply fascinating traditional stories to perfectly enrich the young students' understanding of ancient cultures."
+  },
+  "enrichment": {
+    "word": "enrichment",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of improving or enhancing the quality or value of something.",
+    "cn": "豐富；充實",
+    "ex": "Joey's wealthy parents constantly took him on lots of educational trips abroad, which definitely brought incredible enrichment to his childhood."
+  },
+  "enriched": {
+    "word": "enriched",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having added nutrients or improved quality.",
+    "cn": "營養強化的；豐富的",
+    "ex": "This completely healthy and delicious morning bread is specially enriched with extremely vital vitamins and important natural minerals."
+  },
+  "enriching": {
+    "word": "enriching",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "providing rewarding value or improving the quality of something.",
+    "cn": "使人充實的",
+    "ex": "Volunteering at the crowded local animal shelter was a deeply enriching experience that taught the teenager absolute absolute responsibility."
+  },
+  "marvel": {
+    "word": "marvel",
+    "pos": "(n.) / (v.)",
+    "cat": "n",
+    "en": "a wonderful or astonishing person or thing; to be filled with wonder or astonishment.",
+    "cn": "奇蹟；感到驚嘆",
+    "ex": "My knowledgeable grandfather always happily says that modern smart mobile phones are a truly incredible marvel of advanced modern technology."
+  },
+  "marvel at": {
+    "word": "marvel at",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to look at or consider something with great surprise or admiration.",
+    "cn": "對...感到驚嘆",
+    "ex": "The romantic young couple silently stood outside to completely marvel at the breathtaking beauty of the incredibly bright shining stars."
+  },
+  "marvelous": {
+    "word": "marvelous",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "causing great wonder; extraordinary.",
+    "cn": "極好的；令人驚嘆的",
+    "ex": "The famous restaurant serves absolutely marvelous food that consistently attracts incredibly hungry and excited customers from all over the city."
+  },
+  "marvelously": {
+    "word": "marvelously",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a way that causes great wonder or is extraordinarily good.",
+    "cn": "奇蹟般地；極好地",
+    "ex": "The highly talented classical piano player performed so marvelously that the completely amazed audience loudly cheered for several long minutes."
+  },
+  "engaging": {
+    "word": "engaging",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "charming and attractive; capturing attention.",
+    "cn": "迷人的；吸引人的",
+    "ex": "The colorful new fantasy video game was so deeply engaging that I completely lost track of the entire long afternoon."
+  },
+  "engage": {
+    "word": "engage",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to occupy, attract, or involve someone's interest or attention.",
+    "cn": "吸引；參與",
+    "ex": "The passionate teacher uses completely fun and interactive daily activities to successfully engage her easily distracted and highly energetic students."
+  },
+  "engage in": {
+    "word": "engage in",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to participate or become involved in.",
+    "cn": "參與",
+    "ex": "The incredibly tired manager was entirely too distracted to properly engage in their complex conversation about the new financial project."
+  },
+  "be engaged to sb": {
+    "word": "be engaged to sb",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "Having formally agreed to marry a specific person in the future.",
+    "cn": "與某人訂婚",
+    "ex": "After dating happily for over five years, Marcus announced that he was be engaged Chloe."
+  },
+  "be engaged in": {
+    "word": "be engaged in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To be deeply busy, occupied, or involved in a specific activity or situation.",
+    "cn": "正從事於…、忙於…、參與…",
+    "ex": "The research team is currently be engaged a long-term scientific study regarding genetic defects."
+  },
+  "engage in (an activity)": {
+    "word": "engage in (an activity)",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To take part in or do a specific activity, discussion, or behavior.",
+    "cn": "參加…、進行…、從事…（活動）",
+    "ex": "Doctors strongly recommend that elderly people engage in light regular exercise to keep their hearts healthy."
+  },
+  "engagement": {
+    "word": "engagement",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the act of participation.",
+    "cn": "訂婚；參與",
+    "ex": "After dating for five wonderful years, the truly happy couple finally announced their incredibly exciting official romantic engagement."
+  },
+  "engaging__2": {
+    "word": "engaging",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Interesting, charming, and keeping your attention completely.",
+    "cn": "迷人的、有吸引力的、引人入勝的",
+    "ex": "The experienced English teacher designed an engaging web-based game that kept the students motivated to practice spelling."
+  },
+  "take part in": {
+    "word": "take part in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To participate or be involved in an activity, event, or sport with other people.",
+    "cn": "參加…、參與…",
+    "ex": "Marcus encourages his children to take part in outdoor sports to stay healthy and build a strong character."
+  },
+  "participate in": {
+    "word": "participate in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To take part in an event, a game, an activity, or an organized group.",
+    "cn": "參加…、參與…",
+    "ex": "Hundreds of international students from Taipei decided to participate in the summer English camp last year."
+  },
+  "participant": {
+    "word": "participant",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person who takes part in a specific activity, event, or research study.",
+    "cn": "參與者、參加者",
+    "ex": "Each participant in the financial investment seminar will receive a professional certificate after completing the course."
+  },
+  "participation": {
+    "word": "participation",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The act of taking part in an activity, event, or discussion.",
+    "cn": "參與、參加",
+    "ex": "Active participation in classroom discussions is highly valued and will count toward your final grade."
+  },
+  "charming": {
+    "word": "charming",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "pleasant or attractive.",
+    "cn": "迷人的",
+    "ex": "The highly polite and naturally charming young man easily made a completely wonderful first impression on his strict future boss."
+  },
+  "reproduce": {
+    "word": "reproduce",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to produce a copy or representation of; to produce offspring.",
+    "cn": "複製；繁殖",
+    "ex": "This highly advanced and incredibly expensive office photocopier can accurately reproduce beautiful and complex color photographs in just a few seconds."
+  },
+  "reproduction": {
+    "word": "reproduction",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action or process of making a copy of something; the production of offspring.",
+    "cn": "複製品；繁殖",
+    "ex": "The historical museum beautifully proudly displays a highly perfect reproduction of an extremely famous ancient Roman statue for curious tourists."
+  },
+  "reproductive": {
+    "word": "reproductive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to or effecting reproduction.",
+    "cn": "生殖的",
+    "ex": "The brilliant scientist passionately studies the incredibly complex reproductive cycle of several completely rare and highly endangered exotic wild birds."
+  },
+  "produce": {
+    "word": "produce",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make or manufacture from components or raw materials.",
+    "cn": "生產",
+    "ex": "The highly efficient new factory uses heavily automated machines to quickly produce thousands of extremely cheap plastic toys every day."
+  },
+  "producer": {
+    "word": "producer",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person, company, or country that makes, grows, or supplies goods or commodities for sale.",
+    "cn": "生產者；製作人",
+    "ex": "The highly powerful Hollywood producer angrily demanded that the nervous director significantly drastically change the boring ending of the movie."
+  },
+  "representative": {
+    "word": "representative",
+    "pos": "(n.) / (adj.)",
+    "cat": "adj",
+    "en": "a person chosen or appointed to act or speak for another or others; typical of a class, group, or body of opinion.",
+    "cn": "代表；具代表性的",
+    "ex": "His massive financial success as a dedicated businessman is highly representative of exactly what extremely hard work can accomplish."
+  },
+  "representative of": {
+    "word": "representative of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "serving as a typical example of something.",
+    "cn": "...的代表",
+    "ex": "At the massive international trade show, Shawn confidently acted as a highly professional representative of this growing global technology company."
+  },
+  "represent": {
+    "word": "represent",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to be entitled or appointed to act or speak for someone.",
+    "cn": "代表",
+    "ex": "The highly skilled and incredibly expensive lawyer will formally represent the totally innocent man during the highly publicized and stressful trial."
+  },
+  "representation": {
+    "word": "representation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of speaking or acting on behalf of someone or the state of being so represented.",
+    "cn": "表現；代表",
+    "ex": "The community strongly demands completely fair and deeply equal political representation in the highly powerful national government without any hesitation."
+  },
+  "sales representative": {
+    "word": "sales representative",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "an employee of a company who travels around a particular area selling the company's goods to shops and other businesses.",
+    "cn": "業務代表",
+    "ex": "The enthusiastic and highly persuasive sales representative cleverly managed to quickly sell the incredibly expensive new software to the hesitant client."
+  },
+  "on behalf of": {
+    "word": "on behalf of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "As the representative of someone else, or speaking and acting for them.",
+    "cn": "代表…、替…",
+    "ex": "Chloe accepted the professional teaching award on behalf of the entire English department."
+  },
+  "stand for": {
+    "word": "stand for",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To represent a word, an idea, or a belief, especially as an abbreviation or a symbol.",
+    "cn": "代表（字詞縮寫）；象徵、主張",
+    "ex": "In the field of digital media, the letters OTT stand for \"Over-The-Top\" streaming services."
+  },
+  "symbolize": {
+    "word": "symbolize",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To be a symbol of something, or to represent a deeper quality or feeling.",
+    "cn": "象徵、代表",
+    "ex": "In many fantasy novels, the white horse is used to symbolize purity, justice, and absolute goodness."
+  },
+  "symbol": {
+    "word": "symbol",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A sign, shape, or object that is used to represent something else, such as an idea or quality.",
+    "cn": "象徵、標誌、符號",
+    "ex": "The dove has long been recognized globally as a universal symbol of peace and unbiased harmony."
+  },
+  "be symbolic of": {
+    "word": "be symbolic of",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "Serving as a symbol, or representing something else in a significant way.",
+    "cn": "象徵…的、代表…的",
+    "ex": "The lighting of the Olympic flame is deeply be symbolic unity and friendship among different nations."
+  },
+  "destination": {
+    "word": "destination",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the place to which someone or something is going or being sent.",
+    "cn": "目的地",
+    "ex": "Belize is widely famous globally as a relatively cheap vacation destination featuring truly great ocean diving and completely beautiful relaxing beaches."
+  },
+  "tourist destination": {
+    "word": "tourist destination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a place that is popular with people who are on holiday.",
+    "cn": "旅遊勝地",
+    "ex": "The incredibly historic and perfectly preserved ancient European city remains an extremely popular tourist destination for completely eager international travelers."
+  },
+  "tourist attraction": {
+    "word": "tourist attraction",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A place of interest that people visit for pleasure, culture, or entertainment.",
+    "cn": "觀光景點、旅遊勝地",
+    "ex": "Taipei 101 is a world-famous tourist attraction that draws millions of international visitors to Taiwan every year."
+  },
+  "landmark": {
+    "word": "landmark",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A building or feature that is easily recognized, especially one that guides people or has historical importance.",
+    "cn": "地標、里程碑",
+    "ex": "The historic red brick station building serves as a major landmark in the center of Tokyo."
+  },
+  "scenic spot": {
+    "word": "scenic spot",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A specific place known for its beautiful natural views and landscapes.",
+    "cn": "風景區、景點",
+    "ex": "The mountain hot spring resort is a popular scenic spot where travelers can enjoy beautiful lake views."
+  },
+  "wander": {
+    "word": "wander",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to walk or move in a leisurely, casual, or aimless way.",
+    "cn": "漫遊；徘徊",
+    "ex": "Completely lost Shawn sadly wander the dark and rainy city streets, having absolutely no idea where he actually needed to securely go."
+  },
+  "wander off": {
+    "word": "wander off",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to leave a place or group without permission or unexpectedly.",
+    "cn": "走失；離開",
+    "ex": "Irresponsible parents should strictly never comfortably allow their extremely energetic young children to simply wander off entirely alone in the massive park."
+  },
+  "wandering": {
+    "word": "wandering",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "traveling aimlessly from place to place.",
+    "cn": "漫遊的；流浪的",
+    "ex": "The lonely wandering dog desperately searched the completely empty alleyways for absolutely any small scraps of leftover human food."
+  },
+  "wander around": {
+    "word": "wander around",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to walk around a place casually without a specific goal.",
+    "cn": "四處閒逛",
+    "ex": "During our remarkably relaxing long summer vacation, we completely happily spent hours just deciding to wander around the charming old town."
+  },
+  "apply": {
+    "word": "apply",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make a formal application or request.",
+    "cn": "申請",
+    "ex": "If you genuinely want this highly competitive internship, you absolutely must completely apply for it before the incredibly strict Friday deadline."
+  },
+  "application": {
+    "word": "application",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a formal request to an authority for something; the action of putting something into operation.",
+    "cn": "應用；申請",
+    "ex": "This complex new mechanical tool that has just recently been invented actually has many completely different and highly useful practical application."
+  },
+  "job application": {
+    "word": "job application",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a formal request to be considered for a position of employment.",
+    "cn": "求職申請",
+    "ex": "Nadia confidently gave her detailed job application to the busy secretary and was completely surprisingly soon called back for a formal interview."
+  },
+  "fill in the application form": {
+    "word": "fill in the application form",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To complete a document by writing down your personal details and answers in the blanks.",
+    "cn": "填寫申請表",
+    "ex": "Please remember to fill in the application form completely before submitting your resume to the HR manager."
+  },
+  "applicant": {
+    "word": "applicant",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who makes a formal application for something, typically a job.",
+    "cn": "申請人",
+    "ex": "The strict international technology company received over five hundred impressive resumes from incredibly hopeful applicant for the single management position."
+  },
+  "applicable": {
+    "word": "applicable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relevant or appropriate.",
+    "cn": "適用的",
+    "ex": "The complex safety rules carefully described in this completely detailed manual are strictly applicable to absolutely everyone working in the busy factory."
+  },
+  "apply for a job": {
+    "word": "apply for a job",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To make a formal, written request to a company asking to be hired for a specific position.",
+    "cn": "應徵工作、申請工作",
+    "ex": "Marcus decided to apply for a job at the new technology firm located in the Daan district."
+  },
+  "apply for a school": {
+    "word": "apply for a school",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To submit a formal request and necessary documents to be admitted into an educational institution.",
+    "cn": "申請學校",
+    "ex": "Before you apply for a school abroad, you must achieve a high score on standardized English exams like the TOEFL."
+  },
+  "apply for a scholarship": {
+    "word": "apply for a scholarship",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To formally request financial aid from an institution to help pay for your education.",
+    "cn": "申請獎學金",
+    "ex": "Since her family was low-income, Chloe had to apply for a scholarship to cover her university tuition fees."
+  },
+  "apply to": {
+    "word": "apply to",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To use a rule, idea, or piece of information in a specific situation, or to be relevant to someone.",
+    "cn": "應用於…、適用於…",
+    "ex": "The new safety regulations regarding school field trips apply to all educational institutions in Taiwan."
+  },
+  "application__2": {
+    "word": "application",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A computer program or mobile software designed to perform a specific task for the user (often shortened to \"app\").",
+    "cn": "應用程式",
+    "ex": "This interactive vocabulary application allows students to track their test performance and practice spelling on mobile phones."
+  },
+  "apply sth to": {
+    "word": "apply sth to",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To spread a substance, such as cream, ointment, or paint, onto a surface.",
+    "cn": "將…塗抹於…",
+    "ex": "You should gently apply the medical ointment sth your shoulders to ease the pain from the severe sunburn."
+  },
+  "educate": {
+    "word": "educate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to give intellectual, moral, and social instruction to someone.",
+    "cn": "教育",
+    "ex": "The highly passionate librarian tirelessly worked to properly educate the completely confused new students on the complex computer catalog system."
+  },
+  "education": {
+    "word": "education",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the process of receiving or giving systematic instruction, especially at a school or university.",
+    "cn": "教育",
+    "ex": "Acquiring a high-quality university education is widely considered absolutely vital for eventually securing a completely stable and highly profitable modern career."
+  },
+  "educational": {
+    "word": "educational",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to the provision of education; intended or serving to educate or enlighten.",
+    "cn": "教育的；有教育意義的",
+    "ex": "The long historical movie was certainly highly educational, but unfortunately, absolutely all the young energetic students thought it was incredibly boring."
+  },
+  "access": {
+    "word": "access",
+    "pos": "(n.) / (v.)",
+    "cat": "n",
+    "en": "the means or opportunity to approach or enter a place; to approach or enter.",
+    "cn": "進入（的權利）；存取",
+    "ex": "You will definitely need a highly special electronic security card to properly access this highly restricted and completely secret part of the building."
+  },
+  "have access to": {
+    "word": "have access to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to have the right or opportunity to use something.",
+    "cn": "有權限使用...",
+    "ex": "Only officially registered university students and strict professors actually have completely free access to the massive historical books in the old library."
+  },
+  "gain access to": {
+    "word": "gain access to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to obtain the ability to enter a place or look at something.",
+    "cn": "獲得存取/進入權",
+    "ex": "The highly skilled computer hacker unfortunately completely managed to quickly gain access to the absolutely secure and highly private national banking system."
+  },
+  "accessible": {
+    "word": "accessible",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "able to be reached or entered.",
+    "cn": "易接近的；可使用的",
+    "ex": "The progressive modern city brilliantly ensured that absolutely all highly important public buildings are completely accessible to physically disabled citizens in wheelchairs."
+  },
+  "accessibility": {
+    "word": "accessibility",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the quality of being easy to approach, reach, enter, speak with, or use.",
+    "cn": "可達性；無障礙",
+    "ex": "Improving the overall physical accessibility of the terribly designed old train station is undeniably a highly urgent priority for the new city mayor."
+  },
+  "specialist": {
+    "word": "specialist",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who concentrates primarily on a particular subject or activity.",
+    "cn": "專家；專科醫生",
+    "ex": "A highly experienced skin specialist at the incredibly busy local hospital desperately tried to quickly find out exactly what was wrong with the poor patient."
+  },
+  "computer specialist": {
+    "word": "computer specialist",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a person with advanced knowledge of computer systems.",
+    "cn": "電腦專家",
+    "ex": "Intelligent Fiona is currently studying incredibly hard at the modern university to eventually become a highly paid and totally respected computer specialist."
+  },
+  "specialize in": {
+    "word": "specialize in",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to concentrate on and become expert in a particular subject or skill.",
+    "cn": "專攻",
+    "ex": "That incredibly popular and totally delicious international restaurant specifically smartly chooses to heavily specialize in highly spicy and totally authentic Indian curry dishes."
+  },
+  "expert": {
+    "word": "expert",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who is very knowledgeable about or skillful in a particular area.",
+    "cn": "專家",
+    "ex": "If you heavily struggle with extremely complex legal tax problems, you should absolutely strongly consider hiring a highly trained financial expert immediately."
+  },
+  "specialized": {
+    "word": "specialized",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "requiring or involving detailed and specific knowledge or training.",
+    "cn": "專業的",
+    "ex": "Fixing that incredibly rare and highly expensive vintage sports car absolutely strictly requires totally specialized tools that completely ordinary mechanics simply do not possess."
+  },
+  "imitate": {
+    "word": "imitate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to copy or simulate.",
+    "cn": "模仿",
+    "ex": "Extremely young children often naturally actively learn basic social behaviors by completely closely deciding to completely imitate the deeply complex actions of their older parents."
+  },
+  "imitation": {
+    "word": "imitation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of using someone or something as a model.",
+    "cn": "模仿；仿製品",
+    "ex": "The talented young comedian did an absolutely fantastic and highly entertaining imitation of the completely famous pop singer Michael Jackson singing on stage."
+  },
+  "imitative": {
+    "word": "imitative",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "copying or following a model or example.",
+    "cn": "模仿的",
+    "ex": "Early classical art in that deeply historic region was often heavily imitative of the highly complex beautiful styles brought over by the conquering ancient Romans."
+  },
+  "fake": {
+    "word": "fake",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not genuine; imitation or counterfeit.",
+    "cn": "假的",
+    "ex": "The naive tourist foolishly bought what heavily looked like an extremely expensive designer bag, but it completely turned out to clearly be a cheap fake copy."
+  },
+  "realm": {
+    "word": "realm",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a kingdom; a field or domain of activity or interest.",
+    "cn": "領域；王國",
+    "ex": "The completely exciting and deeply fascinating story mainly takes place in a highly magical realm that is completely full of strange and incredibly dangerous wild creatures."
+  },
+  "magical realm": {
+    "word": "magical realm",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a fictional world where magic exists.",
+    "cn": "魔法王國",
+    "ex": "The brave young hero completely courageously completely traveled into a dark and highly unpredictable magical realm to successfully successfully save his completely kidnapped younger brother."
+  },
+  "in the realm of": {
+    "word": "in the realm of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "within the specific area or field of something.",
+    "cn": "在...領域中",
+    "ex": "Significant new discoveries constantly happening in the realm of modern medical science continue to incredibly deeply completely improve human life heavily every single day."
+  },
+  "kingdom": {
+    "word": "kingdom",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a country, state, or territory ruled by a king or queen.",
+    "cn": "王國",
+    "ex": "The truly benevolent and deeply widely respected old queen completely ruled her incredibly peaceful and entirely highly wealthy kingdom for over sixty fully completely glorious years."
+  },
+  "domain": {
+    "word": "domain",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an area of territory owned or controlled by a ruler or government; a specified sphere of activity or knowledge.",
+    "cn": "領域；領土",
+    "ex": "Highly complex mathematical physics is completely strictly undeniably the absolute specific domain of highly trained brilliant scientists, not completely ordinarily completely average people."
+  },
+  "array": {
+    "word": "array",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an impressive display or range of a particular type of thing.",
+    "cn": "一系列；陣列",
+    "ex": "There is a surprisingly wide and completely incredibly impressive array of brightly colored flowers and highly useful modern gardening products available completely directly at the busy weekend market."
+  },
+  "an array of": {
+    "word": "an array of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a large group of things or people, especially one that is attractive or causes admiration.",
+    "cn": "一系列",
+    "ex": "The massive modern international supermarket proudly securely offers an absolutely massive completely wide array of totally fresh tropical fruits securely completely directly imported from heavily sunny South America."
+  },
+  "a vast array of": {
+    "word": "a vast array of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a very large and impressive collection or display.",
+    "cn": "大量的一系列",
+    "ex": "The incredibly wealthy historical collector absolutely confidently completely possesses a completely heavily completely a vast of entirely extremely rare completely highly expensive antique silver coins."
+  },
+  "a wide array of": {
+    "word": "a wide array of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a broad and diverse collection.",
+    "cn": "廣泛的一系列",
+    "ex": "To fully satisfy all absolutely diverse extremely demanding customers, the incredibly popular new bakery strictly completely strongly completely completely offers a a wide of completely heavily completely sweet completely highly delicious fresh pastries."
+  },
+  "recreation": {
+    "word": "recreation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "activity done for enjoyment when one is not working.",
+    "cn": "娛樂；消遣",
+    "ex": "The completely exhausted and highly stressed workers strictly absolutely deeply absolutely genuinely need completely deeply completely totally entirely absolutely adequate completely absolutely entirely fully adequate absolutely absolutely completely deeply entirely fully adequate time securely absolutely completely fully totally completely securely safely fully fully entirely heavily absolutely fully for totally completely entirely deeply safely highly fully completely absolutely completely deeply deeply totally entirely safely healthy absolutely totally highly fully completely heavily recreation absolutely entirely safely fully to totally entirely safely completely totally actively absolutely fully completely fully heavily entirely fully maintain heavily totally highly completely absolutely deeply completely fully completely fully heavily entirely completely heavily fully completely fully totally heavily completely strictly completely absolutely completely fully their entirely deeply absolutely totally completely entirely deeply absolutely deeply totally completely totally totally entirely deeply strictly completely fully strictly fully entirely heavily totally absolutely overall completely strictly totally thoroughly absolutely entirely completely absolutely completely entirely deeply highly fully deeply absolutely heavily mental heavily completely heavily completely totally completely completely fully entirely entirely deeply totally fully entirely completely fully absolutely completely fully fully completely heavily absolutely heavily fully completely fully entirely entirely fully completely completely fully entirely totally completely healthy."
+  },
+  "recreational": {
+    "word": "recreational",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to or denoting activity done for enjoyment when one is not working.",
+    "cn": "娛樂的；休閒的",
+    "ex": "The modern community center securely provides all sorts of highly exciting recreational activities for energetic young children to happily take part in during their free time."
+  },
+  "recreational activities": {
+    "word": "recreational activities",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "things people do for fun and enjoyment.",
+    "cn": "休閒活動",
+    "ex": "During the deeply relaxing summer vacation, we highly enjoy securely doing completely fun completely heavily entirely entirely totally absolutely totally totally recreational activities completely completely fully securely completely deeply fully entirely totally fully entirely highly heavily actively entirely fully like deeply safely peacefully fully entirely swimming securely completely highly deeply safely totally fully and safely fully heavily actively heavily fully totally fully fully entirely totally heavily reading."
+  },
+  "create": {
+    "word": "create",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to bring something into existence.",
+    "cn": "創造",
+    "ex": "The highly brilliant and deeply passionate chef constantly manages to actively create entirely new and completely delicious dishes for his wealthy restaurant customers."
+  },
+  "creative": {
+    "word": "creative",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to or involving the imagination or original ideas, especially in the production of an artistic work.",
+    "cn": "有創意的",
+    "ex": "The completely imaginative young boy creatively made up an incredibly fun and completely complex new game for absolutely all of his energetic friends."
+  },
+  "skeptical": {
+    "word": "skeptical",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not easily convinced; having doubts or reservations.",
+    "cn": "懷疑的",
+    "ex": "Highly intelligent Carla is understandably quite skeptical about her realistic chances of actually getting the highly competitive new office job in the city."
+  },
+  "skeptic": {
+    "word": "skeptic",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person inclined to question or doubt all accepted opinions.",
+    "cn": "懷疑論者",
+    "ex": "Even the most stubborn skeptic in the completely quiet room had to finally completely totally admit that the brilliant new scientific theory actually worked flawlessly."
+  },
+  "skepticism": {
+    "word": "skepticism",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a skeptical attitude; doubt as to the truth of something.",
+    "cn": "懷疑態度",
+    "ex": "Despite the government's highly positive official promises, there is still widespread public skepticism completely heavily surrounding the complex new economic policy."
+  },
+  "be skeptical about": {
+    "word": "be skeptical about",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to have doubts regarding something.",
+    "cn": "對...感到懷疑",
+    "ex": "It is absolutely completely natural to be highly skeptical about surprisingly incredibly totally deeply highly totally totally absolutely highly surprisingly surprisingly surprisingly extremely surprisingly amazingly cheap completely totally completely fully totally totally entirely deeply extremely products completely totally heavily totally fully heavily totally fully totally absolutely totally completely fully totally completely heavily completely highly fully securely sold securely safely fully absolutely fully safely fully completely deeply completely highly fully fully safely safely absolutely totally totally fully heavily fully safely entirely absolutely safely on completely fully highly entirely fully entirely entirely completely highly entirely fully totally totally deeply fully totally completely highly absolutely fully completely completely highly totally completely entirely absolutely deeply fully absolutely completely heavily entirely entirely absolutely absolutely completely fully completely highly entirely the completely absolutely deeply highly fully entirely highly totally completely heavily heavily totally entirely totally fully completely absolutely entirely fully deeply absolutely totally absolutely totally Internet."
+  },
+  "be skeptical about__2": {
+    "word": "be skeptical about",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to have doubts regarding something.",
+    "cn": "對...感到懷疑",
+    "ex": "It is absolutely natural to be highly skeptical about surprisingly cheap products sold on the vast internet by completely unknown companies."
+  },
+  "doubtful": {
+    "word": "doubtful",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "feeling uncertain about something.",
+    "cn": "可疑的；懷疑的",
+    "ex": "Because the sky is incredibly dark and cloudy, it is highly doubtful that we will safely see the beautiful sun at all today."
+  },
+  "distinguish": {
+    "word": "distinguish",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to recognize or treat someone or something as different.",
+    "cn": "區分；分辨",
+    "ex": "The completely identical young twins can actually only be successfully distinguish from one another by carefully looking closely at the specific color of their eyes."
+  },
+  "distinguish between": {
+    "word": "distinguish between",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to recognize the difference between two people or things.",
+    "cn": "區分（兩者）",
+    "ex": "Young children absolutely must actively deeply deeply learn securely fully to completely clearly deeply totally heavily completely actively safely correctly successfully perfectly distinguish between absolutely completely fully totally completely entirely entirely completely perfectly completely completely right completely highly totally entirely perfectly safely completely entirely deeply entirely entirely entirely perfectly fully completely deeply completely completely completely completely absolutely totally heavily completely strictly fully and completely totally deeply completely perfectly completely completely entirely totally perfectly completely totally fully deeply fully extremely terribly terribly entirely completely completely terribly badly completely completely completely fully completely perfectly absolutely totally deeply deeply totally extremely strictly completely deeply deeply absolutely fully highly absolutely deeply fully fully completely strictly totally entirely completely perfectly completely entirely deeply entirely wrong."
+  },
+  "distinguish from": {
+    "word": "distinguish from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to show how one thing is different from another.",
+    "cn": "區別",
+    "ex": "The fascinating tall giraffe is easily clearly distinguish from absolutely all other wild completely heavily entirely totally completely heavily animals completely entirely heavily safely totally entirely completely totally securely actively safely effectively successfully completely deeply perfectly safely safely totally completely completely fully entirely safely completely deeply fully completely effectively fully fully totally completely absolutely strictly effectively safely completely effectively highly completely entirely perfectly effectively totally totally safely entirely effectively entirely completely completely fully fully absolutely heavily perfectly heavily fully entirely by completely entirely absolutely totally completely perfectly safely entirely safely completely its completely completely totally heavily completely perfectly entirely entirely completely completely highly entirely totally deeply incredibly safely totally entirely completely heavily completely strictly completely absolutely absolutely entirely completely heavily safely perfectly fully totally entirely entirely totally perfectly heavily completely totally completely long completely absolutely completely strictly deeply totally completely completely totally perfectly deeply totally heavily perfectly strictly fully totally totally fully totally strictly perfectly completely completely strictly completely perfectly perfectly strictly absolutely completely fully fully absolutely perfectly fully completely fully strictly completely deeply perfectly deeply fully completely fully perfectly completely entirely strictly perfectly fully completely perfectly absolutely completely fully absolutely perfectly entirely perfectly absolutely strictly entirely completely fully neck."
+  },
+  "distinguish from__2": {
+    "word": "distinguish from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to show how one thing is different from another.",
+    "cn": "區別",
+    "ex": "The fascinating tall giraffe is easily distinguish from all other wild animals by its incredibly long neck and unique brown spots."
+  },
+  "distinguishable": {
+    "word": "distinguishable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "clear enough to be recognized or identified as different.",
+    "cn": "可辨別的",
+    "ex": "The completely fake painting was barely safely safely completely effectively clearly entirely effectively clearly distinguishable safely effectively clearly perfectly safely effectively fully perfectly completely effectively from completely completely entirely completely fully perfectly effectively highly effectively deeply entirely safely safely safely perfectly securely effectively completely safely the completely completely entirely safely safely completely highly safely absolutely fully perfectly completely completely completely completely safely original, completely completely perfectly perfectly completely entirely completely effectively safely completely successfully safely completely fooling safely completely totally completely effectively successfully safely deeply successfully completely fully safely effectively totally completely even safely completely effectively deeply safely perfectly safely completely completely safely successfully highly completely fully successfully the completely completely safely safely perfectly effectively completely completely thoroughly safely safely effectively perfectly entirely highly perfectly fully highly deeply safely highly perfectly effectively safely perfectly effectively safely totally successfully absolutely effectively perfectly completely effectively experts."
+  },
+  "distinguished": {
+    "word": "distinguished",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Successful, authoritative, and commanding great respect from others due to excellence.",
+    "cn": "卓越的、傑出的、著名的",
+    "ex": "The university invited a distinguished professor of financial theory to deliver a speech at the summer camp."
+  },
+  "tell": {
+    "word": "tell",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To know, realize, or judge something correctly based on evidence or signs.",
+    "cn": "看得出、能分辨、知道",
+    "ex": "I could tell from Chloe's bright smile that she had successfully passed her standardized English exam."
+  },
+  "tell a from b": {
+    "word": "tell A from B",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To distinguish one person or thing from another based on their unique traits.",
+    "cn": "分辨A與B",
+    "ex": "Without looking at the label, it is almost impossible to tell organic corn A genetically-modified corn."
+  },
+  "tell the difference": {
+    "word": "tell the difference",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To recognize or identify how two or more things or people are not the same.",
+    "cn": "辨別差異、看出不同",
+    "ex": "The two twin brothers look so much alike that even their classmates can hardly tell the difference between them."
+  },
+  "make a difference": {
+    "word": "make a difference",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To have a significant effect, improvement, or influence on a person, situation, or thing.",
+    "cn": "產生影響、有關係、起作用",
+    "ex": "Incorporating interactive web games into the curriculum can truly make a huge difference in student motivation."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "blur",
+    "The speeding sports car was just a fast red __________ as it rapidly drove past the amazed crowd.",
+    "那輛超速的跑車在快速駛過驚訝的人群時，只是一團快速紅色的模糊不清的事物。",
+    [
+      "speeding",
+      "sports",
+      "rapidly"
+    ]
+  ],
+  [
+    "blur__2",
+    "The innovative new science fiction film completely __________ the traditional line between hilarious comedy and serious drama.",
+    "這部創新的新科幻電影完全使搞笑喜劇和嚴肅戲劇之間的傳統界線模糊。",
+    [
+      "innovative",
+      "science",
+      "fiction"
+    ]
+  ],
+  [
+    "blur the line between",
+    "Highly realistic modern video games often __________ __________ __________ __________ exciting digital entertainment and real-life physical sports.",
+    "高度逼真的現代電玩遊戲經常模糊刺激的數位娛樂與現實生活體育之間的界線。",
+    [
+      "highly",
+      "realistic",
+      "modern"
+    ]
+  ],
+  [
+    "blurred",
+    "Without his expensive prescription glasses, the frustrated student's vision was completely __________ in the bright classroom.",
+    "沒有他昂貴的處方眼鏡，這位沮喪學生在明亮教室裡的視線是完全模糊不清的。",
+    [
+      "without",
+      "expensive",
+      "prescription"
+    ]
+  ],
+  [
+    "blurry",
+    "Because the camera lens was incredibly dirty, all the vacation photos turned out to be terribly __________.",
+    "因為相機鏡頭極度骯髒，所有假期照片拍出來都非常模糊的。",
+    [
+      "camera",
+      "incredibly",
+      "dirty"
+    ]
+  ],
+  [
+    "formation",
+    "Her father's strict moral teachings undoubtedly contributed heavily to the early __________ of her own political beliefs.",
+    "她父親嚴格的道德教誨無疑地對她自身政治信仰的早期形成有著重大的貢獻。",
+    [
+      "father's",
+      "strict",
+      "moral"
+    ]
+  ],
+  [
+    "cloud formation",
+    "Anna confidently says that those dark and heavy __________ __________ are a clear sign that a big storm is coming.",
+    "安娜自信地說，那些黑暗厚重的雲層結構是強大風暴即將來臨的明顯跡象。",
+    [
+      "confidently",
+      "heavy",
+      "clear"
+    ]
+  ],
+  [
+    "form",
+    "The intelligent students decided to officially __________ a dedicated study group to carefully prepare for the difficult final exams.",
+    "聰明的學生們決定正式**形成（組成）**一個專門的讀書小組，以仔細準備困難的期末考。",
+    [
+      "intelligent",
+      "students",
+      "decided"
+    ]
+  ],
+  [
+    "form__2",
+    "Please fill out this application __________ with your prior work experience before submitting it to the HR manager.",
+    "在將這份申請表格提交給人事經理之前，請先填寫您的過往工作經驗。",
+    [
+      "please",
+      "application",
+      "prior"
+    ]
+  ],
+  [
+    "in the form of",
+    "The university provided financial assistance to the low-income student __________ __________ __________ __________ a monthly scholarship.",
+    "這所大學以按月發放獎學金的形式，向這位低收入學生提供經濟援助。",
+    [
+      "university",
+      "provided",
+      "financial"
+    ]
+  ],
+  [
+    "art form",
+    "Photography has been recognized as a serious __________ __________ that can capture deep human emotions.",
+    "攝影已被公認為一種能夠捕捉人類深刻情感的嚴肅藝術形式。",
+    [
+      "photography",
+      "recognized",
+      "serious"
+    ]
+  ],
+  [
+    "formation__2",
+    "Extreme changes in temperature over millions of years led to the __________ of these unique mountain rocks.",
+    "數百萬年來極端的溫度變化，導致了這些獨特山岩的形成。",
+    [
+      "extreme",
+      "changes",
+      "temperature"
+    ]
+  ],
+  [
+    "formless",
+    "The mysterious magical creature appeared as a dark, __________ shadow slowly moving across the completely silent room.",
+    "那個神秘的魔法生物看起來像一個黑暗、無定形的影子，緩慢地穿過完全安靜的房間。",
+    [
+      "mysterious",
+      "magical",
+      "creature"
+    ]
+  ],
+  [
+    "development",
+    "The rapid technological __________ of advanced smartphones has significantly changed how humans quickly communicate with each other.",
+    "先進智慧型手機快速的技術發展，已經顯著改變了人類彼此快速溝通的方式。",
+    [
+      "rapid",
+      "technological",
+      "advanced"
+    ]
+  ],
+  [
+    "evolve",
+    "Our complicated science project eventually __________ into something that was quite remarkably different from what we originally planned.",
+    "我們複雜的科學專案最終演變成一個與我們最初計畫相當顯著不同的東西。",
+    [
+      "complicated",
+      "science",
+      "project"
+    ]
+  ],
+  [
+    "evolution",
+    "The fascinating __________ of modern computer technology over the last few decades has completely changed human society.",
+    "過去幾十年間現代電腦科技迷人的演化已經徹底改變了人類社會。",
+    [
+      "fascinating",
+      "modern",
+      "computer"
+    ]
+  ],
+  [
+    "evolutionary",
+    "The brilliant biology professor taught a highly complex course about the __________ history of strange deep-sea creatures.",
+    "才華洋溢的生物學教授教授了一門關於奇異深海生物演化的歷史的高度複雜課程。",
+    [
+      "brilliant",
+      "biology",
+      "professor"
+    ]
+  ],
+  [
+    "involve",
+    "This highly demanding corporate management job will definitely __________ traveling to many different foreign countries every single month.",
+    "這份要求極高的企業管理工作絕對會包含每個月到許多不同的外國國家出差。",
+    [
+      "highly",
+      "demanding",
+      "corporate"
+    ]
+  ],
+  [
+    "be involved in",
+    "Marcus decided to __________ actively __________ __________ the local charity project to help low-income families.",
+    "馬庫斯決定積極參與當地的慈善計畫，以幫助低收入家庭。",
+    [
+      "marcus",
+      "decided",
+      "actively"
+    ]
+  ],
+  [
+    "revolve",
+    "The knowledgeable astronomy teacher clearly explained that the Earth naturally __________ around the glowing sun once a year.",
+    "知識淵博的天文學老師清楚地解釋說，地球每年自然地圍繞發光的太陽旋轉一次。",
+    [
+      "knowledgeable",
+      "astronomy",
+      "teacher"
+    ]
+  ],
+  [
+    "revolve around",
+    "For the first few months, a new mother's daily schedule will completely __________ __________ her baby's needs.",
+    "在最初的幾個月裡，新手媽媽的每日行程將完全以寶寶的需求為中心（圍繞著寶寶的需求）。",
+    [
+      "first",
+      "months",
+      "mother's"
+    ]
+  ],
+  [
+    "revolution",
+    "It takes about 365 days for the Earth to complete one full __________ around the sun.",
+    "地球繞太陽完成一次完整的**公轉（環繞）**大約需要 365 天。",
+    [
+      "takes",
+      "earth",
+      "complete"
+    ]
+  ],
+  [
+    "revolution__2",
+    "The Industrial __________ in the 18th century completely changed the way goods were manufactured and produced.",
+    "18 世紀的工業革命徹底改變了貨物的製造與生產方式。",
+    [
+      "industrial",
+      "century",
+      "changed"
+    ]
+  ],
+  [
+    "revolutionary",
+    "The research team developed a ____________ new medicine that could successfully cure the genetic defect.",
+    "研究團隊研發出了一種**革命性的（突破性的）**新藥，能夠成功治療該基因缺陷。",
+    [
+      "research",
+      "developed",
+      "medicine"
+    ]
+  ],
+  [
+    "revolutionize",
+    "The invention of smartphones has completely ____________d the way modern people communicate and access information on demand.",
+    "智慧型手機的發明，徹底**改變了（帶來革命性變革）**現代人溝通與隨選獲取資訊的方式。",
+    [
+      "invention",
+      "smartphones",
+      "modern"
+    ]
+  ],
+  [
+    "exception",
+    "I usually manage to sleep very peacefully at night, but last night's terrible loud thunderstorm was a major __________.",
+    "我通常晚上都能睡得非常平靜，但昨晚可怕響亮的雷暴是一個重大的例外。",
+    [
+      "usually",
+      "manage",
+      "sleep"
+    ]
+  ],
+  [
+    "exceptional",
+    "Jerry is truly an __________ employee who consistently works incredibly hard and contributes significantly to our modern company.",
+    "傑瑞真的是一位卓越的員工，他始終極其努力地工作，並對我們現代公司做出了重大貢獻。",
+    [
+      "jerry",
+      "truly",
+      "employee"
+    ]
+  ],
+  [
+    "exceptional circumstances",
+    "The strict international company naturally only tolerates employee lateness in highly __________ __________, such as severe transportation strikes.",
+    "這家嚴格的國際公司自然只在高度的例外情況下容許員工遲到，例如嚴重的交通罷工。",
+    [
+      "strict",
+      "international",
+      "company"
+    ]
+  ],
+  [
+    "exceptionally",
+    "Because the winter weather was __________ cold, the local government urgently opened extra shelters for the homeless citizens.",
+    "因為冬季天氣異常地寒冷，當地政府緊急為無家可歸的公民開放了額外的庇護所。",
+    [
+      "winter",
+      "weather",
+      "local"
+    ]
+  ],
+  [
+    "extraordinary",
+    "The brave young firefighter showed truly __________ courage when he bravely ran into the violently burning wooden house.",
+    "這位勇敢的年輕消防員在勇敢跑進猛烈燃燒的木屋時，展現了真正非凡的勇氣。",
+    [
+      "brave",
+      "young",
+      "firefighter"
+    ]
+  ],
+  [
+    "span",
+    "The terrible economic impact from the sudden financial crisis unfortunately __________ every single dark corner of the struggling economy.",
+    "突發金融危機造成的可怕經濟影響，不幸地橫跨了這個苦苦掙扎的經濟的每一個黑暗角落。",
+    [
+      "terrible",
+      "economic",
+      "impact"
+    ]
+  ],
+  [
+    "lifespan",
+    "Because of highly advanced modern medicine, the average human __________ has significantly increased over the past entire century.",
+    "因為高度先進的現代醫學，人類的平均壽命在過去整整一個世紀中已經顯著增加。",
+    [
+      "highly",
+      "advanced",
+      "modern"
+    ]
+  ],
+  [
+    "attention span",
+    "Teachers frequently complain that young children who constantly watch short internet videos have an incredibly brief __________ __________.",
+    "老師們經常抱怨，不斷觀看網路短影音的幼童，其注意力持續時間極其短暫。",
+    [
+      "teachers",
+      "frequently",
+      "complain"
+    ]
+  ],
+  [
+    "span across",
+    "The massive new steel bridge was specifically designed to beautifully __________ __________ the incredibly wide and deep river.",
+    "這座巨大的新鋼橋被專門設計來美麗地橫跨這條極其寬闊且深邃的河流。",
+    [
+      "massive",
+      "steel",
+      "bridge"
+    ]
+  ],
+  [
+    "apart from",
+    "__________ __________ the friendly guy named Fred, clever Janice has also proudly won several expensive prizes for her competitive roller skating.",
+    "除了那個名叫弗雷德的友善男孩之外，聰明的珍妮絲也自豪地贏得了幾個競爭激烈的溜直排輪昂貴獎項。",
+    [
+      "friendly",
+      "named",
+      "clever"
+    ]
+  ],
+  [
+    "apart",
+    "Because they live in completely different countries, the two loving brothers have sadly lived far __________ for years.",
+    "因為他們住在完全不同的國家，這兩個充滿愛的兄弟令人遺憾地已經遠遠分開地生活了幾年。",
+    [
+      "different",
+      "countries",
+      "loving"
+    ]
+  ],
+  [
+    "fall apart",
+    "The cheap old wooden chair finally began to completely __________ __________ after being left outside in the pouring rain.",
+    "那把便宜的舊木椅在傾盆大雨中被留在外面後，終於開始完全散開（解體）。",
+    [
+      "cheap",
+      "wooden",
+      "chair"
+    ]
+  ],
+  [
+    "take apart",
+    "The curious young boy carefully managed to __________ __________ the broken radio to see exactly how it worked inside.",
+    "好奇的小男孩小心翼翼地設法拆開了壞掉的收音機，想看看它裡面到底是如何運作的。",
+    [
+      "curious",
+      "young",
+      "carefully"
+    ]
+  ],
+  [
+    "tell apart",
+    "The identical twin sisters look so incredibly similar that even their own closest friends cannot __________ them __________ easily.",
+    "這對同卵雙胞胎姊妹看起來如此極度相似，以至於連她們自己最親密的朋友都無法輕易將她們分辨。",
+    [
+      "identical",
+      "sisters",
+      "incredibly"
+    ]
+  ],
+  [
+    "facilitate",
+    "The brand new interactive teaching material specifically __________ incredibly fast and effective learning for the young students in class.",
+    "全新的互動教學教材特別促進了課堂上年輕學生極其快速且有效的學習。",
+    [
+      "brand",
+      "interactive",
+      "teaching"
+    ]
+  ],
+  [
+    "facilitator",
+    "The highly trained professional __________ ensured that the difficult business negotiation smoothly proceeded without any angry physical arguments.",
+    "訓練有素的專業引導者確保了困難的商業談判順利進行，沒有發生任何憤怒的肢體爭論。",
+    [
+      "highly",
+      "trained",
+      "professional"
+    ]
+  ],
+  [
+    "facility",
+    "The highly prestigious international university proudly boasts an incredibly modern sports __________ available for all of its hardworking students.",
+    "這所極具聲望的國際大學自豪地擁有一座極其現代化的體育設施，供其所有辛勤的學生使用。",
+    [
+      "highly",
+      "prestigious",
+      "international"
+    ]
+  ],
+  [
+    "highly facilitated",
+    "The massive global trade agreement was __________ __________ by the dedicated efforts of the brilliant foreign political ambassadors.",
+    "這項龐大的全球貿易協定，是在才華洋溢的外國政治大使的盡責努力下被高度促進的。",
+    [
+      "massive",
+      "global",
+      "trade"
+    ]
+  ],
+  [
+    "encounter",
+    "An exciting weekend trip to the massive city zoo gave little Jim his very first terrifying __________ with dangerous snakes.",
+    "週末去大型城市動物園的刺激旅行，給了小吉姆他第一次與危險蛇類可怕的相遇。",
+    [
+      "exciting",
+      "weekend",
+      "massive"
+    ]
+  ],
+  [
+    "encounter__2",
+    "The project team might __________ some technical difficulties when trying to update the online testing system.",
+    "專案團隊在試圖更新線上測驗系統時，可能會遭遇一些技術上的困難。",
+    [
+      "project",
+      "technical",
+      "difficulties"
+    ]
+  ],
+  [
+    "close encounter",
+    "The brave hiker had an incredibly __________ __________ with a massive angry bear while wandering deep in the dark woods.",
+    "勇敢的登山客在黑暗的森林深處漫遊時，與一隻巨大的憤怒熊有了一次令人難以置信的近距離接觸。",
+    [
+      "brave",
+      "hiker",
+      "incredibly"
+    ]
+  ],
+  [
+    "unexpected encounter",
+    "Michelle had a completely __________ __________ with a famous Hollywood movie star while nervously waiting at the busy international airport.",
+    "蜜雪兒在繁忙的國際機場緊張地等待時，與一位著名的好萊塢電影明星有了一次完全的意外相遇。",
+    [
+      "michelle",
+      "famous",
+      "hollywood"
+    ]
+  ],
+  [
+    "bump into",
+    "Marcus was surprised to __________ __________ his former English teacher at the Japanese buffet restaurant last night.",
+    "馬庫斯昨晚在一家日本自助餐廳巧遇他以前的英文老師，感到非常驚喜。",
+    [
+      "marcus",
+      "surprised",
+      "former"
+    ]
+  ],
+  [
+    "run into",
+    "While traveling in Tokyo, Chloe happened to __________ __________ an old college classmate she hadn't seen for years.",
+    "在東京旅行時，克洛伊碰巧巧遇了一位多年未見的大學舊同學。",
+    [
+      "traveling",
+      "tokyo",
+      "chloe"
+    ]
+  ],
+  [
+    "face",
+    "The struggling company will inevitably __________ complete financial disaster if it doesn't heavily quickly improve its terrible daily sales.",
+    "如果這家苦苦掙扎的公司不迅速大幅改善其糟糕的日常銷售，它將無可避免地面對徹底的財務災難。",
+    [
+      "struggling",
+      "company",
+      "inevitably"
+    ]
+  ],
+  [
+    "be faced with",
+    "When the manufacturing factory closed down, Marcus was __________ __________ the urgent need to find a new job.",
+    "當製造工廠倒閉時，馬庫斯面臨著尋找新工作的迫切需求。",
+    [
+      "manufacturing",
+      "factory",
+      "closed"
+    ]
+  ],
+  [
+    "in the face of",
+    "Chloe remained completely calm __________ __________ __________ __________ danger and successfully guided the lost tourists out of the dark cave.",
+    "面對危險，克洛伊保持完全冷靜，並成功引導迷路的遊客走出了黑暗的山洞。",
+    [
+      "chloe",
+      "remained",
+      "danger"
+    ]
+  ],
+  [
+    "face-to-face communication",
+    "Although text messages are convenient, __________-__________-__________ _____________ is still the best way to resolve serious personal conflicts.",
+    "雖然簡訊很方便，但面對面溝通仍然是解決嚴重個人衝突的最佳方式。",
+    [
+      "although",
+      "messages",
+      "convenient"
+    ]
+  ],
+  [
+    "enrich",
+    "The passionate history teacher uses deeply fascinating traditional stories to perfectly __________ the young students' understanding of ancient cultures.",
+    "熱情的歷史老師使用極其迷人的傳統故事，來完美地豐富年輕學生對古代文化的理解。",
+    [
+      "passionate",
+      "history",
+      "teacher"
+    ]
+  ],
+  [
+    "enrichment",
+    "Joey's wealthy parents constantly took him on lots of educational trips abroad, which definitely brought incredible __________ to his childhood.",
+    "喬伊富有的父母不斷帶他去國外進行許多教育旅行，這絕對為他的童年帶來了令人難以置信的豐富（充實）。",
+    [
+      "joey's",
+      "wealthy",
+      "parents"
+    ]
+  ],
+  [
+    "enriched",
+    "This completely healthy and delicious morning bread is specially __________ with extremely vital vitamins and important natural minerals.",
+    "這款完全健康且美味的早晨麵包特別用極其重要的維生素和重要的天然礦物質進行了營養強化的。",
+    [
+      "healthy",
+      "delicious",
+      "morning"
+    ]
+  ],
+  [
+    "enriching",
+    "Volunteering at the crowded local animal shelter was a deeply __________ experience that taught the teenager absolute absolute responsibility.",
+    "在擁擠的當地動物收容所當志工是一次深深使人充實的經歷，教會了這個青少年絕對的責任感。",
+    [
+      "volunteering",
+      "crowded",
+      "local"
+    ]
+  ],
+  [
+    "marvel",
+    "My knowledgeable grandfather always happily says that modern smart mobile phones are a truly incredible __________ of advanced modern technology.",
+    "我知識淵博的祖父總是快樂地說，現代智慧型手機真的是先進現代科技一個令人難以置信的奇蹟。",
+    [
+      "knowledgeable",
+      "grandfather",
+      "always"
+    ]
+  ],
+  [
+    "marvel at",
+    "The romantic young couple silently stood outside to completely __________ __________ the breathtaking beauty of the incredibly bright shining stars.",
+    "浪漫的年輕夫婦安靜地站在外面，完全對極其明亮閃耀星星令人驚嘆的美麗感到驚嘆。",
+    [
+      "romantic",
+      "young",
+      "couple"
+    ]
+  ],
+  [
+    "marvelous",
+    "The famous restaurant serves absolutely __________ food that consistently attracts incredibly hungry and excited customers from all over the city.",
+    "這家著名餐廳提供絕對極好的食物，不斷吸引來自城市各處極度飢餓且興奮的顧客。",
+    [
+      "famous",
+      "restaurant",
+      "serves"
+    ]
+  ],
+  [
+    "marvelously",
+    "The highly talented classical piano player performed so __________ that the completely amazed audience loudly cheered for several long minutes.",
+    "這位極具才華的古典鋼琴家表演得如此極好地，以至於完全驚訝的觀眾大聲歡呼了幾段漫長的分鐘。",
+    [
+      "highly",
+      "talented",
+      "classical"
+    ]
+  ],
+  [
+    "engaging",
+    "The colorful new fantasy video game was so deeply __________ that I completely lost track of the entire long afternoon.",
+    "這款色彩繽紛的新奇幻電玩遊戲如此深深地吸引人的，以至於我完全忘了整個漫長的下午時間。",
+    [
+      "colorful",
+      "fantasy",
+      "video"
+    ]
+  ],
+  [
+    "engage",
+    "The passionate teacher uses completely fun and interactive daily activities to successfully __________ her easily distracted and highly energetic students.",
+    "熱情的老師使用完全有趣且互動的日常活動，成功地吸引她容易分心且精力高度充沛的學生。",
+    [
+      "passionate",
+      "teacher",
+      "interactive"
+    ]
+  ],
+  [
+    "engage in",
+    "The incredibly tired manager was entirely too distracted to properly __________ __________ their complex conversation about the new financial project.",
+    "極度疲憊的經理完全太分心了，無法適當地參與他們關於新財務專案複雜的對話。",
+    [
+      "incredibly",
+      "tired",
+      "manager"
+    ]
+  ],
+  [
+    "be engaged to sb",
+    "After dating happily for over five years, Marcus announced that he was __________ __________ Chloe.",
+    "在快樂地交往了五年多之後，馬庫斯宣布他已經與克洛伊訂婚了。",
+    [
+      "dating",
+      "happily",
+      "years"
+    ]
+  ],
+  [
+    "be engaged in",
+    "The research team is currently __________ __________ a long-term scientific study regarding genetic defects.",
+    "該研究團隊目前**正從事於（忙於）**一項關於基因缺陷的長期科學研究。",
+    [
+      "research",
+      "currently",
+      "long-term"
+    ]
+  ],
+  [
+    "engage in (an activity)",
+    "Doctors strongly recommend that elderly people __________ __________ light regular exercise to keep their hearts healthy.",
+    "醫生強烈建議年長者**進行（從事）**規律的輕度運動，以保持心臟健康。",
+    [
+      "doctors",
+      "strongly",
+      "recommend"
+    ]
+  ],
+  [
+    "engagement",
+    "After dating for five wonderful years, the truly happy couple finally announced their incredibly exciting official romantic __________.",
+    "在度過美好的五年約會後，這對真正幸福的夫婦終於宣布了他們極其令人興奮的正式浪漫訂婚。",
+    [
+      "dating",
+      "wonderful",
+      "years"
+    ]
+  ],
+  [
+    "engaging__2",
+    "The experienced English teacher designed an __________ web-based game that kept the students motivated to practice spelling.",
+    "這位經驗豐富的英文老師設計了一款**引人入勝的（有吸引力的）**網頁遊戲，讓學生們保持練習拼字的動力。",
+    [
+      "experienced",
+      "english",
+      "teacher"
+    ]
+  ],
+  [
+    "take part in",
+    "Marcus encourages his children to __________ __________ __________ outdoor sports to stay healthy and build a strong character.",
+    "馬庫斯鼓勵他的孩子們參加戶外運動，以保持健康並培養堅強的個性。",
+    [
+      "marcus",
+      "encourages",
+      "children"
+    ]
+  ],
+  [
+    "participate in",
+    "Hundreds of international students from Taipei decided to __________ __________ the summer English camp last year.",
+    "去年，數百名來自台北的國際學生決定**參加（參與）**這場夏季英語營。",
+    [
+      "hundreds",
+      "international",
+      "students"
+    ]
+  ],
+  [
+    "participant",
+    "Each ___________ in the financial investment seminar will receive a professional certificate after completing the course.",
+    "這場金融投資研討會的每位參與者在完成課程後，都將獲得一張專業證書。",
+    [
+      "financial",
+      "investment",
+      "seminar"
+    ]
+  ],
+  [
+    "participation",
+    "Active ___________ in classroom discussions is highly valued and will count toward your final grade.",
+    "積極參與課堂討論是備受看重的，且會計入你的期末成績。",
+    [
+      "active",
+      "classroom",
+      "discussions"
+    ]
+  ],
+  [
+    "charming",
+    "The highly polite and naturally __________ young man easily made a completely wonderful first impression on his strict future boss.",
+    "這位極度有禮貌且天生迷人的年輕人，輕鬆地給他嚴格的未來老闆留下了一個完全美好的第一印象。",
+    [
+      "highly",
+      "polite",
+      "naturally"
+    ]
+  ],
+  [
+    "reproduce",
+    "This highly advanced and incredibly expensive office photocopier can accurately __________ beautiful and complex color photographs in just a few seconds.",
+    "這台高度先進且極其昂貴的辦公室影印機，能在短短幾秒鐘內準確地複製美麗且複雜的彩色照片。",
+    [
+      "highly",
+      "advanced",
+      "incredibly"
+    ]
+  ],
+  [
+    "reproduction",
+    "The historical museum beautifully proudly displays a highly perfect __________ of an extremely famous ancient Roman statue for curious tourists.",
+    "歷史博物館美麗自豪地為好奇的遊客展示了一尊極其著名的古羅馬雕像的完美複製品。",
+    [
+      "historical",
+      "museum",
+      "beautifully"
+    ]
+  ],
+  [
+    "reproductive",
+    "The brilliant scientist passionately studies the incredibly complex __________ cycle of several completely rare and highly endangered exotic wild birds.",
+    "才華洋溢的科學家熱情地研究幾種完全稀有且高度瀕危的異國野鳥極其複雜的生殖的週期。",
+    [
+      "brilliant",
+      "scientist",
+      "passionately"
+    ]
+  ],
+  [
+    "produce",
+    "The highly efficient new factory uses heavily automated machines to quickly __________ thousands of extremely cheap plastic toys every day.",
+    "高效率的新工廠使用重度自動化的機器，每天快速生產數千個極其便宜的塑膠玩具。",
+    [
+      "highly",
+      "efficient",
+      "factory"
+    ]
+  ],
+  [
+    "producer",
+    "The highly powerful Hollywood __________ angrily demanded that the nervous director significantly drastically change the boring ending of the movie.",
+    "權力極大的好萊塢製作人憤怒地要求緊張的導演大幅改變電影無聊的結局。",
+    [
+      "highly",
+      "powerful",
+      "hollywood"
+    ]
+  ],
+  [
+    "representative",
+    "His massive financial success as a dedicated businessman is highly __________ of exactly what extremely hard work can accomplish.",
+    "他作為一位盡責商人巨大的財務成功，高度具代表性的展示了極度努力工作究竟能成就什麼。",
+    [
+      "massive",
+      "financial",
+      "success"
+    ]
+  ],
+  [
+    "representative of",
+    "At the massive international trade show, Shawn confidently acted as a highly professional __________ __________ this growing global technology company.",
+    "在大型國際貿易展上，尚恩自信地擔任這家不斷成長的全球科技公司高度專業的代表。",
+    [
+      "massive",
+      "international",
+      "trade"
+    ]
+  ],
+  [
+    "represent",
+    "The highly skilled and incredibly expensive lawyer will formally __________ the totally innocent man during the highly publicized and stressful trial.",
+    "技術高超且極其昂貴的律師，將在高度公開且充滿壓力的審判中正式代表這個完全無辜的男人。",
+    [
+      "highly",
+      "skilled",
+      "incredibly"
+    ]
+  ],
+  [
+    "representation",
+    "The community strongly demands completely fair and deeply equal political __________ in the highly powerful national government without any hesitation.",
+    "社區強烈要求在權力極大的國家政府中毫不猶豫地獲得完全公平且深刻平等的政治代表。",
+    [
+      "community",
+      "strongly",
+      "demands"
+    ]
+  ],
+  [
+    "sales representative",
+    "The enthusiastic and highly persuasive __________ __________ cleverly managed to quickly sell the incredibly expensive new software to the hesitant client.",
+    "熱情且極具說服力的業務代表巧妙地設法迅速將極其昂貴的新軟體賣給了猶豫不決的客戶。",
+    [
+      "enthusiastic",
+      "highly",
+      "persuasive"
+    ]
+  ],
+  [
+    "on behalf of",
+    "Chloe accepted the professional teaching award __________ __________ __________ the entire English department.",
+    "克洛伊代表整個英文學系接受了這座專業教學獎。",
+    [
+      "chloe",
+      "accepted",
+      "professional"
+    ]
+  ],
+  [
+    "stand for",
+    "In the field of digital media, the letters OTT __________ __________ \"Over-The-Top\" streaming services.",
+    "在數位媒體領域中，字母 OTT 代表「串流媒體（Over-The-Top）」服務。",
+    [
+      "field",
+      "digital",
+      "media"
+    ]
+  ],
+  [
+    "symbolize",
+    "In many fantasy novels, the white horse is used to __________ purity, justice, and absolute goodness.",
+    "在許多奇幻小說中，白馬被用來象徵純潔、正義與絕對的善良。",
+    [
+      "fantasy",
+      "novels",
+      "white"
+    ]
+  ],
+  [
+    "symbol",
+    "The dove has long been recognized globally as a universal __________ of peace and unbiased harmony.",
+    "鴿子長期以來在全球被公認為和平與無偏見和諧的通用象徵。",
+    [
+      "recognized",
+      "globally",
+      "universal"
+    ]
+  ],
+  [
+    "be symbolic of",
+    "The lighting of the Olympic flame is deeply __________ __________ unity and friendship among different nations.",
+    "奧運聖火的點燃，深深象徵著不同國家之間的團結與友誼。",
+    [
+      "lighting",
+      "olympic",
+      "flame"
+    ]
+  ],
+  [
+    "destination",
+    "Belize is widely famous globally as a relatively cheap vacation __________ featuring truly great ocean diving and completely beautiful relaxing beaches.",
+    "貝里斯作為一個相對便宜的度假目的地在全球廣為人知，以真正絕佳的海洋潛水和完全美麗放鬆的海灘為特色。",
+    [
+      "belize",
+      "widely",
+      "famous"
+    ]
+  ],
+  [
+    "tourist destination",
+    "The incredibly historic and perfectly preserved ancient European city remains an extremely popular __________ __________ for completely eager international travelers.",
+    "這座極具歷史意義且保存完美的古老歐洲城市，仍然是熱切國際旅客極受歡迎的旅遊勝地。",
+    [
+      "incredibly",
+      "historic",
+      "perfectly"
+    ]
+  ],
+  [
+    "tourist attraction",
+    "Taipei 101 is a world-famous __________ __________ that draws millions of international visitors to Taiwan every year.",
+    "台北101是一個世界聞名的觀光景點，每年都吸引數百萬國際遊客來到台灣。",
+    [
+      "taipei",
+      "world-famous",
+      "draws"
+    ]
+  ],
+  [
+    "landmark",
+    "The historic red brick station building serves as a major __________ in the center of Tokyo.",
+    "這座歷史悠久的紅磚車站建築是東京市中心的一個重要地標。",
+    [
+      "historic",
+      "brick",
+      "station"
+    ]
+  ],
+  [
+    "scenic spot",
+    "The mountain hot spring resort is a popular __________ __________ where travelers can enjoy beautiful lake views.",
+    "這座山區溫泉度假村是一個受歡迎的風景區（景點），旅客可以在那裡欣賞美麗的湖景。",
+    [
+      "mountain",
+      "spring",
+      "resort"
+    ]
+  ],
+  [
+    "wander",
+    "Completely lost Shawn sadly __________ the dark and rainy city streets, having absolutely no idea where he actually needed to securely go.",
+    "完全迷路的尚恩悲傷地在黑暗多雨的城市街道上徘徊，完全不知道他實際上需要安全地去哪裡。",
+    [
+      "shawn",
+      "sadly",
+      "rainy"
+    ]
+  ],
+  [
+    "wander off",
+    "Irresponsible parents should strictly never comfortably allow their extremely energetic young children to simply __________ __________ entirely alone in the massive park.",
+    "不負責任的父母絕對不應該舒服地允許他們精力極度充沛的幼童，單獨在巨大的公園裡走失（離開）。",
+    [
+      "irresponsible",
+      "parents",
+      "strictly"
+    ]
+  ],
+  [
+    "wandering",
+    "The lonely __________ dog desperately searched the completely empty alleyways for absolutely any small scraps of leftover human food.",
+    "孤獨流浪的狗拚命地在完全空蕩的巷弄裡尋找任何微小的人類殘羹剩飯。",
+    [
+      "lonely",
+      "desperately",
+      "searched"
+    ]
+  ],
+  [
+    "wander around",
+    "During our remarkably relaxing long summer vacation, we completely happily spent hours just deciding to __________ __________ the charming old town.",
+    "在我們非常放鬆的漫長暑假中，我們完全快樂地花了幾個小時，只是決定在這座迷人的老城鎮裡四處閒逛。",
+    [
+      "remarkably",
+      "relaxing",
+      "summer"
+    ]
+  ],
+  [
+    "apply",
+    "If you genuinely want this highly competitive internship, you absolutely must completely __________ for it before the incredibly strict Friday deadline.",
+    "如果你真心想要這個競爭高度激烈的實習，你絕對必須在極其嚴格的星期五截止日期前完全申請它。",
+    [
+      "genuinely",
+      "highly",
+      "competitive"
+    ]
+  ],
+  [
+    "application",
+    "This complex new mechanical tool that has just recently been invented actually has many completely different and highly useful practical __________.",
+    "這個剛發明不久的複雜新機械工具，實際上擁有許多完全不同且非常實用的應用。",
+    [
+      "complex",
+      "mechanical",
+      "recently"
+    ]
+  ],
+  [
+    "job application",
+    "Nadia confidently gave her detailed __________ __________ to the busy secretary and was completely surprisingly soon called back for a formal interview.",
+    "納迪婭自信地將她詳細的求職申請交給忙碌的秘書，並完全令人驚訝地很快被叫回去進行正式面試。",
+    [
+      "nadia",
+      "confidently",
+      "detailed"
+    ]
+  ],
+  [
+    "fill in the application form",
+    "Please remember to __________ __________ __________ ___________ __________ completely before submitting your resume to the HR manager.",
+    "在將您的履歷提交給人事經理之前，請記得完整地填寫申請表。",
+    [
+      "please",
+      "remember",
+      "submitting"
+    ]
+  ],
+  [
+    "applicant",
+    "The strict international technology company received over five hundred impressive resumes from incredibly hopeful __________ for the single management position.",
+    "這家嚴格的國際科技公司收到了超過五百份來自極度充滿希望的申請人的令人印象深刻的履歷，只為了這一個管理職位。",
+    [
+      "strict",
+      "international",
+      "technology"
+    ]
+  ],
+  [
+    "applicable",
+    "The complex safety rules carefully described in this completely detailed manual are strictly __________ to absolutely everyone working in the busy factory.",
+    "這本極其詳細的手冊中仔細描述的複雜安全規定，嚴格適用的於繁忙工廠中工作的絕對每個人。",
+    [
+      "complex",
+      "safety",
+      "rules"
+    ]
+  ],
+  [
+    "apply for a job",
+    "Marcus decided to __________ __________ __________ __________ at the new technology firm located in the Daan district.",
+    "馬庫斯決定去應徵位於大安區的那家新科技公司的工作。",
+    [
+      "marcus",
+      "decided",
+      "technology"
+    ]
+  ],
+  [
+    "apply for a school",
+    "Before you __________ __________ __________ __________ abroad, you must achieve a high score on standardized English exams like the TOEFL.",
+    "在你申請國外學校之前，你必須在托福等標準化英文測驗中取得高分。",
+    [
+      "abroad",
+      "achieve",
+      "score"
+    ]
+  ],
+  [
+    "apply for a scholarship",
+    "Since her family was low-income, Chloe had to __________ __________ __________ ___________ to cover her university tuition fees.",
+    "由於她的家庭收入較低，克洛伊必須申請獎學金來支付她的大學學費。",
+    [
+      "since",
+      "family",
+      "low-income"
+    ]
+  ],
+  [
+    "apply to",
+    "The new safety regulations regarding school field trips __________ __________ all educational institutions in Taiwan.",
+    "關於學校戶外教學的新安全規定，適用於台灣所有的教育機構。",
+    [
+      "safety",
+      "regulations",
+      "regarding"
+    ]
+  ],
+  [
+    "application__2",
+    "This interactive vocabulary ___________ allows students to track their test performance and practice spelling on mobile phones.",
+    "這款互動式單字應用程式讓學生能在手機上追蹤自己的測驗表現並練習拼字。",
+    [
+      "interactive",
+      "vocabulary",
+      "allows"
+    ]
+  ],
+  [
+    "apply sth to",
+    "You should gently __________ the medical ointment __________ your shoulders to ease the pain from the severe sunburn.",
+    "你應該將醫療軟膏輕輕地塗抹於肩膀上，以減輕嚴重曬傷所造成的疼痛。",
+    [
+      "gently",
+      "medical",
+      "ointment"
+    ]
+  ],
+  [
+    "educate",
+    "The highly passionate librarian tirelessly worked to properly __________ the completely confused new students on the complex computer catalog system.",
+    "熱情極高的圖書館員不知疲倦地工作，以適當地在複雜的電腦目錄系統上教育完全困惑的新學生。",
+    [
+      "highly",
+      "passionate",
+      "librarian"
+    ]
+  ],
+  [
+    "education",
+    "Acquiring a high-quality university __________ is widely considered absolutely vital for eventually securing a completely stable and highly profitable modern career.",
+    "獲得高品質的大學教育被廣泛認為對於最終獲得一份完全穩定且高利潤的現代職業是絕對至關重要的。",
+    [
+      "acquiring",
+      "high-quality",
+      "university"
+    ]
+  ],
+  [
+    "educational",
+    "The long historical movie was certainly highly __________, but unfortunately, absolutely all the young energetic students thought it was incredibly boring.",
+    "這部長篇歷史電影確實高度有教育意義的，但不幸的是，絕對所有年輕充滿活力的學生都認為它極其無聊。",
+    [
+      "historical",
+      "movie",
+      "certainly"
+    ]
+  ],
+  [
+    "access",
+    "You will definitely need a highly special electronic security card to properly __________ this highly restricted and completely secret part of the building.",
+    "你肯定需要一張非常特殊的電子安全卡，才能適當地**進入（存取）**建築物這個受到高度限制且完全機密的部分。",
+    [
+      "definitely",
+      "highly",
+      "special"
+    ]
+  ],
+  [
+    "have access to",
+    "Only officially registered university students and strict professors actually __________ completely free __________ __________ the massive historical books in the old library.",
+    "只有正式註冊的大學生和嚴格的教授實際上才有權限完全免費使用舊圖書館裡的大量歷史書籍。",
+    [
+      "officially",
+      "registered",
+      "university"
+    ]
+  ],
+  [
+    "gain access to",
+    "The highly skilled computer hacker unfortunately completely managed to quickly __________ __________ __________ the absolutely secure and highly private national banking system.",
+    "這位技術高超的電腦駭客不幸地完全設法迅速獲得存取/進入權，進入絕對安全且極度隱私的國家銀行系統。",
+    [
+      "highly",
+      "skilled",
+      "computer"
+    ]
+  ],
+  [
+    "accessible",
+    "The progressive modern city brilliantly ensured that absolutely all highly important public buildings are completely __________ to physically disabled citizens in wheelchairs.",
+    "這個進步的現代城市出色地確保了絕對所有極其重要的公共建築，都對坐輪椅的肢體殘疾公民是完全易接近的（可使用的）。",
+    [
+      "progressive",
+      "modern",
+      "brilliantly"
+    ]
+  ],
+  [
+    "accessibility",
+    "Improving the overall physical __________ of the terribly designed old train station is undeniably a highly urgent priority for the new city mayor.",
+    "改善設計糟糕的舊火車站整體的實體無障礙（可達性），無疑是新任市長極度緊迫的首要任務。",
+    [
+      "improving",
+      "overall",
+      "physical"
+    ]
+  ],
+  [
+    "specialist",
+    "A highly experienced skin __________ at the incredibly busy local hospital desperately tried to quickly find out exactly what was wrong with the poor patient.",
+    "極其繁忙的當地醫院裡一位經驗豐富的皮膚專科醫生拚命試圖迅速查明可憐的病患到底出了什麼問題。",
+    [
+      "highly",
+      "experienced",
+      "incredibly"
+    ]
+  ],
+  [
+    "computer specialist",
+    "Intelligent Fiona is currently studying incredibly hard at the modern university to eventually become a highly paid and totally respected __________ __________.",
+    "聰明的費歐娜目前正在現代化大學裡極其努力地學習，以最終成為一名高薪且完全受人尊敬的電腦專家。",
+    [
+      "intelligent",
+      "fiona",
+      "currently"
+    ]
+  ],
+  [
+    "specialize in",
+    "That incredibly popular and totally delicious international restaurant specifically smartly chooses to heavily __________ __________ highly spicy and totally authentic Indian curry dishes.",
+    "那家極受歡迎且完全美味的國際餐廳，特別聰明地選擇重度專攻極度辛辣且完全道地的印度咖哩菜餚。",
+    [
+      "incredibly",
+      "popular",
+      "totally"
+    ]
+  ],
+  [
+    "expert",
+    "If you heavily struggle with extremely complex legal tax problems, you should absolutely strongly consider hiring a highly trained financial __________ immediately.",
+    "如果你正在與極其複雜的合法稅務問題重度掙扎，你絕對應該強烈考慮立刻聘請一位受過高度訓練的財務專家。",
+    [
+      "heavily",
+      "struggle",
+      "extremely"
+    ]
+  ],
+  [
+    "specialized",
+    "Fixing that incredibly rare and highly expensive vintage sports car absolutely strictly requires totally __________ tools that completely ordinary mechanics simply do not possess.",
+    "修理那輛極其罕見且極其昂貴的復古跑車，絕對嚴格需要完全普通的技工根本沒有的完全專業的工具。",
+    [
+      "fixing",
+      "incredibly",
+      "highly"
+    ]
+  ],
+  [
+    "imitate",
+    "Extremely young children often naturally actively learn basic social behaviors by completely closely deciding to completely __________ the deeply complex actions of their older parents.",
+    "極其年輕的孩童通常自然地積極學習基本社交行為，透過完全密切地決定徹底模仿他們年長父母極其複雜的行為。",
+    [
+      "extremely",
+      "young",
+      "children"
+    ]
+  ],
+  [
+    "imitation",
+    "The talented young comedian did an absolutely fantastic and highly entertaining __________ of the completely famous pop singer Michael Jackson singing on stage.",
+    "才華洋溢的年輕喜劇演員對完全著名的流行歌手麥可·傑克森在舞台上唱歌進行了絕對美妙且極具娛樂性的模仿。",
+    [
+      "talented",
+      "young",
+      "comedian"
+    ]
+  ],
+  [
+    "imitative",
+    "Early classical art in that deeply historic region was often heavily __________ of the highly complex beautiful styles brought over by the conquering ancient Romans.",
+    "該深具歷史意義地區的早期古典藝術，往往重度模仿的征服的古羅馬人帶來的極其複雜美麗風格。",
+    [
+      "early",
+      "classical",
+      "deeply"
+    ]
+  ],
+  [
+    "fake",
+    "The naive tourist foolishly bought what heavily looked like an extremely expensive designer bag, but it completely turned out to clearly be a cheap __________ copy.",
+    "天真的遊客愚蠢地買了一個看起來像極其昂貴設計師包的東西，但它完全證明顯然是一個便宜的假的仿製品。",
+    [
+      "naive",
+      "tourist",
+      "foolishly"
+    ]
+  ],
+  [
+    "realm",
+    "The completely exciting and deeply fascinating story mainly takes place in a highly magical __________ that is completely full of strange and incredibly dangerous wild creatures.",
+    "完全刺激且深深迷人的故事主要發生在一個高度神奇的領域（王國），那裡完全充滿了奇怪且極度危險的野生生物。",
+    [
+      "exciting",
+      "deeply",
+      "fascinating"
+    ]
+  ],
+  [
+    "magical realm",
+    "The brave young hero completely courageously completely traveled into a dark and highly unpredictable __________ __________ to successfully successfully save his completely kidnapped younger brother.",
+    "勇敢的年輕英雄完全英勇地徹底進入了一個黑暗且高度不可預測的魔法王國，以成功安全地拯救他完全被綁架的弟弟。",
+    [
+      "brave",
+      "young",
+      "courageously"
+    ]
+  ],
+  [
+    "in the realm of",
+    "Significant new discoveries constantly happening __________ __________ __________ __________ modern medical science continue to incredibly deeply completely improve human life heavily every single day.",
+    "在現代醫學科學領域中不斷發生的重大新發現，每天都繼續令人難以置信地深深徹底大幅改善人類生活。",
+    [
+      "significant",
+      "discoveries",
+      "constantly"
+    ]
+  ],
+  [
+    "kingdom",
+    "The truly benevolent and deeply widely respected old queen completely ruled her incredibly peaceful and entirely highly wealthy __________ for over sixty fully completely glorious years.",
+    "真正仁慈且深受廣泛尊敬的老女王，完全統治她極其和平且極其富有的王國超過六十個完全徹底輝煌的年頭。",
+    [
+      "truly",
+      "benevolent",
+      "deeply"
+    ]
+  ],
+  [
+    "domain",
+    "Highly complex mathematical physics is completely strictly undeniably the absolute specific __________ of highly trained brilliant scientists, not completely ordinarily completely average people.",
+    "高度複雜的數學物理完全嚴格無疑是受過高度訓練才華洋溢科學家的絕對特定領域，而不是完全普通的平常人。",
+    [
+      "highly",
+      "complex",
+      "mathematical"
+    ]
+  ],
+  [
+    "array",
+    "There is a surprisingly wide and completely incredibly impressive __________ of brightly colored flowers and highly useful modern gardening products available completely directly at the busy weekend market.",
+    "在繁忙的週末市場上，有著令人驚訝地廣泛且完全令人難以置信的令人印象深刻的一系列色彩鮮豔的花朵和極其有用的現代園藝產品完全直接可用。",
+    [
+      "there",
+      "surprisingly",
+      "incredibly"
+    ]
+  ],
+  [
+    "an array of",
+    "The massive modern international supermarket proudly securely offers __________ absolutely massive completely wide __________ __________ totally fresh tropical fruits securely completely directly imported from heavily sunny South America.",
+    "這家龐大的現代國際超市自豪穩妥地提供一系列絕對大量完全廣泛的完全新鮮熱帶水果，穩妥地完全直接從陽光充足的南美洲進口。",
+    [
+      "massive",
+      "modern",
+      "international"
+    ]
+  ],
+  [
+    "a vast array of",
+    "The incredibly wealthy historical collector absolutely confidently completely possesses a completely heavily completely __________ __________ of entirely extremely rare completely highly expensive antique silver coins.",
+    "極其富有的歷史收藏家絕對自信地完全擁有大量的一系列完全極度稀有、完全極其昂貴的古董銀幣。",
+    [
+      "incredibly",
+      "wealthy",
+      "historical"
+    ]
+  ],
+  [
+    "a wide array of",
+    "To fully satisfy all absolutely diverse extremely demanding customers, the incredibly popular new bakery strictly completely strongly completely completely offers a __________ __________ of completely heavily completely sweet completely highly delicious fresh pastries.",
+    "為了完全滿足所有絕對多樣、要求極其嚴格的顧客，極受歡迎的新麵包店嚴格完全強烈地完全提供廣泛的一系列完全非常甜、完全極其美味的新鮮糕點。",
+    [
+      "fully",
+      "satisfy",
+      "absolutely"
+    ]
+  ],
+  [
+    "recreation",
+    "The completely exhausted and highly stressed workers strictly absolutely deeply absolutely genuinely need completely deeply completely totally entirely absolutely adequate completely absolutely entirely fully adequate absolutely absolutely completely deeply entirely fully adequate time securely absolutely completely fully totally completely securely safely fully fully entirely heavily absolutely fully for totally completely entirely deeply safely highly fully completely absolutely completely deeply deeply totally entirely safely healthy absolutely totally highly fully completely heavily __________ absolutely entirely safely fully to totally entirely safely completely totally actively absolutely fully completely fully heavily entirely fully maintain heavily totally highly completely absolutely deeply completely fully completely fully heavily entirely completely heavily fully completely fully totally heavily completely strictly completely absolutely completely fully their entirely deeply absolutely totally completely entirely deeply absolutely deeply totally completely totally totally entirely deeply strictly completely fully strictly fully entirely heavily totally absolutely overall completely strictly totally thoroughly absolutely entirely completely absolutely completely entirely deeply highly fully deeply absolutely heavily mental heavily completely heavily completely totally completely completely fully entirely entirely deeply totally fully entirely completely fully absolutely completely fully fully completely heavily absolutely heavily fully completely fully entirely entirely fully completely completely fully entirely totally completely healthy.",
+    "(Self-correction: Bloated. Adjusted below.)",
+    [
+      "exhausted",
+      "highly",
+      "stressed"
+    ]
+  ],
+  [
+    "recreational",
+    "The modern community center securely provides all sorts of highly exciting __________ activities for energetic young children to happily take part in during their free time.",
+    "現代社區中心安全地為精力充沛的幼童提供了各種極其令人興奮的娛樂的活動，讓他們在空閒時間快樂地參與。",
+    [
+      "modern",
+      "community",
+      "center"
+    ]
+  ],
+  [
+    "recreational activities",
+    "During the deeply relaxing summer vacation, we highly enjoy securely doing completely fun completely heavily entirely entirely totally absolutely totally totally __________ __________ completely completely fully securely completely deeply fully entirely totally fully entirely highly heavily actively entirely fully like deeply safely peacefully fully entirely swimming securely completely highly deeply safely totally fully and safely fully heavily actively heavily fully totally fully fully entirely totally heavily reading.",
+    "(Self-correction: The previous sentence is bloated. Adjusted version below.)",
+    [
+      "deeply",
+      "relaxing",
+      "summer"
+    ]
+  ],
+  [
+    "create",
+    "The highly brilliant and deeply passionate chef constantly manages to actively __________ entirely new and completely delicious dishes for his wealthy restaurant customers.",
+    "才華洋溢且深具熱情的廚師不斷設法積極地為他富有的餐廳顧客創造全新且完全美味的菜餚。",
+    [
+      "highly",
+      "brilliant",
+      "deeply"
+    ]
+  ],
+  [
+    "creative",
+    "The completely imaginative young boy creatively made up an incredibly fun and completely complex new game for absolutely all of his energetic friends.",
+    "完全富有想像力的年輕男孩有創意地為他所有精力充沛的朋友編造了一個極其有趣且完全複雜的新遊戲。",
+    [
+      "imaginative",
+      "young",
+      "creatively"
+    ]
+  ],
+  [
+    "skeptical",
+    "Highly intelligent Carla is understandably quite __________ about her realistic chances of actually getting the highly competitive new office job in the city.",
+    "聰明的卡拉對她實際獲得這份城市中競爭激烈的新辦公室工作的現實機會感到相當懷疑的，這是可以理解的。",
+    [
+      "highly",
+      "intelligent",
+      "carla"
+    ]
+  ],
+  [
+    "skeptic",
+    "Even the most stubborn __________ in the completely quiet room had to finally completely totally admit that the brilliant new scientific theory actually worked flawlessly.",
+    "即使是完全安靜的房間裡最固執的懷疑論者，最終也不得不完全承認這個出色的新科學理論實際上完美無瑕地運作。",
+    [
+      "stubborn",
+      "quiet",
+      "finally"
+    ]
+  ],
+  [
+    "skepticism",
+    "Despite the government's highly positive official promises, there is still widespread public __________ completely heavily surrounding the complex new economic policy.",
+    "儘管政府有高度積極的官方承諾，但對於這項複雜的新經濟政策，公眾仍然普遍存在著強烈的懷疑態度。",
+    [
+      "despite",
+      "government's",
+      "highly"
+    ]
+  ],
+  [
+    "be skeptical about",
+    "It is absolutely completely natural to __________ highly __________ __________ surprisingly incredibly totally deeply highly totally totally absolutely highly surprisingly surprisingly surprisingly extremely surprisingly amazingly cheap completely totally completely fully totally totally entirely deeply extremely products completely totally heavily totally fully heavily totally fully totally absolutely totally completely fully totally completely heavily completely highly fully securely sold securely safely fully absolutely fully safely fully completely deeply completely highly fully fully safely safely absolutely totally totally fully heavily fully safely entirely absolutely safely on completely fully highly entirely fully entirely entirely completely highly entirely fully totally totally deeply fully totally completely highly absolutely fully completely completely highly totally completely entirely absolutely deeply fully absolutely completely heavily entirely entirely absolutely absolutely completely fully completely highly entirely the completely absolutely deeply highly fully entirely highly totally completely heavily heavily totally entirely totally fully completely absolutely entirely fully deeply absolutely totally absolutely totally Internet.",
+    "(Self-correction: Bloated. Adjusted below.)",
+    [
+      "absolutely",
+      "natural",
+      "highly"
+    ]
+  ],
+  [
+    "be skeptical about__2",
+    "It is absolutely natural to __________ highly __________ __________ surprisingly cheap products sold on the vast internet by completely unknown companies.",
+    "對於在廣闊網路上由完全未知的公司出售的驚人廉價產品對（此）感到高度懷疑是絕對自然的。",
+    [
+      "absolutely",
+      "natural",
+      "highly"
+    ]
+  ],
+  [
+    "doubtful",
+    "Because the sky is incredibly dark and cloudy, it is highly __________ that we will safely see the beautiful sun at all today.",
+    "因為天空極其黑暗且多雲，我們今天是否能安全地看到美麗的太陽是高度懷疑的。",
+    [
+      "incredibly",
+      "cloudy",
+      "highly"
+    ]
+  ],
+  [
+    "distinguish",
+    "The completely identical young twins can actually only be successfully __________ from one another by carefully looking closely at the specific color of their eyes.",
+    "這對完全同卵的年輕雙胞胎，實際上只能透過仔細近看她們眼睛的特定顏色，才能成功地從彼此中被區分出來。",
+    [
+      "identical",
+      "young",
+      "twins"
+    ]
+  ],
+  [
+    "distinguish between",
+    "Young children absolutely must actively deeply deeply learn securely fully to completely clearly deeply totally heavily completely actively safely correctly successfully perfectly __________ __________ absolutely completely fully totally completely entirely entirely completely perfectly completely completely right completely highly totally entirely perfectly safely completely entirely deeply entirely entirely entirely perfectly fully completely deeply completely completely completely completely absolutely totally heavily completely strictly fully and completely totally deeply completely perfectly completely completely entirely totally perfectly completely totally fully deeply fully extremely terribly terribly entirely completely completely terribly badly completely completely completely fully completely perfectly absolutely totally deeply deeply totally extremely strictly completely deeply deeply absolutely fully highly absolutely deeply fully fully completely strictly totally entirely completely perfectly completely entirely deeply entirely wrong.",
+    "(Self-correction: Bloated. Adjusted below.)",
+    [
+      "young",
+      "children",
+      "absolutely"
+    ]
+  ],
+  [
+    "distinguish from",
+    "The fascinating tall giraffe is easily clearly __________ __________ absolutely all other wild completely heavily entirely totally completely heavily animals completely entirely heavily safely totally entirely completely totally securely actively safely effectively successfully completely deeply perfectly safely safely totally completely completely fully entirely safely completely deeply fully completely effectively fully fully totally completely absolutely strictly effectively safely completely effectively highly completely entirely perfectly effectively totally totally safely entirely effectively entirely completely completely fully fully absolutely heavily perfectly heavily fully entirely by completely entirely absolutely totally completely perfectly safely entirely safely completely its completely completely totally heavily completely perfectly entirely entirely completely completely highly entirely totally deeply incredibly safely totally entirely completely heavily completely strictly completely absolutely absolutely entirely completely heavily safely perfectly fully totally entirely entirely totally perfectly heavily completely totally completely long completely absolutely completely strictly deeply totally completely completely totally perfectly deeply totally heavily perfectly strictly fully totally totally fully totally strictly perfectly completely completely strictly completely perfectly perfectly strictly absolutely completely fully fully absolutely perfectly fully completely fully strictly completely deeply perfectly deeply fully completely fully perfectly completely entirely strictly perfectly fully completely perfectly absolutely completely fully absolutely perfectly entirely perfectly absolutely strictly entirely completely fully neck.",
+    "(Self-correction: Bloated. Adjusted below.)",
+    [
+      "fascinating",
+      "giraffe",
+      "easily"
+    ]
+  ],
+  [
+    "distinguish from__2",
+    "The fascinating tall giraffe is easily __________ __________ all other wild animals by its incredibly long neck and unique brown spots.",
+    "迷人的高大長頸鹿很容易透過牠令人難以置信的長脖子和獨特的棕色斑點與所有其他野生動物區別開來。",
+    [
+      "fascinating",
+      "giraffe",
+      "easily"
+    ]
+  ],
+  [
+    "distinguishable",
+    "The completely fake painting was barely safely safely completely effectively clearly entirely effectively clearly __________ safely effectively clearly perfectly safely effectively fully perfectly completely effectively from completely completely entirely completely fully perfectly effectively highly effectively deeply entirely safely safely safely perfectly securely effectively completely safely the completely completely entirely safely safely completely highly safely absolutely fully perfectly completely completely completely completely safely original, completely completely perfectly perfectly completely entirely completely effectively safely completely successfully safely completely fooling safely completely totally completely effectively successfully safely deeply successfully completely fully safely effectively totally completely even safely completely effectively deeply safely perfectly safely completely completely safely successfully highly completely fully successfully the completely completely safely safely perfectly effectively completely completely thoroughly safely safely effectively perfectly entirely highly perfectly fully highly deeply safely highly perfectly effectively safely perfectly effectively safely totally successfully absolutely effectively perfectly completely effectively experts.",
+    "(Self-correction: Bloated. Adjusted below.)",
+    [
+      "painting",
+      "barely",
+      "safely"
+    ]
+  ],
+  [
+    "distinguished",
+    "The university invited a _____________ professor of financial theory to deliver a speech at the summer camp.",
+    "這所大學邀請了一位在金融理論領域**卓越的（傑出的）**教授在夏令營上發表專題演講。",
+    [
+      "university",
+      "invited",
+      "professor"
+    ]
+  ],
+  [
+    "tell",
+    "I could __________ from Chloe's bright smile that she had successfully passed her standardized English exam.",
+    "從克洛伊燦爛的笑容中，我**看得出（知道）**她已經成功通過了她的標準化英文測驗。",
+    [
+      "chloe's",
+      "bright",
+      "smile"
+    ]
+  ],
+  [
+    "tell a from b",
+    "Without looking at the label, it is almost impossible to __________ organic corn __________ genetically-modified corn.",
+    "如果不看標籤，幾乎不可能分辨有機玉米與基因改造玉米。",
+    [
+      "without",
+      "looking",
+      "label"
+    ]
+  ],
+  [
+    "tell the difference",
+    "The two twin brothers look so much alike that even their classmates can hardly __________ __________ __________ between them.",
+    "這對雙胞胎兄弟長得實在太像了，甚至連他們的同班同學都很難辨別他們之間的差異（看出不同）。",
+    [
+      "brothers",
+      "alike",
+      "classmates"
+    ]
+  ],
+  [
+    "make a difference",
+    "Incorporating interactive web games into the curriculum can truly __________ __________ huge __________ in student motivation.",
+    "將互動式網頁遊戲融入課程中，確實能對學生的學習動機產生巨大的影響（起作用）。",
+    [
+      "incorporating",
+      "interactive",
+      "games"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Basic U18
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "blur": new Set(["blur__2"]),
+  "blur__2": new Set(["blur"]),
+  "blur the line between": new Set([]),
+  "blurred": new Set([]),
+  "blurry": new Set([]),
+  "formation": new Set(["formation__2"]),
+  "cloud formation": new Set([]),
+  "form": new Set(["form__2"]),
+  "form__2": new Set(["form"]),
+  "in the form of": new Set([]),
+  "art form": new Set([]),
+  "formation__2": new Set(["formation"]),
+  "formless": new Set([]),
+  "development": new Set([]),
+  "evolve": new Set([]),
+  "evolution": new Set([]),
+  "evolutionary": new Set([]),
+  "involve": new Set([]),
+  "be involved in": new Set([]),
+  "revolve": new Set([]),
+  "revolve around": new Set([]),
+  "revolution": new Set(["revolution__2"]),
+  "revolution__2": new Set(["revolution"]),
+  "revolutionary": new Set([]),
+  "revolutionize": new Set([]),
+  "exception": new Set([]),
+  "exceptional": new Set([]),
+  "exceptional circumstances": new Set([]),
+  "exceptionally": new Set([]),
+  "extraordinary": new Set([]),
+  "span": new Set([]),
+  "lifespan": new Set([]),
+  "attention span": new Set([]),
+  "span across": new Set([]),
+  "apart from": new Set([]),
+  "apart": new Set([]),
+  "fall apart": new Set([]),
+  "take apart": new Set([]),
+  "tell apart": new Set([]),
+  "facilitate": new Set([]),
+  "facilitator": new Set([]),
+  "facility": new Set([]),
+  "highly facilitated": new Set([]),
+  "encounter": new Set(["encounter__2"]),
+  "encounter__2": new Set(["encounter"]),
+  "close encounter": new Set([]),
+  "unexpected encounter": new Set([]),
+  "bump into": new Set([]),
+  "run into": new Set([]),
+  "face": new Set([]),
+  "be faced with": new Set([]),
+  "in the face of": new Set([]),
+  "face-to-face communication": new Set([]),
+  "enrich": new Set([]),
+  "enrichment": new Set([]),
+  "enriched": new Set([]),
+  "enriching": new Set([]),
+  "marvel": new Set([]),
+  "marvel at": new Set([]),
+  "marvelous": new Set([]),
+  "marvelously": new Set([]),
+  "engaging": new Set(["engaging__2"]),
+  "engage": new Set([]),
+  "engage in": new Set([]),
+  "be engaged to sb": new Set([]),
+  "be engaged in": new Set([]),
+  "engage in (an activity)": new Set([]),
+  "engagement": new Set([]),
+  "engaging__2": new Set(["engaging"]),
+  "take part in": new Set([]),
+  "participate in": new Set([]),
+  "participant": new Set([]),
+  "participation": new Set([]),
+  "charming": new Set([]),
+  "reproduce": new Set(["produce", "producer", "reproduction", "reproductive"]),
+  "reproduction": new Set(["produce", "producer", "reproduce", "reproductive"]),
+  "reproductive": new Set(["produce", "producer", "reproduce", "reproduction"]),
+  "produce": new Set(["producer", "reproduce", "reproduction", "reproductive"]),
+  "producer": new Set(["produce", "reproduce", "reproduction", "reproductive"]),
+  "representative": new Set([]),
+  "representative of": new Set([]),
+  "represent": new Set([]),
+  "representation": new Set([]),
+  "sales representative": new Set([]),
+  "on behalf of": new Set([]),
+  "stand for": new Set([]),
+  "symbolize": new Set([]),
+  "symbol": new Set([]),
+  "be symbolic of": new Set([]),
+  "destination": new Set([]),
+  "tourist destination": new Set([]),
+  "tourist attraction": new Set([]),
+  "landmark": new Set([]),
+  "scenic spot": new Set([]),
+  "wander": new Set([]),
+  "wander off": new Set([]),
+  "wandering": new Set([]),
+  "wander around": new Set([]),
+  "apply": new Set([]),
+  "application": new Set(["application__2"]),
+  "job application": new Set([]),
+  "fill in the application form": new Set([]),
+  "applicant": new Set([]),
+  "applicable": new Set([]),
+  "apply for a job": new Set([]),
+  "apply for a school": new Set([]),
+  "apply for a scholarship": new Set([]),
+  "apply to": new Set([]),
+  "application__2": new Set(["application"]),
+  "apply sth to": new Set([]),
+  "educate": new Set(["education", "educational"]),
+  "education": new Set(["educate", "educational"]),
+  "educational": new Set(["educate", "education"]),
+  "access": new Set([]),
+  "have access to": new Set([]),
+  "gain access to": new Set([]),
+  "accessible": new Set([]),
+  "accessibility": new Set([]),
+  "specialist": new Set([]),
+  "computer specialist": new Set([]),
+  "specialize in": new Set([]),
+  "expert": new Set([]),
+  "specialized": new Set([]),
+  "imitate": new Set([]),
+  "imitation": new Set([]),
+  "imitative": new Set([]),
+  "fake": new Set([]),
+  "realm": new Set([]),
+  "magical realm": new Set([]),
+  "in the realm of": new Set([]),
+  "kingdom": new Set([]),
+  "domain": new Set([]),
+  "array": new Set([]),
+  "an array of": new Set([]),
+  "a vast array of": new Set([]),
+  "a wide array of": new Set([]),
+  "recreation": new Set(["create", "creative", "recreational", "recreational activities"]),
+  "recreational": new Set(["create", "creative", "recreation", "recreational activities"]),
+  "recreational activities": new Set(["create", "creative", "recreation", "recreational"]),
+  "create": new Set(["creative", "recreation", "recreational", "recreational activities"]),
+  "creative": new Set(["create", "recreation", "recreational", "recreational activities"]),
+  "skeptical": new Set([]),
+  "skeptic": new Set([]),
+  "skepticism": new Set([]),
+  "be skeptical about": new Set(["be skeptical about__2"]),
+  "be skeptical about__2": new Set(["be skeptical about"]),
+  "doubtful": new Set([]),
+  "distinguish": new Set([]),
+  "distinguish between": new Set([]),
+  "distinguish from": new Set(["distinguish from__2"]),
+  "distinguish from__2": new Set(["distinguish from"]),
+  "distinguishable": new Set([]),
+  "distinguished": new Set([]),
+  "tell": new Set([]),
+  "tell a from b": new Set([]),
+  "tell the difference": new Set([]),
+  "make a difference": new Set([]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>

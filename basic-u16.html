@@ -1,0 +1,5305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic U16 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Basic U16
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Basic U16 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "collapse": {
+    "word": "collapse",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to fall down or give way suddenly.",
+    "cn": "倒塌；崩潰",
+    "ex": "It is incredibly lucky that absolutely no one was driving on the old bridge when it suddenly collapse."
+  },
+  "collapse__2": {
+    "word": "collapse",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an instance of a structure falling down or giving way.",
+    "cn": "倒塌；崩潰",
+    "ex": "The catastrophic bridge collapse unfortunately claimed the innocent lives of several unsuspecting commuters early this rainy morning."
+  },
+  "colony collapse disorder": {
+    "word": "colony collapse disorder",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a phenomenon in which worker bees from a beehive abruptly disappear.",
+    "cn": "蜂群崩壞症候群",
+    "ex": "Many dedicated environmental scientists are actively studying colony collapse disorder to understand why the vital bee populations are vanishing."
+  },
+  "collapse__3": {
+    "word": "collapse",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To suddenly fall down, cave in, or fail completely due to weakness, damage, or illness.",
+    "cn": "倒塌、崩潰、暈倒",
+    "ex": "The old wooden bridge might collapse if too many heavy trucks try to drive over it at the same time."
+  },
+  "the economy collapses": {
+    "word": "the economy collapses",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A situation where a country's financial, banking, and business systems fail completely and suddenly.",
+    "cn": "經濟崩潰",
+    "ex": "Financial experts warn that if the government cannot control inflation, the economy collapses, leading to mass unemployment."
+  },
+  "a building collapses": {
+    "word": "a building collapses",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A structure suddenly falling down or caving in because of an earthquake, weak foundation, or severe damage.",
+    "cn": "建築物倒塌",
+    "ex": "Rescue teams rushed to the downtown area after a building collapsesd during the powerful earthquake."
+  },
+  "someone collapses": {
+    "word": "someone collapses",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A person suddenly falling down and often becoming unconscious because they are very sick, exhausted, or weak.",
+    "cn": "（人）暈倒、不支倒地",
+    "ex": "The office worker someoned at her desk due to extreme exhaustion after working for twenty-four hours straight."
+  },
+  "inhabit": {
+    "word": "inhabit",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to live in or occupy a place or environment.",
+    "cn": "居住於",
+    "ex": "Several extremely dangerous and highly venomous snakes are known to actively inhabit this dark and mysterious mountain cave."
+  },
+  "habitat": {
+    "word": "habitat",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the natural home or environment of an animal, plant, or other organism.",
+    "cn": "棲息地",
+    "ex": "While some highly resilient animals can easily live in dry desert habitat, others desperately need lush forests."
+  },
+  "natural habitat": {
+    "word": "natural habitat",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the natural environment in which a species or organism lives.",
+    "cn": "自然棲息地",
+    "ex": "Cutting down the ancient trees will completely destroy the natural habitat of many rare and beautiful wild birds."
+  },
+  "habitant": {
+    "word": "habitant",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person or animal that lives in a particular place; a resident or inhabitant.",
+    "cn": "居民、居住者",
+    "ex": "The local community center provides free language classes to help every new habitant adapt to the neighborhood."
+  },
+  "habitable": {
+    "word": "habitable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Suitable, safe, or good enough for people or animals to live in.",
+    "cn": "適合居住的、可居住的",
+    "ex": "Due to severe flooding and toxic mold, the ground floor of the apartment building is temporarily not habitable."
+  },
+  "inhabitable": {
+    "word": "inhabitable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Suitable for living in. (Note: This means the same as \"habitable,\" NOT the opposite).",
+    "cn": "適合居住的、可居住的（**注意：**字根來自 inhabit，意思與 habitable 相同，並非相反詞）",
+    "ex": "Environmentalists are working hard to protect the wetlands and keep them inhabitable for rare bird species."
+  },
+  "singular": {
+    "word": "singular",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "exceptionally good or great; remarkable.",
+    "cn": "非凡的；單一的",
+    "ex": "He is a truly singular musician whose incredibly brilliant classical work is entirely beyond compare in this modern century."
+  },
+  "singular__2": {
+    "word": "singular",
+    "pos": "(adj.) / (n.)",
+    "cat": "adj",
+    "en": "Relating to a word form that refers to only one person, thing, or concept.",
+    "cn": "單數的、單數形",
+    "ex": "The English teacher reminded the class that a singular subject like \"he\" or \"she\" requires a verb with an \"s\" in the present tense."
+  },
+  "plural": {
+    "word": "plural",
+    "pos": "(adj.) / (n.)",
+    "cat": "adj",
+    "en": "Relating to a word form that refers to more than one person, thing, or concept.",
+    "cn": "複數的、複數形",
+    "ex": "Most English nouns can be changed into their plural forms simply by adding an \"s\" or \"es\" to the end of the word."
+  },
+  "except (for)": {
+    "word": "except (for)",
+    "pos": "(prep.)",
+    "cat": "phr",
+    "en": "Not including someone or something.",
+    "cn": "除了…之外（不包含）",
+    "ex": "The amusement park is open every day except except (for) Christmas Day, when it closes for annual maintenance."
+  },
+  "exception": {
+    "word": "exception",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person or thing that is not included in a general statement or does not follow a rule.",
+    "cn": "例外",
+    "ex": "Most students in the class passed the difficult exam, with the sole exception of Leo, who missed the test due to illness."
+  },
+  "no exception": {
+    "word": "no exception",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Following the same rule or behaving in the same way as everyone or everything else.",
+    "cn": "也不例外",
+    "ex": "All new employees must attend the safety training session, and the new managers are no exception."
+  },
+  "exceptional": {
+    "word": "exceptional",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "unusually good; outstanding.",
+    "cn": "卓越的；例外的",
+    "ex": "The strict international company only tolerates employee lateness in highly exceptional circumstances, such as severe weather emergencies."
+  },
+  "imaginative": {
+    "word": "imaginative",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having or showing creativity or inventiveness.",
+    "cn": "富有想像力的",
+    "ex": "The highly imaginative young boy creatively made up an incredibly fun and complex new game for all his friends."
+  },
+  "imagination": {
+    "word": "imagination",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the faculty or action of forming new ideas, or images or concepts of external objects not present to the senses.",
+    "cn": "想像力",
+    "ex": "Reading fantastic adventure novels every night greatly helps young children actively develop their growing intelligence and colorful imagination."
+  },
+  "imaginable": {
+    "word": "imaginable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "possible to be conceived or imagined.",
+    "cn": "可想像得到的",
+    "ex": "The luxury hotel offers the most incredibly comfortable beds and absolutely every high-end amenity imaginable for its wealthy guests."
+  },
+  "imaginary": {
+    "word": "imaginary",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing only in the imagination.",
+    "cn": "虛構的；想像中的",
+    "ex": "The fascinating bedtime story was about a magical and completely imaginary land where clever animals could fluently talk."
+  },
+  "mechanical": {
+    "word": "mechanical",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "working or produced by machines or machinery.",
+    "cn": "機械的",
+    "ex": "The expensive store warranty unfortunately only covers internal mechanical problems, so you must pay for any exterior cosmetic damage."
+  },
+  "mechanism": {
+    "word": "mechanism",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a system of parts working together in a machine.",
+    "cn": "機械裝置；機制",
+    "ex": "The complex locking mechanism on the heavy steel safe is specifically designed to completely prevent any dangerous robberies."
+  },
+  "mechanic": {
+    "word": "mechanic",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who repairs and maintains machinery.",
+    "cn": "技工",
+    "ex": "The highly experienced car mechanic skillfully fixed the broken engine in less than two surprisingly short hours."
+  },
+  "equip": {
+    "word": "equip",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to supply with the necessary items for a particular purpose.",
+    "cn": "裝備；配備",
+    "ex": "The generous military general made absolutely sure to securely equip each brave soldier with a heavy, reliable gun."
+  },
+  "be equipped with": {
+    "word": "be equipped with",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to be provided with a particular feature or equipment.",
+    "cn": "配備有...",
+    "ex": "My expensive brand new sports car be fully equipped with a highly advanced GPS device for safe modern navigation."
+  },
+  "equipment": {
+    "word": "equipment",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the necessary items for a particular purpose.",
+    "cn": "設備；器材",
+    "ex": "The dedicated hospital recently purchased several million dollars worth of advanced medical equipment to better treat sick patients."
+  },
+  "wrap up": {
+    "word": "wrap up",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to conclude or finish something.",
+    "cn": "結束；包好",
+    "ex": "I have to leave in exactly five minutes, so we seriously need to wrap up this boring meeting quickly."
+  },
+  "wrapping": {
+    "word": "wrapping",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "paper or soft material used to cover or enclose something.",
+    "cn": "包裝紙",
+    "ex": "We urgently need to buy some colorful wrapping paper tonight to beautifully cover the expensive holiday gifts for the children."
+  },
+  "unwrap": {
+    "word": "unwrap",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to remove the wrapping from something.",
+    "cn": "拆開",
+    "ex": "The excited little boy couldn't wait to happily unwrap his massive birthday present the moment he finally woke up."
+  },
+  "secure": {
+    "word": "secure",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to protect against threats; make safe.",
+    "cn": "使安全；獲得",
+    "ex": "The brilliant software engineer successfully designed a program that effectively secure the entire office computer system from destructive viruses."
+  },
+  "secure__2": {
+    "word": "secure",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Safe from danger, attack, or risk; protected against unauthorized access.",
+    "cn": "安全的、牢固的、無憂的",
+    "ex": "The online banking app uses advanced encryption to keep your financial transactions secure from hackers."
+  },
+  "securely": {
+    "word": "securely",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a fixed or stable manner.",
+    "cn": "安全地；牢固地",
+    "ex": "Larry carefully tugged his young daughter's seat belt to perfectly ensure that it was securely fastened before starting the car."
+  },
+  "security": {
+    "word": "security",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state of being free from danger or threat.",
+    "cn": "安全（保障）；保全",
+    "ex": "The massive international airport significantly increased its daily security after receiving a highly credible and terrifying anonymous threat."
+  },
+  "safe": {
+    "word": "safe",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not in danger or likely to be harmed, hurt, or damaged.",
+    "cn": "安全的、平安的、無危險的",
+    "ex": "It is not safe to walk alone in the dark alley late at night, so you should call a ride-sharing taxi instead."
+  },
+  "safety": {
+    "word": "safety",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The state of being safe and protected from danger, harm, or injury.",
+    "cn": "安全、安全性",
+    "ex": "For your own safety, please stand completely behind the yellow line while waiting for the MRT train to arrive."
+  },
+  "safely": {
+    "word": "safely",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "In a safe way; without being hurt, damaged, or lost.",
+    "cn": "安全地、平安地",
+    "ex": "The mountain guide helped all the hikers cross the rocky river safely before the heavy storm started."
+  },
+  "transport": {
+    "word": "transport",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to take or carry people or goods from one place to another.",
+    "cn": "運輸",
+    "ex": "The highly reliable delivery company uses massive trucks to quickly transport valuable goods across the entire vast country."
+  },
+  "transportation": {
+    "word": "transportation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of transporting someone or something or the process of being transported.",
+    "cn": "交通工具；運輸",
+    "ex": "Efficient public transportation is absolutely vital for reducing terrible traffic jams and dangerous pollution in rapidly growing modern cities."
+  },
+  "secure__3": {
+    "word": "secure",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Safe from danger, attack, or risk; protected against unauthorized access.",
+    "cn": "安全的、牢固的、無憂的",
+    "ex": "The online banking app uses advanced encryption to keep your financial transactions secure from hackers."
+  },
+  "safe__2": {
+    "word": "safe",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not in danger or likely to be harmed, hurt, or damaged.",
+    "cn": "安全的、平安的、無危險的",
+    "ex": "It is not safe to walk alone in the dark alley late at night, so you should call a ride-sharing taxi instead."
+  },
+  "safety__2": {
+    "word": "safety",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The state of being safe and protected from danger, harm, or injury.",
+    "cn": "安全、安全性",
+    "ex": "For your own safety, please stand completely behind the yellow line while waiting for the MRT train to arrive."
+  },
+  "safely__2": {
+    "word": "safely",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "In a safe way; without being hurt, damaged, or lost.",
+    "cn": "安全地、平安地",
+    "ex": "The mountain guide helped all the hikers cross the rocky river safely before the heavy storm started."
+  },
+  "lose (lose, lost, lost)": {
+    "word": "lose (lose, lost, lost)",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To no longer have something because you do not know where it is, or to fail to win.",
+    "cn": "遺失、失去、輸掉",
+    "ex": "If you lose your passport while traveling abroad, you must contact your country's embassy immediately to get a new one."
+  },
+  "lost": {
+    "word": "lost",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Unable to be found, or not knowing where you are and how to get to your destination.",
+    "cn": "遺失的、迷路的",
+    "ex": "The police officer helped the crying little boy find his parents after he wandered away and became lost in the crowded night market."
+  },
+  "get lost": {
+    "word": "get lost",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "To not know where you are and be unable to find your way.",
+    "cn": "迷路",
+    "ex": "Make sure to download an offline map on your smartphone so you don't get lost while hiking in the remote mountains."
+  },
+  "lost__2": {
+    "word": "lost",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Feeling very confused, insecure, or not knowing what to do with your life.",
+    "cn": "感到失落的、迷惘的、不知所措的",
+    "ex": "After graduating from college, Chloe felt completely lost because she had no idea what kind of career she wanted to pursue."
+  },
+  "loose": {
+    "word": "loose",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not firmly or tightly fixed in place; detached or able to be detached.",
+    "cn": "鬆的；寬鬆的",
+    "ex": "If your new designer pants are much too loose around the waist, you should definitely wear a heavy leather belt."
+  },
+  "on the loose": {
+    "word": "on the loose",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "having escaped from confinement; at large.",
+    "cn": "在逃",
+    "ex": "The terrified town is panicking because an incredibly dangerous criminal attacked several people last night and is still on the loose."
+  },
+  "break loose": {
+    "word": "break loose",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to escape from physical restraint.",
+    "cn": "掙脫",
+    "ex": "The whole neighborhood is hiding inside because the aggressive lion at the local zoo has violently break loose from its cage."
+  },
+  "portion": {
+    "word": "portion",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a part of a whole; an amount, section, or piece of something.",
+    "cn": "部分；一份",
+    "ex": "Each hardworking team member fairly received a massive portion of the exciting prize money after finally winning the competitive tournament."
+  },
+  "proportion": {
+    "word": "proportion",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a part, share, or number considered in comparative relation to a whole.",
+    "cn": "比例",
+    "ex": "A significantly large proportion of the young students in this high school actively plan to attend a prestigious university."
+  },
+  "proportionate": {
+    "word": "proportionate",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Increasing or decreasing in size, amount, or degree according to something else; proportional.",
+    "cn": "成比例的、相稱的",
+    "ex": "The judge stated that the legal punishment must be proportionate to the seriousness of the crime committed."
+  },
+  "disproportionate": {
+    "word": "disproportionate",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Too large or too small in comparison with something else.",
+    "cn": "不成比例的、不相稱的",
+    "ex": "A disproportionate amount of the company's budget is spent on advertising rather than improving product quality."
+  },
+  "spill": {
+    "word": "spill",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to cause or allow liquid to flow over the edge of its container.",
+    "cn": "灑出",
+    "ex": "The clumsy child accidentally spill his cold milk all over the expensive table and immediately began to cry loudly."
+  },
+  "spilled": {
+    "word": "spilled",
+    "pos": "(adj.) / (v.)",
+    "cat": "adj",
+    "en": "(Of a liquid) accidentally poured or flowed out from a container onto a surface.",
+    "cn": "潑灑出來的、流出的",
+    "ex": "Marcus used a paper towel to clean up the spilled coffee on his desk before it ruined his important reports."
+  },
+  "count on": {
+    "word": "count on",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To trust or rely on someone to do something, or to expect something to happen with certainty.",
+    "cn": "指望、依靠、信賴",
+    "ex": "You can always count on Chloe to help you move into your new apartment because she is a very loyal friend."
+  },
+  "rely on": {
+    "word": "rely on",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To need or depend on someone or something completely in order to live, work, or succeed.",
+    "cn": "依靠、依賴、信賴",
+    "ex": "Many senior citizens rely on public transportation to go to the hospital because they can no longer drive safely."
+  },
+  "depend on": {
+    "word": "depend on",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To be decided or influenced by something else, or to rely on someone for support.",
+    "cn": "取決於、依靠、依賴",
+    "ex": "Whether the school will host the outdoor sports day this Saturday will depend on the weather condition."
+  },
+  "dependent on": {
+    "word": "dependent on",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Needing someone or something else for financial support, survival, or success.",
+    "cn": "依賴…的、仰賴…的",
+    "ex": "Young children are entirely dependent on their parents for food, clothing, and a safe place to live."
+  },
+  "independent from": {
+    "word": "independent from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Free from the control, influence, or financial support of another person, organization, or country.",
+    "cn": "獨立於…的、不受…控制的",
+    "ex": "After years of hard work, Leo finally became financially independent from his parents and rented his own studio."
+  },
+  "dependable": {
+    "word": "dependable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "trustworthy and reliable.",
+    "cn": "可靠的",
+    "ex": "Carl is consistently one of the large company's most dependable employees because he absolutely never misses a strict deadline."
+  },
+  "reliable": {
+    "word": "reliable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Able to be trusted to do what is expected or to work properly without failing.",
+    "cn": "可靠的、可信賴的",
+    "ex": "This old Japanese car is incredibly reliable; it has never broken down once during the past ten years."
+  },
+  "carrier": {
+    "word": "carrier",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person or thing that carries, holds, or conveys something.",
+    "cn": "運送者；航空公司",
+    "ex": "The exhausted old woman politely requested that a helpful baggage carrier assist her to her luxurious hotel room upstairs."
+  },
+  "accurately": {
+    "word": "accurately",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a way that is correct in all details; exactly.",
+    "cn": "準確地",
+    "ex": "The frightened woman accurately described the tall, dangerous man who suddenly stole her expensive purse right outside the busy bank."
+  },
+  "accuracy": {
+    "word": "accuracy",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the quality or state of being correct or precise.",
+    "cn": "準確性",
+    "ex": "In highly complex financial reports, absolute accuracy is undeniably the most important factor for any successful international business."
+  },
+  "rescue": {
+    "word": "rescue",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to save from a dangerous or distressing situation.",
+    "cn": "救援",
+    "ex": "The incredibly brave firefighters in the hovering helicopter successfully rescue the terrified man from the violently burning wooden house."
+  },
+  "come to one's rescue": {
+    "word": "come to one's rescue",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to help someone out of a bad situation.",
+    "cn": "來救援某人",
+    "ex": "Gary heroically come to my one's when I foolishly locked myself out of my apartment in the freezing winter rain."
+  },
+  "artificial": {
+    "word": "artificial",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "made or produced by human beings rather than occurring naturally.",
+    "cn": "人造的",
+    "ex": "Tony's resilient father surprisingly has an artificial leg because he tragically lost his real one in a terrible car accident."
+  },
+  "artificial intelligence": {
+    "word": "artificial intelligence",
+    "pos": "(n. [U])",
+    "cat": "phr",
+    "en": "The simulation of human intelligence by computers or machines, enabling them to learn and solve problems.",
+    "cn": "人工智慧 (AI)",
+    "ex": "Many tech companies are investing billions of dollars in artificial intelligence to develop smarter software that can write essays and generate images."
+  },
+  "artificial additive": {
+    "word": "artificial additive",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A synthetic substance added to food to improve its flavor, appearance, or to keep it fresh longer.",
+    "cn": "人工添加物",
+    "ex": "To maintain a healthy diet, you should avoid highly processed snacks that contain any artificial additive like chemical preservatives."
+  },
+  "artificial coloring": {
+    "word": "artificial coloring",
+    "pos": "(n. [U, C])",
+    "cat": "phr",
+    "en": "A synthetic substance added to food or drink to change its color or make it look more bright and attractive.",
+    "cn": "人工色素",
+    "ex": "The bright red candy gets its intense hue from artificial coloring rather than real strawberry juice."
+  },
+  "chemical": {
+    "word": "chemical",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Relating to chemistry, or resulting from the interaction of substances.",
+    "cn": "化學的",
+    "ex": "The factory was fined for releasing dangerous chemical waste into the nearby river, harming local wildlife."
+  },
+  "chemical__2": {
+    "word": "chemical",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A distinct substance that is produced by or used in a chemical process.",
+    "cn": "化學物質、化學製品",
+    "ex": "You should wear protective gloves and goggles when handling a strong chemical like bleach or acid."
+  },
+  "natural": {
+    "word": "natural",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Existing in or caused by nature; not made, artificial, or caused by humankind.",
+    "cn": "天然的、大自然的",
+    "ex": "This organic juice is made from 100% natural ingredients with no extra sugar or water added."
+  },
+  "replace ... with": {
+    "word": "replace ... with",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To put a new person or thing in the place of an old or broken one.",
+    "cn": "用…取代/替換…",
+    "ex": "The chef decided to replace the white sugar ... natural honey to make the dessert much healthier."
+  },
+  "replacement": {
+    "word": "replacement",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action or process of replacing someone or something.",
+    "cn": "替代品；替換",
+    "ex": "There is a convenient shop around here that constantly sells highly affordable replacement parts for completely broken racing bicycles."
+  },
+  "substitute for": {
+    "word": "substitute for",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To be used or to act instead of another person or thing.",
+    "cn": "代替、取代",
+    "ex": "Margarine can substitute for butter in most baking recipes, though the final flavor might change slightly."
+  },
+  "substitute": {
+    "word": "substitute",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person or thing that is used or takes the place of another.",
+    "cn": "替代品、代替者",
+    "ex": "Meat substitutes made from plant protein have become incredibly popular among people who prefer vegetarian diets."
+  },
+  "substitute teacher": {
+    "word": "substitute teacher",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A teacher who temporarily takes the place of a regular teacher who is absent or ill.",
+    "cn": "代課老師",
+    "ex": "When our regular English teacher was away on sick leave, a substitute teacher took over the class for the week."
+  },
+  "morally": {
+    "word": "morally",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "with reference to the principles of right and wrong behavior.",
+    "cn": "道德上",
+    "ex": "The strict teacher carefully explained that it is morally wrong to maliciously spread false rumors about other innocent people."
+  },
+  "morality": {
+    "word": "morality",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "principles concerning the distinction between right and wrong or good and bad behavior.",
+    "cn": "道德",
+    "ex": "The fascinating philosophy class challenged the young students to deeply question the complex morality of highly controversial scientific decisions."
+  },
+  "moral standard": {
+    "word": "moral standard",
+    "pos": "(n. [C, usually plural])",
+    "cat": "phr",
+    "en": "The principles or rules regarding what a society believes to be right and wrong behavior.",
+    "cn": "道德標準",
+    "ex": "Different cultures may have varying views on what constitutes a high moral standard regarding family obligations."
+  },
+  "immoral": {
+    "word": "immoral",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Morally wrong; not conforming to accepted standards of right behavior.",
+    "cn": "不道德的",
+    "ex": "Many people believe that cheating on an exam or lying to your friends is completely immoral."
+  },
+  "mortal": {
+    "word": "mortal",
+    "pos": "(adj.) / (n. [C])",
+    "cat": "adj",
+    "en": "Unable to live forever; human and bound to die eventually; or causing death.",
+    "cn": "凡人的、不能永生的、致命的；凡人",
+    "ex": "In ancient Greek myths, Zeus was an all-powerful god, while the heroes he interacted with were mere mortal beings."
+  },
+  "immortal": {
+    "word": "immortal",
+    "pos": "(adj.) / (n. [C])",
+    "cat": "adj",
+    "en": "Living forever; never dying or decaying; famous for all time.",
+    "cn": "長生不老的、永生的、不朽的",
+    "ex": "Vampires are often portrayed in modern movies as immortal creatures that never age or die of sickness."
+  },
+  "mortality": {
+    "word": "mortality",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The state of being subject to death, or the condition of being human and unable to live forever.",
+    "cn": "生命的有限性、必死性、死亡率",
+    "ex": "Facing a serious illness often forces individuals to think about their own mortality and what matters most in life."
+  },
+  "accept": {
+    "word": "accept",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To agree to take something that is offered, or to say yes to an invitation, offer, or idea.",
+    "cn": "接受、答應、認可",
+    "ex": "It took Chloe several days to decide whether to accept the challenging job offer from the international firm."
+  },
+  "acceptance": {
+    "word": "acceptance",
+    "pos": "(n. [U, C])",
+    "cat": "n",
+    "en": "The act of accepting something, or the state of being approved, welcomed, or received into a group.",
+    "cn": "接受、贊同、認可/接納",
+    "ex": "After months of rigorous testing, the new mobile application finally gained widespread acceptance among users."
+  },
+  "acceptable": {
+    "word": "acceptable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "able to be agreed on; suitable.",
+    "cn": "可接受的",
+    "ex": "In the distant past, it simply wasn't socially acceptable for professional women to wear incredibly short skirts in the workplace."
+  },
+  "unacceptable": {
+    "word": "unacceptable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not satisfactory or allowable.",
+    "cn": "不可接受的",
+    "ex": "Arriving over an hour late to a highly important business interview is completely unacceptable and will certainly cost you the job."
+  },
+  "inclusive": {
+    "word": "inclusive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Including many different types of people and treating them all fairly and equally.",
+    "cn": "具包容性的、包羅萬象的",
+    "ex": "The company is deeply committed to building an inclusive workplace that values diversity and respects everyone."
+  },
+  "inclusive of": {
+    "word": "inclusive of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Including a specific item, expense, or person as part of a total package or amount.",
+    "cn": "包含…在內的",
+    "ex": "The monthly apartment rent is fully inclusive of water bills, electricity, and high-speed internet access."
+  },
+  "inclusion": {
+    "word": "inclusion",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The act of including someone or something in a group, list, system, or activity.",
+    "cn": "納入、包含、包容",
+    "ex": "The community celebrated the inclusion of a new modern playground in the downtown public park plan."
+  },
+  "exclusive": {
+    "word": "exclusive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Limited to only one specific person, group, or area; not shared with others; or high-priced.",
+    "cn": "獨有的、專屬的、排他的",
+    "ex": "The television station successfully secured an exclusive interview with the famous Hollywood director."
+  },
+  "interpretation": {
+    "word": "interpretation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the action of explaining the meaning of something.",
+    "cn": "解釋；詮釋",
+    "ex": "I am really not entirely sure if I completely agree with your unique interpretation of the complex movie's main character."
+  },
+  "interpreter": {
+    "word": "interpreter",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who interprets, especially one who translates speech orally.",
+    "cn": "口譯員",
+    "ex": "The talented professional interpreter flawlessly translated the foreign president's rapid speech for the massive audience watching completely live on television."
+  },
+  "interpret": {
+    "word": "interpret",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To change spoken words from one language into another as someone is speaking.",
+    "cn": "口譯",
+    "ex": "Since the foreign ambassador did not speak Japanese, Chloe was hired to interpret for him during the official press conference."
+  },
+  "interpret__2": {
+    "word": "interpret",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To explain or decide the meaning of something, such as a work of art, a law, or a dream.",
+    "cn": "解釋、詮釋",
+    "ex": "Different critics may interpret the abstract painting in various ways, finding hidden messages that others miss."
+  },
+  "interpreter__2": {
+    "word": "interpreter",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person whose job is to translate spoken words from one language to another.",
+    "cn": "口譯員",
+    "ex": "Working as a conference interpreter requires not only excellent language skills but also the ability to think quickly under pressure."
+  },
+  "translate ... into": {
+    "word": "translate ... into",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To change writing or speech from one language into another language.",
+    "cn": "把…翻譯成…",
+    "ex": "It took the software engineers several months to translate the entire user manual ... Spanish and German."
+  },
+  "translation": {
+    "word": "translation",
+    "pos": "(n. [U, C])",
+    "cat": "n",
+    "en": "The process of changing text or speech into another language, or the translated version of a text.",
+    "cn": "翻譯、譯文、譯本",
+    "ex": "The classic British novel has been published in translation in over fifty different countries around the world."
+  },
+  "offense": {
+    "word": "offense",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "annoyance or resentment brought about by a perceived insult to or disregard for oneself.",
+    "cn": "冒犯；罪過",
+    "ex": "She truly didn't mean to cause any offense, but her incredibly blunt words were always deeply upsetting sensitive people around her."
+  },
+  "offensive": {
+    "word": "offensive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "causing someone to feel deeply hurt, upset, or angry.",
+    "cn": "冒犯的",
+    "ex": "The extremely inappropriate and offensive joke that the foolish comedian told completely ruined the pleasant atmosphere of the formal dinner."
+  },
+  "offend": {
+    "word": "offend",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To make someone feel upset, angry, or insulted by doing or saying something rude.",
+    "cn": "冒犯、得罪",
+    "ex": "I really didn't mean to offend Marcus with my joke; I was just trying to be funny, but it hurt his feelings."
+  },
+  "offensive__2": {
+    "word": "offensive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Rude, insulting, or causing someone to feel deeply upset, angry, or displeased.",
+    "cn": "冒犯的、無禮的、令人不快的",
+    "ex": "The company immediately removed the controversial advertisement because many viewers found it highly offensive."
+  },
+  "defend": {
+    "word": "defend",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To protect someone or something from physical attack, harm, danger, or strong criticism.",
+    "cn": "防禦、保衛、為…辯護",
+    "ex": "The brave soldiers fought hard to defend their country against the invading forces during the war."
+  },
+  "defense": {
+    "word": "defense",
+    "pos": "(n. [C, U])",
+    "cat": "n",
+    "en": "The act of protecting someone or something from attack, or the system used to protect.",
+    "cn": "防禦、防衛、防守",
+    "ex": "Vitamin C plays an important role in strengthening the body's natural defense against common colds."
+  },
+  "defensive": {
+    "word": "defensive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Used or intended to protect against attack; or behaving in a way that shows you feel criticized or protective.",
+    "cn": "防衛的、防守的、有戒心的",
+    "ex": "When the manager asked Chloe about the project's delay, she became defensive and started blaming her teammates."
+  },
+  "coarse": {
+    "word": "coarse",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "rough or loose in texture or grain; rude or vulgar.",
+    "cn": "粗糙的；粗俗的",
+    "ex": "The unruly students were severely punished by the strict principal for their completely coarse behavior in the quiet school classroom."
+  },
+  "coarsely": {
+    "word": "coarsely",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a rough or harsh manner.",
+    "cn": "粗糙地",
+    "ex": "The hardworking chef quickly and coarsely chopped the fresh organic vegetables before heavily throwing them into the boiling hot soup."
+  },
+  "political": {
+    "word": "political",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to the government or the public affairs of a country.",
+    "cn": "政治的",
+    "ex": "The confident president clearly clarified his strong position on complex political reform during his highly anticipated live televised speech."
+  },
+  "politician": {
+    "word": "politician",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person who is professionally involved in politics.",
+    "cn": "政治人物",
+    "ex": "The incredibly charismatic young politician successfully convinced thousands of energetic local voters to strongly support his brilliant new campaign."
+  },
+  "politics": {
+    "word": "politics",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The activities, actions, and policies used to gain and hold power in a government or to influence a country.",
+    "cn": "政治、政治學",
+    "ex": "Marcus decided to study politics at university because he wanted to understand how laws and governments affect society."
+  },
+  "political__2": {
+    "word": "political",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Relating to the government, politics, or public affairs of a country.",
+    "cn": "政治的",
+    "ex": "The two major political parties held a series of public debates to discuss the new economic reforms before the election."
+  },
+  "politician__2": {
+    "word": "politician",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person who is professionally involved in politics, especially as an elected official or candidate.",
+    "cn": "政治人物、政客",
+    "ex": "Every politician must listen carefully to the needs of the local citizens in order to win their votes during the upcoming election."
+  },
+  "political figure": {
+    "word": "political figure",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A well-known and influential person who plays a significant or prominent role in politics or government affairs.",
+    "cn": "政治要員、重要政治人物",
+    "ex": "The president is a prominent political figure who represents the nation both domestically and at international summits."
+  },
+  "physically-challenged": {
+    "word": "physically-challenged",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Having a physical condition that makes it difficult to move or do everyday activities easily.",
+    "cn": "肢體障礙的、身體有障礙的",
+    "ex": "The new museum installed modern ramps and wide elevators to ensure that physically-challenged-physically-challenged visitors can access every exhibition floor."
+  },
+  "disabled": {
+    "word": "disabled",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Having a physical or mental condition that limits a person's movements, senses, or activities.",
+    "cn": "有身心障礙的、殘疾的",
+    "ex": "The government provides special parking spaces near the entrance of public buildings for disabled citizens with valid permits."
+  },
+  "handicapped": {
+    "word": "handicapped",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having a physical or mental disability.",
+    "cn": "有生理缺陷的；殘疾的",
+    "ex": "Andy is thoughtfully installing a smooth concrete ramp so that handicapped customers can easily and safely access his new shop."
+  },
+  "aspect": {
+    "word": "aspect",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a particular part or feature of something.",
+    "cn": "方面",
+    "ex": "Clearly communicating with angry customers is undoubtedly an incredibly important aspect of a successful retail salesperson's difficult daily job."
+  },
+  "in many aspects": {
+    "word": "in many aspects",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "In many ways, features, or parts of a situation, plan, or subject.",
+    "cn": "在許多方面",
+    "ex": "Although the two smartphones look very similar from the outside, they are completely different in many aspects when it comes to performance."
+  },
+  "perspective": {
+    "word": "perspective",
+    "pos": "(n. [C, U])",
+    "cat": "n",
+    "en": "A particular way of thinking about or considering something; a viewpoint or angle.",
+    "cn": "觀點、看法、視角",
+    "ex": "Traveling alone in a foreign country for a year helped Marcus gain a completely new perspective on life and career choices."
+  },
+  "as far as i am concerned": {
+    "word": "as far as I am concerned",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Used to introduce your personal opinion, belief, or feelings about a particular topic.",
+    "cn": "就我而言、在我看來",
+    "ex": "as far as I am concerned, the new company policy about working from home is the best decision the management has made this year."
+  },
+  "in my opinion": {
+    "word": "in my opinion",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Used to express what you personally think or believe about a specific matter.",
+    "cn": "依我之見、在我看來",
+    "ex": "in my opinion, learning how to manage your time effectively is far more important than just memorizing facts for a test."
+  },
+  "nasty": {
+    "word": "nasty",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "highly unpleasant, especially to the senses; physically repugnant.",
+    "cn": "令人作嘔的；惡劣的",
+    "ex": "Veronica's highly nasty and arrogant attitude usually made her incredibly patient teacher feel quite upset and deeply frustrated everyday."
+  },
+  "mock": {
+    "word": "mock",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to tease or laugh at in a scornful or contemptuous manner.",
+    "cn": "嘲笑",
+    "ex": "Jan's cruel classmates maliciously mock her brand new hairstyle, loudly saying that it looked incredibly strange and completely silly."
+  },
+  "mockery": {
+    "word": "mockery",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "teasing and contemptuous language or behavior directed at a particular person or thing.",
+    "cn": "嘲笑",
+    "ex": "The arrogant manager made an absolute mockery of the junior employee's brilliant presentation, making everyone in the room incredibly uncomfortable."
+  },
+  "racial": {
+    "word": "racial",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "of or relating to race.",
+    "cn": "種族的",
+    "ex": "The progressive new government officially guaranteed absolute racial equality for all diverse citizens living in the massive modern country."
+  },
+  "racial discrimination": {
+    "word": "racial discrimination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "prejudice, discrimination, or antagonism directed against someone of a different race.",
+    "cn": "種族歧視",
+    "ex": "The historic passage of the famous Civil Rights Act in 1964 officially made cruel racial discrimination completely illegal in the US."
+  },
+  "insult": {
+    "word": "insult",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a disrespectful or scornfully abusive remark or action.",
+    "cn": "侮辱",
+    "ex": "Sam is highly sensitive and often mistakenly takes people's constructive feedback as a deeply personal and incredibly cruel insult."
+  },
+  "insulting": {
+    "word": "insulting",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Rude, offensive, or disrespectful, and likely to deeply upset or anger someone.",
+    "cn": "侮辱的、無禮的、冒犯的",
+    "ex": "The customer's insulting remarks about the waiter's accent caused everyone in the restaurant to turn around in shock."
+  },
+  "publish": {
+    "word": "publish",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To prepare, print, and distribute a book, magazine, article, or song so that the public can buy or read it.",
+    "cn": "出版、發行、刊登",
+    "ex": "After working on her fantasy novel for over three years, Chloe finally found a company willing to publish it."
+  },
+  "publisher": {
+    "word": "publisher",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person or a company that prepares, prints, and sells books, magazines, or newspapers.",
+    "cn": "出版商、出版社、發行商",
+    "ex": "The famous publisher announced that they would release a special illustrated edition of the classic novel this winter."
+  },
+  "add insult to injury": {
+    "word": "add insult to injury",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to act in a way that makes a bad situation worse.",
+    "cn": "雪上加霜",
+    "ex": "Jean's mean boss gave her much more difficult work to do, and to add insult to injury, he significantly lowered her salary."
+  },
+  "chairman": {
+    "word": "chairman",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a person chosen to preside over a meeting.",
+    "cn": "主席；董事長",
+    "ex": "The authoritative chairman officially began the highly important business meeting by warmly welcoming all the newly elected board members."
+  },
+  "genderless": {
+    "word": "genderless",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "lacking a specified gender; suitable for any gender.",
+    "cn": "無性別的",
+    "ex": "Some progressive modern clothing stores have recently started to creatively introduce comfortable genderless clothing options for extremely young children."
+  },
+  "publication": {
+    "word": "publication",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the preparation and issuing of a book, journal, piece of music, or other work for public sale.",
+    "cn": "出版物；發行",
+    "ex": "Our highly successful magazine company reliably puts out two to three brilliant publication every single month for our eager readers."
+  },
+  "feminine": {
+    "word": "feminine",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having qualities or an appearance traditionally associated with women.",
+    "cn": "女性化的",
+    "ex": "Many traditional fashion designers incorrectly say that light pink is naturally a very feminine color specifically reserved for beautiful dresses."
+  },
+  "generation": {
+    "word": "generation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "all of the people born and living at about the same time, regarded collectively.",
+    "cn": "世代",
+    "ex": "Colin's large and deeply historic family has proudly lived in this quiet rural village for six entire generation without ever leaving."
+  },
+  "from generation to generation": {
+    "word": "from generation to generation",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "passed down through successive generations of a family or society.",
+    "cn": "代代相傳",
+    "ex": "This beautiful ancient farm was proudly passed down from generation to generation in my large and deeply traditional family."
+  },
+  "prior": {
+    "word": "prior",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing or coming before in time, order, or importance.",
+    "cn": "先前的",
+    "ex": "We were unfortunately given absolutely no prior notice that the highly important afternoon meeting time would be suddenly and completely changed."
+  },
+  "prior__2": {
+    "word": "prior",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Existing or happening before something else, or before a particular time.",
+    "cn": "先前的、在先的",
+    "ex": "Marcus had to cancel his dinner plans with Chloe because of a prior commitment at work that he couldn't skip."
+  },
+  "prior work experience": {
+    "word": "prior work experience",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "The practical skills and knowledge that a person has gained from jobs they held in the past.",
+    "cn": "先前工作經驗、過往工作經驗",
+    "ex": "The multinational company prefers to hire candidates who have at least three years of prior work experience in sales."
+  },
+  "prior knowledge": {
+    "word": "prior knowledge",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "The information and understanding about a subject that a person already has before they start learning more about it.",
+    "cn": "先前知識、既有知識",
+    "ex": "The advanced physics professor assumed that all students in the class had some prior knowledge of basic calculus."
+  },
+  "prior to": {
+    "word": "prior to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "before.",
+    "cn": "在...之前",
+    "ex": "The strict teacher firmly asked the anxious students if they had any final questions prior to officially starting the difficult exam."
+  },
+  "majority": {
+    "word": "majority",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the greater number.",
+    "cn": "多數",
+    "ex": "The vast majority of ambitious high school students in this rich neighborhood usually start attending college right after they graduate."
+  },
+  "the majority of": {
+    "word": "the majority of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "More than half of a total number of people or things; the larger part of something.",
+    "cn": "大多數的、大部分的",
+    "ex": "the majority of the students in this class prefer using digital tablets instead of traditional paper notebooks."
+  },
+  "major in": {
+    "word": "major in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To study a specific subject as your primary focus or main field at a college or university.",
+    "cn": "主修（某科系/專業）",
+    "ex": "Marcus decided to major in computer science because he wants to develop mobile applications in the future."
+  },
+  "major": {
+    "word": "major",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Important, serious, or significant; greater in size, extent, or importance.",
+    "cn": "主要的、重大的、重要的",
+    "ex": "Regular exercise and a balanced diet play a major role in maintaining good physical and mental health."
+  },
+  "minor in": {
+    "word": "minor in",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To study a secondary subject at a college or university alongside a main subject (major).",
+    "cn": "輔修（某科系/專業）",
+    "ex": "While Chloe is a business major, she also chose to minor in Japanese to expand her future career opportunities."
+  },
+  "minor": {
+    "word": "minor",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Small, unimportant, or not serious when compared with other things of the same kind.",
+    "cn": "次要的、輕微的、不重要的",
+    "ex": "The car accident only caused some minor scratches on the bumper, and luckily nobody was hurt."
+  },
+  "minor__2": {
+    "word": "minor",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A person who is under the legal age of full responsibility (usually under 18 or 20).",
+    "cn": "未成年人",
+    "ex": "In many countries, a person under eighteen is legally considered a minor and cannot buy cigarettes or alcohol."
+  },
+  "minority": {
+    "word": "minority",
+    "pos": "(n. [C, usually singular])",
+    "cat": "n",
+    "en": "A smaller part of a group; less than half of the total number of people or things.",
+    "cn": "少數、少數派",
+    "ex": "Marcus found himself in the minority when he voted against the weekend overtime plan, as most of his colleagues agreed to it."
+  },
+  "minority group": {
+    "word": "minority group",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A group of people of a specific race, religion, or culture who live in a society where most people are different.",
+    "cn": "少數族群、少數群體",
+    "ex": "The government is introducing new policies to protect the cultural rights and languages of every minority group in the country."
+  },
+  "commonplace": {
+    "word": "commonplace",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "not unusual; ordinary.",
+    "cn": "司空見慣的；普通的",
+    "ex": "Serious technical problems with completely new computer technology tend to be extremely commonplace during the very early development stages."
+  },
+  "elsewhere": {
+    "word": "elsewhere",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in, at, or to some other place or other places.",
+    "cn": "在別處",
+    "ex": "The busy local store did not have the specific kitchen knife that I desperately wanted, so I had to look elsewhere."
+  },
+  "scream": {
+    "word": "scream",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to give a long, loud, piercing cry or cries expressing extreme emotion or pain.",
+    "cn": "尖叫",
+    "ex": "Whenever arrogant Brandon loudly brags about his minor accomplishments, it absolutely scream deep insecurity to absolutely everyone around him."
+  },
+  "permit": {
+    "word": "permit",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To allow something to happen or to give official permission for something.",
+    "cn": "允許、准許",
+    "ex": "The school rules do not permit students to use their mobile phones during formal examination hours."
+  },
+  "permit__2": {
+    "word": "permit",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "An official document that gives you legal permission to do something.",
+    "cn": "許可證、執照",
+    "ex": "You must apply for a special parking permit before you can park your vehicle in this reserved downtown area."
+  },
+  "permission": {
+    "word": "permission",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The act of allowing someone to do something, or official approval.",
+    "cn": "允許、許可、同意",
+    "ex": "Leo had to ask his manager for permission to leave the office two hours early for a dental appointment."
+  },
+  "request for permission": {
+    "word": "request for permission",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A formal or polite ask to be allowed to do something.",
+    "cn": "請求許可、申請准許",
+    "ex": "The social media software sent a request for permission to access the user's photos before uploading the picture."
+  },
+  "permissible": {
+    "word": "permissible",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "permitted; allowed.",
+    "cn": "允許的",
+    "ex": "Wearing comfortable shorts in the hot summer is entirely permissible according to the modern company's progressive new dress code."
+  },
+  "access": {
+    "word": "access",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To open a computer file, use a system, or enter a specific place.",
+    "cn": "存取（電腦檔案）、進入、讀取",
+    "ex": "Users can access their online banking accounts securely from anywhere in the world using the mobile app."
+  },
+  "access__2": {
+    "word": "access",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The right, opportunity, or means to use, see, or enter something.",
+    "cn": "使用權、進入權、獲取管道",
+    "ex": "The remote mountain village finally has access to clean drinking water and stable high-speed internet."
+  },
+  "gain access to": {
+    "word": "gain access to",
+    "pos": "(phr. v.)",
+    "cat": "phr",
+    "en": "To succeed in entering a place, or getting the right to see or use something.",
+    "cn": "獲得…的存取權/進入權",
+    "ex": "Hackers often use phishing emails to trick employees and gain access to confidential company databases."
+  },
+  "authorize": {
+    "word": "authorize",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To give official permission for something to happen or for someone to do something.",
+    "cn": "授權、批准、准許",
+    "ex": "The manager refused to authorize the extra budget because the marketing team did not provide a detailed report."
+  },
+  "authorized": {
+    "word": "authorized",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Having official permission or approval to do something or enter a place.",
+    "cn": "經授權的、經批准的",
+    "ex": "Only authorized personnel are allowed to enter the laboratory server room to ensure data security."
+  },
+  "unauthorized": {
+    "word": "unauthorized",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Without official or legal permission or approval.",
+    "cn": "未經授權的、未經許可的",
+    "ex": "The security system automatically blocks any unauthorized attempts to log into the company's internal network."
+  },
+  "authority": {
+    "word": "authority",
+    "pos": "(n. [U, C])",
+    "cat": "n",
+    "en": "The official power to make decisions, give orders, or enforce laws.",
+    "cn": "權力、職權、當局",
+    "ex": "The police officer has the legal authority to stop drivers and check their licenses for safety reasons."
+  },
+  "intend": {
+    "word": "intend",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "To have a plan or purpose in mind when doing something.",
+    "cn": "想要、打算、意圖",
+    "ex": "I do not intend to cause any trouble, so I will quietly leave before the argument gets worse."
+  },
+  "intend to v": {
+    "word": "intend to V",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To plan or design to perform a specific action.",
+    "cn": "打算做…、計畫做…",
+    "ex": "Marcus and Chloe intend to travel to Japan next winter to enjoy the hot springs and local cuisine."
+  },
+  "intention": {
+    "word": "intention",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a thing intended; an aim or plan.",
+    "cn": "意圖",
+    "ex": "Richard actually had absolutely no intention of attending the boring holiday party, but his persistent friend strongly forced him to go."
+  },
+  "intentional": {
+    "word": "intentional",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Done on purpose; deliberate and not accidental.",
+    "cn": "故意的、刻意的",
+    "ex": "The referee penalized the soccer player because his foul was clearly intentional and aimed at hurting the opponent."
+  },
+  "unintentional": {
+    "word": "unintentional",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not done on purpose; accidental or mistake-driven.",
+    "cn": "無意的、非故意的、不小心的",
+    "ex": "Please forgive Marcus for spilling the tea; it was completely unintentional and he already cleaned up the table."
+  },
+  "tend to v": {
+    "word": "tend to V",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To be likely to behave in a particular way or have a certain characteristic.",
+    "cn": "往往會…、傾向於做…",
+    "ex": "People tend to spend more money on online shopping when they feel highly stressed or bored."
+  },
+  "tendency": {
+    "word": "tendency",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A likelihood to happen or a way of behaving that is common.",
+    "cn": "傾向、趨勢",
+    "ex": "There is a growing tendency among young professionals to prioritize remote work options over higher salaries."
+  },
+  "have the tendency to v": {
+    "word": "have the tendency to V",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "To often behave in a particular way or regularly do something.",
+    "cn": "有…的傾向、往往會…",
+    "ex": "Chloe have the tendency to check her business emails late at night, which sometimes affects her sleep."
+  },
+  "be likely to v": {
+    "word": "be likely to V",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Probable or expected to happen or do something.",
+    "cn": "很有可能…",
+    "ex": "According to the weather forecast, it be likely to rain heavily this afternoon, so you should bring an umbrella."
+  },
+  "be prone to ( nv-ing)": {
+    "word": "be prone to (+ N/V-ing)",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Likely to suffer from, do, or experience something negative or unpleasant.",
+    "cn": "易於…的、往往會…（通常指負面事物）",
+    "ex": "This old smartphone model be prone to crashing when you try to run multiple advanced applications at the same time."
+  },
+  "be inclined to v": {
+    "word": "be inclined to V",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Feeling willing or likely to do something or think in a particular way.",
+    "cn": "傾向於…、想要…、頗有…的意願",
+    "ex": "After reviewing the candidate's impressive prior work experience, the hiring manager be inclined to offer the position to Leo."
+  },
+  "noble": {
+    "word": "noble",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having or showing fine personal qualities or high moral principles and ideals.",
+    "cn": "高尚的；貴族的",
+    "ex": "Tammy did a truly noble and courageous thing when she bravely stopped the angry young boys' violent physical fight immediately."
+  },
+  "nobility": {
+    "word": "nobility",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "People of the highest social class who hold special titles, such as dukes or earls.",
+    "cn": "貴族（階層）",
+    "ex": "In medieval Europe, the nobility owned most of the land and held great political power over the common people."
+  },
+  "the royal family": {
+    "word": "the royal family",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "The family of the king or queen of a country.",
+    "cn": "王室、皇室",
+    "ex": "Millions of people watched the live television broadcast of the young prince's wedding to see the royal family."
+  },
+  "royalty": {
+    "word": "royalty",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "One or more members of a royal family, or royal status.",
+    "cn": "皇室成員、王室身份",
+    "ex": "Although she was treated like royalty wherever she traveled, the famous actress remained very humble and polite."
+  },
+  "loyal": {
+    "word": "loyal",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Firm and constant in one's support for a person, country, or belief.",
+    "cn": "忠誠的、忠心的",
+    "ex": "Leo has been a loyal customer at this coffee shop for five years, visiting every single morning before work."
+  },
+  "be loyal to": {
+    "word": "be loyal to",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To show constant support or faithfulness to someone or something.",
+    "cn": "忠於…、對…忠誠",
+    "ex": "A well-trained guard dog will always be loyal to its owner and protect them from any potential danger."
+  },
+  "discriminate": {
+    "word": "discriminate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make an unjust or prejudicial distinction in the treatment of different categories of people or things.",
+    "cn": "歧視；區分",
+    "ex": "The large international company strictly cannot discriminate against any potential employees simply on the unfair and completely illegal grounds of age."
+  },
+  "discriminate against": {
+    "word": "discriminate against",
+    "pos": "(v. phr.)",
+    "cat": "phr",
+    "en": "To treat a person or a group worse than others because of their race, gender, age, etc.",
+    "cn": "歧視、對…不公平對待",
+    "ex": "It is strictly illegal for employers to discriminate against job applicants based on their religious beliefs."
+  },
+  "discrimination": {
+    "word": "discrimination",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "The unfair treatment of different categories of people, especially on the grounds of race, age, or sex.",
+    "cn": "歧視",
+    "ex": "The international organization fights against all forms of discrimination to ensure everyone enjoys equal human rights."
+  },
+  "racial discrimination__2": {
+    "word": "racial discrimination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Unfair treatment of individuals based on their race or ethnic background.",
+    "cn": "種族歧視",
+    "ex": "The civil rights movement in the 1960s aimed to end racial discrimination and guarantee equal voting rights."
+  },
+  "gender discrimination": {
+    "word": "gender discrimination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Unfair treatment of people based on their gender or sex, especially in the workplace.",
+    "cn": "性別歧視",
+    "ex": "To prevent gender discrimination, the company ensures that men and women receive equal pay for the same work."
+  },
+  "age discrimination": {
+    "word": "age discrimination",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "Unfair treatment of individuals based on their age, often affecting older workers.",
+    "cn": "年齡歧視",
+    "ex": "Refusing to hire an experienced worker simply because they are over fifty is a clear example of age discrimination."
+  },
+  "prejudice": {
+    "word": "prejudice",
+    "pos": "(n. [U, C])",
+    "cat": "n",
+    "en": "An unfair and unreasonable opinion or feeling formed without enough thought or knowledge.",
+    "cn": "偏見",
+    "ex": "We must educate young children properly to prevent them from developing prejudice against people from different cultures."
+  },
+  "stereotype": {
+    "word": "stereotype",
+    "pos": "(n. [C])",
+    "cat": "n",
+    "en": "A fixed, oversimplified, and often unfair belief about a particular type of person or thing.",
+    "cn": "刻板印象",
+    "ex": "The belief that all scientists are quiet and unsocial is a common stereotype that does not reflect reality."
+  },
+  "bias": {
+    "word": "bias",
+    "pos": "(n. [C, U])",
+    "cat": "n",
+    "en": "A strong feeling in favor of or against one group of people or one side in an argument, often unfair.",
+    "cn": "偏見、偏心、成見",
+    "ex": "The journalist was accused of bias because her article only reported the views of one political party."
+  },
+  "biased": {
+    "word": "biased",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Unfairly preferring one person, group, or opinion over another.",
+    "cn": "有偏見的、偏袒的",
+    "ex": "The referee's biased decisions during the championship game sparked an angry protest from the losing team."
+  },
+  "unbiased": {
+    "word": "unbiased",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Able to judge fairly because you are not influenced by personal opinions or local interests.",
+    "cn": "無偏見的、公正的",
+    "ex": "A scientific study must remain completely unbiased by analyzing raw data without any personal expectations."
+  },
+  "impartial": {
+    "word": "impartial",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not supporting one person or group more than another; completely fair and neutral.",
+    "cn": "公平的、無私的、中立的",
+    "ex": "As a judge, it is Chloe's duty to remain impartial and listen to both sides of the legal case carefully."
+  },
+  "just": {
+    "word": "just",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Fair, right, and reasonable according to moral principles or the law.",
+    "cn": "公正的、正義的、合理的",
+    "ex": "The citizens demanded a just legal system where wealthy individuals cannot buy their way out of punishment."
+  },
+  "justice": {
+    "word": "justice",
+    "pos": "(n. [U])",
+    "cat": "n",
+    "en": "Fairness in the way people are treated, or the legal system that ensures fairness.",
+    "cn": "正義、公正、公道",
+    "ex": "The community gathered outside the courthouse to demand justice for the victim of the tragic accident."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "collapse",
+    "It is incredibly lucky that absolutely no one was driving on the old bridge when it suddenly __________.",
+    "令人難以置信的幸運是，當那座舊橋突然倒塌時，絕對沒有人在上面開車。",
+    [
+      "incredibly",
+      "lucky",
+      "absolutely"
+    ]
+  ],
+  [
+    "collapse__2",
+    "The catastrophic bridge __________ unfortunately claimed the innocent lives of several unsuspecting commuters early this rainy morning.",
+    "災難性的橋樑倒塌不幸地在今天這個下雨的清晨奪走了幾位毫無防備的通勤者無辜的生命。",
+    [
+      "catastrophic",
+      "bridge",
+      "unfortunately"
+    ]
+  ],
+  [
+    "colony collapse disorder",
+    "Many dedicated environmental scientists are actively studying __________ __________ __________ to understand why the vital bee populations are vanishing.",
+    "許多盡責的環境科學家正積極研究蜂群崩壞症候群，以了解為什麼至關重要的蜜蜂群體正在消失。",
+    [
+      "dedicated",
+      "environmental",
+      "scientists"
+    ]
+  ],
+  [
+    "collapse__3",
+    "The old wooden bridge might __________ if too many heavy trucks try to drive over it at the same time.",
+    "如果有太多重型卡車同時試圖開過去，這座老舊的木橋可能會倒塌。",
+    [
+      "wooden",
+      "bridge",
+      "heavy"
+    ]
+  ],
+  [
+    "the economy collapses",
+    "Financial experts warn that if the government cannot control inflation, __________ __________ __________, leading to mass unemployment.",
+    "金融專家警告，如果政府無法控制通貨膨脹，經濟就會崩潰，進而導致大規模失業。",
+    [
+      "financial",
+      "experts",
+      "government"
+    ]
+  ],
+  [
+    "a building collapses",
+    "Rescue teams rushed to the downtown area after __________ __________ __________d during the powerful earthquake.",
+    "在那次強烈地震中一棟建築物倒塌後，搜救隊迅速趕往市中心區域。",
+    [
+      "rescue",
+      "teams",
+      "rushed"
+    ]
+  ],
+  [
+    "someone collapses",
+    "The office worker __________d at her desk due to extreme exhaustion after working for twenty-four hours straight.",
+    "那位上班族在連續工作二十四小時後，因極度力竭而在辦公桌前不支倒地（暈倒）。",
+    [
+      "office",
+      "worker",
+      "extreme"
+    ]
+  ],
+  [
+    "inhabit",
+    "Several extremely dangerous and highly venomous snakes are known to actively __________ this dark and mysterious mountain cave.",
+    "幾種極度危險且具劇毒的蛇已知積極居住於這個黑暗神祕的山洞中。",
+    [
+      "several",
+      "extremely",
+      "dangerous"
+    ]
+  ],
+  [
+    "habitat",
+    "While some highly resilient animals can easily live in dry desert __________, others desperately need lush forests.",
+    "雖然一些適應力極強的動物可以輕鬆地生活在乾燥的沙漠棲息地，但其他動物極度需要茂盛的森林。",
+    [
+      "highly",
+      "resilient",
+      "animals"
+    ]
+  ],
+  [
+    "natural habitat",
+    "Cutting down the ancient trees will completely destroy the __________ __________ of many rare and beautiful wild birds.",
+    "砍伐這些古老的樹木將徹底摧毀許多稀有且美麗的野鳥的自然棲息地。",
+    [
+      "cutting",
+      "ancient",
+      "trees"
+    ]
+  ],
+  [
+    "habitant",
+    "The local community center provides free language classes to help every new __________ adapt to the neighborhood.",
+    "當地社區中心提供免費的語言課程，以幫助每一位新居民適應這個社區。",
+    [
+      "local",
+      "community",
+      "center"
+    ]
+  ],
+  [
+    "habitable",
+    "Due to severe flooding and toxic mold, the ground floor of the apartment building is temporarily not __________.",
+    "由於嚴重的洪水和有毒霉菌，這棟公寓大樓的一樓暫時不適合居住。",
+    [
+      "severe",
+      "flooding",
+      "toxic"
+    ]
+  ],
+  [
+    "inhabitable",
+    "Environmentalists are working hard to protect the wetlands and keep them ___________ for rare bird species.",
+    "環保人士正努力保護這片濕地，以讓它們維持適合珍稀鳥類居住的狀態。",
+    [
+      "environmentalists",
+      "working",
+      "protect"
+    ]
+  ],
+  [
+    "singular",
+    "He is a truly __________ musician whose incredibly brilliant classical work is entirely beyond compare in this modern century.",
+    "他是一位真正非凡的音樂家，其極其才華洋溢的古典作品在這個現代世紀完全無與倫比。",
+    [
+      "truly",
+      "musician",
+      "whose"
+    ]
+  ],
+  [
+    "singular__2",
+    "The English teacher reminded the class that a __________ subject like \"he\" or \"she\" requires a verb with an \"s\" in the present tense.",
+    "英文老師提醒全班，像 \"he\" 或 \"she\" 這樣的單數主詞，在現在式中需要搭配字尾加 \"s\" 的動詞。",
+    [
+      "english",
+      "teacher",
+      "reminded"
+    ]
+  ],
+  [
+    "plural",
+    "Most English nouns can be changed into their __________ forms simply by adding an \"s\" or \"es\" to the end of the word.",
+    "大多數的英文名詞只需在字尾加上 \"s\" 或 \"es\"，就能轉換成它們的複數型態。",
+    [
+      "english",
+      "nouns",
+      "changed"
+    ]
+  ],
+  [
+    "except (for)",
+    "The amusement park is open every day __________ __________ Christmas Day, when it closes for annual maintenance.",
+    "這座主題樂園除了聖誕節當天之外每天都開放，聖誕節當天會關閉進行年度維護。",
+    [
+      "amusement",
+      "every",
+      "christmas"
+    ]
+  ],
+  [
+    "exception",
+    "Most students in the class passed the difficult exam, with the sole __________ of Leo, who missed the test due to illness.",
+    "班上大多數學生都通過了這場艱難的考試，唯一的例外是里歐，他因病缺考。",
+    [
+      "students",
+      "class",
+      "passed"
+    ]
+  ],
+  [
+    "no exception",
+    "All new employees must attend the safety training session, and the new managers are __________ __________.",
+    "所有新員工都必須參加安全培訓課程，新任經理們也不例外。",
+    [
+      "employees",
+      "attend",
+      "safety"
+    ]
+  ],
+  [
+    "exceptional",
+    "The strict international company only tolerates employee lateness in highly __________ circumstances, such as severe weather emergencies.",
+    "這家嚴格的國際公司只有在高度例外的情況下（例如嚴重的惡劣天氣緊急情況）才容許員工遲到。",
+    [
+      "strict",
+      "international",
+      "company"
+    ]
+  ],
+  [
+    "imaginative",
+    "The highly __________ young boy creatively made up an incredibly fun and complex new game for all his friends.",
+    "這個極其富有想像力的年輕男孩，為他所有的朋友充滿創意地發明了一個極其有趣且複雜的新遊戲。",
+    [
+      "highly",
+      "young",
+      "creatively"
+    ]
+  ],
+  [
+    "imagination",
+    "Reading fantastic adventure novels every night greatly helps young children actively develop their growing intelligence and colorful __________.",
+    "每晚閱讀奇妙的冒險小說，極大地幫助幼童積極發展他們成長中的智力和豐富多彩的想像力。",
+    [
+      "reading",
+      "fantastic",
+      "adventure"
+    ]
+  ],
+  [
+    "imaginable",
+    "The luxury hotel offers the most incredibly comfortable beds and absolutely every high-end amenity __________ for its wealthy guests.",
+    "這家豪華飯店為其富有的客人提供最極度舒適的床鋪和絕對所有可想像得到的高端設施。",
+    [
+      "luxury",
+      "hotel",
+      "offers"
+    ]
+  ],
+  [
+    "imaginary",
+    "The fascinating bedtime story was about a magical and completely __________ land where clever animals could fluently talk.",
+    "這個迷人的床邊故事是關於一個神奇且完全虛構的土地，在那裡聰明的動物可以流利地說話。",
+    [
+      "fascinating",
+      "bedtime",
+      "story"
+    ]
+  ],
+  [
+    "mechanical",
+    "The expensive store warranty unfortunately only covers internal __________ problems, so you must pay for any exterior cosmetic damage.",
+    "昂貴的商店保固不幸地只涵蓋內部的機械的問題，所以你必須為任何外部的裝飾性損壞付費。",
+    [
+      "expensive",
+      "store",
+      "warranty"
+    ]
+  ],
+  [
+    "mechanism",
+    "The complex locking __________ on the heavy steel safe is specifically designed to completely prevent any dangerous robberies.",
+    "沉重鋼製保險箱上複雜的鎖定機械裝置，是專門設計來完全防止任何危險的搶劫。",
+    [
+      "complex",
+      "locking",
+      "heavy"
+    ]
+  ],
+  [
+    "mechanic",
+    "The highly experienced car __________ skillfully fixed the broken engine in less than two surprisingly short hours.",
+    "經驗非常豐富的汽車技工在不到兩個令人驚訝的短暫小時內，巧妙地修好了壞掉的引擎。",
+    [
+      "highly",
+      "experienced",
+      "skillfully"
+    ]
+  ],
+  [
+    "equip",
+    "The generous military general made absolutely sure to securely __________ each brave soldier with a heavy, reliable gun.",
+    "慷慨的將軍絕對確保安全地為每一位勇敢的士兵裝備一把沉重可靠的槍。",
+    [
+      "generous",
+      "military",
+      "general"
+    ]
+  ],
+  [
+    "be equipped with",
+    "My expensive brand new sports car __________ fully __________ __________ a highly advanced GPS device for safe modern navigation.",
+    "我昂貴的全新跑車完全配備有一個高度先進的GPS裝置，用於安全的現代導航。",
+    [
+      "expensive",
+      "brand",
+      "sports"
+    ]
+  ],
+  [
+    "equipment",
+    "The dedicated hospital recently purchased several million dollars worth of advanced medical __________ to better treat sick patients.",
+    "這家盡責的醫院最近購買了價值數百萬美元的先進醫療設備，以更好地治療生病的病患。",
+    [
+      "dedicated",
+      "hospital",
+      "recently"
+    ]
+  ],
+  [
+    "wrap up",
+    "I have to leave in exactly five minutes, so we seriously need to __________ __________ this boring meeting quickly.",
+    "我必須在剛好五分鐘後離開，所以我們真的需要迅速結束這場無聊的會議。",
+    [
+      "leave",
+      "exactly",
+      "minutes"
+    ]
+  ],
+  [
+    "wrapping",
+    "We urgently need to buy some colorful __________ paper tonight to beautifully cover the expensive holiday gifts for the children.",
+    "我們今晚急需買一些色彩鮮豔的包裝紙，來美麗地包裝給孩子們的昂貴節日禮物。",
+    [
+      "urgently",
+      "colorful",
+      "paper"
+    ]
+  ],
+  [
+    "unwrap",
+    "The excited little boy couldn't wait to happily __________ his massive birthday present the moment he finally woke up.",
+    "興奮的小男孩一醒來就等不及要快樂地拆開他巨大的生日禮物。",
+    [
+      "excited",
+      "little",
+      "couldn't"
+    ]
+  ],
+  [
+    "secure",
+    "The brilliant software engineer successfully designed a program that effectively __________ the entire office computer system from destructive viruses.",
+    "才華洋溢的軟體工程師成功設計了一個程式，有效地使整個辦公室電腦系統安全，免受破壞性病毒的侵害。",
+    [
+      "brilliant",
+      "software",
+      "engineer"
+    ]
+  ],
+  [
+    "secure__2",
+    "The online banking app uses advanced encryption to keep your financial transactions __________ from hackers.",
+    "這款網路銀行應用程式使用進階加密技術，以確保您的財務交易免受駭客攻擊且非常安全。",
+    [
+      "online",
+      "banking",
+      "advanced"
+    ]
+  ],
+  [
+    "securely",
+    "Larry carefully tugged his young daughter's seat belt to perfectly ensure that it was __________ fastened before starting the car.",
+    "賴瑞仔細地拉了拉他年幼女兒的安全帶，以完美確保在發動汽車前它是牢固地繫好的。",
+    [
+      "larry",
+      "carefully",
+      "tugged"
+    ]
+  ],
+  [
+    "security",
+    "The massive international airport significantly increased its daily __________ after receiving a highly credible and terrifying anonymous threat.",
+    "在收到極具可信度且可怕的匿名威脅後，這座龐大的國際機場顯著增加了其日常安全（保障）。",
+    [
+      "massive",
+      "international",
+      "airport"
+    ]
+  ],
+  [
+    "safe",
+    "It is not __________ to walk alone in the dark alley late at night, so you should call a ride-sharing taxi instead.",
+    "深夜獨自走在黑暗的小巷裡是不安全的，所以你應該改叫計程車。",
+    [
+      "alone",
+      "alley",
+      "night"
+    ]
+  ],
+  [
+    "safety",
+    "For your own __________, please stand completely behind the yellow line while waiting for the MRT train to arrive.",
+    "為了您自身的安全，在等待捷運列車抵達時，請完全站在黃線後方。",
+    [
+      "please",
+      "stand",
+      "behind"
+    ]
+  ],
+  [
+    "safely",
+    "The mountain guide helped all the hikers cross the rocky river __________ before the heavy storm started.",
+    "在暴風雨開始之前，登山導遊協助所有登山客安全地越過了佈滿岩石的河流。",
+    [
+      "mountain",
+      "guide",
+      "helped"
+    ]
+  ],
+  [
+    "transport",
+    "The highly reliable delivery company uses massive trucks to quickly __________ valuable goods across the entire vast country.",
+    "這家高度可靠的快遞公司使用巨大的卡車，迅速將有價值的貨物運輸穿越整個廣闊的國家。",
+    [
+      "highly",
+      "reliable",
+      "delivery"
+    ]
+  ],
+  [
+    "transportation",
+    "Efficient public __________ is absolutely vital for reducing terrible traffic jams and dangerous pollution in rapidly growing modern cities.",
+    "高效率的大眾交通工具對於減少快速發展的現代城市中可怕的交通堵塞和危險的污染絕對是至關重要的。",
+    [
+      "efficient",
+      "public",
+      "absolutely"
+    ]
+  ],
+  [
+    "secure__3",
+    "The online banking app uses advanced encryption to keep your financial transactions __________ from hackers.",
+    "這款網路銀行應用程式使用進階加密技術，以確保您的財務交易免受駭客攻擊且非常安全。",
+    [
+      "online",
+      "banking",
+      "advanced"
+    ]
+  ],
+  [
+    "safe__2",
+    "It is not __________ to walk alone in the dark alley late at night, so you should call a ride-sharing taxi instead.",
+    "深夜獨自走在黑暗的小巷裡是不安全的，所以你應該改叫計程車。",
+    [
+      "alone",
+      "alley",
+      "night"
+    ]
+  ],
+  [
+    "safety__2",
+    "For your own __________, please stand completely behind the yellow line while waiting for the MRT train to arrive.",
+    "為了您自身的安全，在等待捷運列車抵達時，請完全站在黃線後方。",
+    [
+      "please",
+      "stand",
+      "behind"
+    ]
+  ],
+  [
+    "safely__2",
+    "The mountain guide helped all the hikers cross the rocky river __________ before the heavy storm started.",
+    "在暴風雨開始之前，登山導遊協助所有登山客安全地越過了佈滿岩石的河流。",
+    [
+      "mountain",
+      "guide",
+      "helped"
+    ]
+  ],
+  [
+    "lose (lose, lost, lost)",
+    "If you __________ your passport while traveling abroad, you must contact your country's embassy immediately to get a new one.",
+    "如果你在國外旅行時遺失了護照，你必須立刻聯絡你國家的大使館以取得新護照。",
+    [
+      "passport",
+      "traveling",
+      "abroad"
+    ]
+  ],
+  [
+    "lost",
+    "The police officer helped the crying little boy find his parents after he wandered away and became __________ in the crowded night market.",
+    "警察在那個哭泣的小男孩走失並在擁擠的夜市裡迷路的時候，幫助他找到了父母。",
+    [
+      "police",
+      "officer",
+      "helped"
+    ]
+  ],
+  [
+    "get lost",
+    "Make sure to download an offline map on your smartphone so you don't __________ __________ while hiking in the remote mountains.",
+    "確保在你的智慧型手機上下載離線地圖，這樣你在偏遠山區健行時才不會迷路。",
+    [
+      "download",
+      "offline",
+      "smartphone"
+    ]
+  ],
+  [
+    "lost__2",
+    "After graduating from college, Chloe felt completely __________ because she had no idea what kind of career she wanted to pursue.",
+    "大學畢業後，克洛伊感到非常迷惘（失落的），因為她完全不知道自己想追求什麼樣的職業。",
+    [
+      "graduating",
+      "college",
+      "chloe"
+    ]
+  ],
+  [
+    "loose",
+    "If your new designer pants are much too __________ around the waist, you should definitely wear a heavy leather belt.",
+    "如果你新的設計師長褲在腰部太鬆的，你絕對應該繫一條厚重的皮帶。",
+    [
+      "designer",
+      "pants",
+      "around"
+    ]
+  ],
+  [
+    "on the loose",
+    "The terrified town is panicking because an incredibly dangerous criminal attacked several people last night and is still __________ __________ __________.",
+    "受驚的城鎮陷入恐慌，因為一名極度危險的罪犯昨晚攻擊了幾個人，而且目前仍然在逃。",
+    [
+      "terrified",
+      "panicking",
+      "incredibly"
+    ]
+  ],
+  [
+    "break loose",
+    "The whole neighborhood is hiding inside because the aggressive lion at the local zoo has violently __________ __________ from its cage.",
+    "整個社區都躲在室內，因為當地動物園具攻擊性的獅子猛烈地從籠子裡掙脫了。",
+    [
+      "whole",
+      "neighborhood",
+      "hiding"
+    ]
+  ],
+  [
+    "portion",
+    "Each hardworking team member fairly received a massive __________ of the exciting prize money after finally winning the competitive tournament.",
+    "每位辛勤工作的團隊成員在終於贏得競爭激烈的錦標賽後，公平地獲得了令人興奮的獎金的巨大一部分。",
+    [
+      "hardworking",
+      "member",
+      "fairly"
+    ]
+  ],
+  [
+    "proportion",
+    "A significantly large __________ of the young students in this high school actively plan to attend a prestigious university.",
+    "這所高中裡有相當大比例的年輕學生積極計畫進入著名的大學就讀。",
+    [
+      "significantly",
+      "large",
+      "young"
+    ]
+  ],
+  [
+    "proportionate",
+    "The judge stated that the legal punishment must be ___________ to the seriousness of the crime committed.",
+    "法官表示，法律懲罰必須與所犯親罪行的嚴重程度相稱（成比例）。",
+    [
+      "judge",
+      "stated",
+      "legal"
+    ]
+  ],
+  [
+    "disproportionate",
+    "A ______________ amount of the company's budget is spent on advertising rather than improving product quality.",
+    "公司不成比例的預算金額被花在廣告上，而不是提高產品品質。",
+    [
+      "amount",
+      "company's",
+      "budget"
+    ]
+  ],
+  [
+    "spill",
+    "The clumsy child accidentally __________ his cold milk all over the expensive table and immediately began to cry loudly.",
+    "笨拙的孩子不小心把他的冷牛奶灑出在昂貴的桌子上，立刻開始大聲哭泣。",
+    [
+      "clumsy",
+      "child",
+      "accidentally"
+    ]
+  ],
+  [
+    "spilled",
+    "Marcus used a paper towel to clean up the __________ coffee on his desk before it ruined his important reports.",
+    "馬庫斯在潑灑出來的咖啡弄壞他的重要報告之前，用一張紙巾將其清理乾淨。",
+    [
+      "marcus",
+      "paper",
+      "towel"
+    ]
+  ],
+  [
+    "count on",
+    "You can always __________ __________ Chloe to help you move into your new apartment because she is a very loyal friend.",
+    "你總是能**指望（信賴）**克洛伊來幫你搬進新公寓，因為她是一個非常講義氣的朋友。",
+    [
+      "always",
+      "chloe",
+      "apartment"
+    ]
+  ],
+  [
+    "rely on",
+    "Many senior citizens __________ __________ public transportation to go to the hospital because they can no longer drive safely.",
+    "許多銀髮族**依靠（依賴）**大眾運輸前往醫院，因為他們已經無法安全地開車了。",
+    [
+      "senior",
+      "citizens",
+      "public"
+    ]
+  ],
+  [
+    "depend on",
+    "Whether the school will host the outdoor sports day this Saturday will __________ __________ the weather condition.",
+    "學校這週六是否會舉辦戶外運動會，將取決於天氣狀況。",
+    [
+      "whether",
+      "school",
+      "outdoor"
+    ]
+  ],
+  [
+    "dependent on",
+    "Young children are entirely __________ __________ their parents for food, clothing, and a safe place to live.",
+    "年幼的孩童在食物、衣物和安全的住所方面完全依賴他們的父母。",
+    [
+      "young",
+      "children",
+      "entirely"
+    ]
+  ],
+  [
+    "independent from",
+    "After years of hard work, Leo finally became financially ___________ __________ his parents and rented his own studio.",
+    "經過多年的努力，里歐終於在財務上從父母那裡獨立出來，並租了自己的套房。",
+    [
+      "years",
+      "finally",
+      "became"
+    ]
+  ],
+  [
+    "dependable",
+    "Carl is consistently one of the large company's most __________ employees because he absolutely never misses a strict deadline.",
+    "卡爾始終是這家大公司最可靠的員工之一，因為他絕對不會錯過嚴格的截止日期。",
+    [
+      "consistently",
+      "large",
+      "company's"
+    ]
+  ],
+  [
+    "reliable",
+    "This old Japanese car is incredibly __________; it has never broken down once during the past ten years.",
+    "這輛舊的日本車非常可靠（可信賴）；在過去的十年間，它從未故障過一次。",
+    [
+      "japanese",
+      "incredibly",
+      "never"
+    ]
+  ],
+  [
+    "carrier",
+    "The exhausted old woman politely requested that a helpful baggage __________ assist her to her luxurious hotel room upstairs.",
+    "疲憊的老婦人禮貌地要求一位樂於助人的行李搬運工協助她前往樓上豪華的飯店房間。",
+    [
+      "exhausted",
+      "woman",
+      "politely"
+    ]
+  ],
+  [
+    "accurately",
+    "The frightened woman __________ described the tall, dangerous man who suddenly stole her expensive purse right outside the busy bank.",
+    "受驚的婦女準確地描述了那個在繁忙銀行外突然偷走她昂貴錢包的高大危險男子。",
+    [
+      "frightened",
+      "woman",
+      "described"
+    ]
+  ],
+  [
+    "accuracy",
+    "In highly complex financial reports, absolute __________ is undeniably the most important factor for any successful international business.",
+    "在高度複雜的財務報告中，絕對的準確性無疑是任何成功國際企業最重要的因素。",
+    [
+      "highly",
+      "complex",
+      "financial"
+    ]
+  ],
+  [
+    "rescue",
+    "The incredibly brave firefighters in the hovering helicopter successfully __________ the terrified man from the violently burning wooden house.",
+    "盤旋直升機上極其勇敢的消防員，成功地將驚恐的男子從猛烈燃燒的木屋中救援出來。",
+    [
+      "incredibly",
+      "brave",
+      "firefighters"
+    ]
+  ],
+  [
+    "come to one's rescue",
+    "Gary heroically __________ __________ my __________ when I foolishly locked myself out of my apartment in the freezing winter rain.",
+    "當我愚蠢地在冰冷的冬雨中把自己鎖在公寓外時，蓋瑞英勇地來救援我。",
+    [
+      "heroically",
+      "foolishly",
+      "locked"
+    ]
+  ],
+  [
+    "artificial",
+    "Tony's resilient father surprisingly has an __________ leg because he tragically lost his real one in a terrible car accident.",
+    "東尼堅強的父親令人驚訝地裝有一條人造的腿，因為他在一場可怕的車禍中悲慘地失去了他真正的腿。",
+    [
+      "tony's",
+      "resilient",
+      "father"
+    ]
+  ],
+  [
+    "artificial intelligence",
+    "Many tech companies are investing billions of dollars in __________ ____________ to develop smarter software that can write essays and generate images.",
+    "許多科技公司正投入數十億美元於人工智慧，以開發出能寫文章和生成圖片的更智慧軟體。",
+    [
+      "companies",
+      "investing",
+      "billions"
+    ]
+  ],
+  [
+    "artificial additive",
+    "To maintain a healthy diet, you should avoid highly processed snacks that contain any __________ __________ like chemical preservatives.",
+    "為了維持健康的飲食，你應該避免食用含有化學防腐劑等任何人工添加物的高度加工零食。",
+    [
+      "maintain",
+      "healthy",
+      "avoid"
+    ]
+  ],
+  [
+    "artificial coloring",
+    "The bright red candy gets its intense hue from __________ __________ rather than real strawberry juice.",
+    "這款鮮紅色的糖果其強烈的色調是來自於人工色素，而不是真正的草莓汁。",
+    [
+      "bright",
+      "candy",
+      "intense"
+    ]
+  ],
+  [
+    "chemical",
+    "The factory was fined for releasing dangerous __________ waste into the nearby river, harming local wildlife.",
+    "該工廠因將危險的化學廢料排入附近河流、危害當地野生動物而被處以罰款。",
+    [
+      "factory",
+      "fined",
+      "releasing"
+    ]
+  ],
+  [
+    "chemical__2",
+    "You should wear protective gloves and goggles when handling a strong __________ like bleach or acid.",
+    "在處理漂白水或酸液等強烈化學物質時，你應該配戴防護手套和護目鏡。",
+    [
+      "protective",
+      "gloves",
+      "goggles"
+    ]
+  ],
+  [
+    "natural",
+    "This organic juice is made from 100% __________ ingredients with no extra sugar or water added.",
+    "這款有機果汁是由百分之百的天然成分製成，沒有添加額外的糖或水。",
+    [
+      "organic",
+      "juice",
+      "ingredients"
+    ]
+  ],
+  [
+    "replace ... with",
+    "The chef decided to __________ the white sugar __________ natural honey to make the dessert much healthier.",
+    "主廚決定用天然蜂蜜**取代（替換）**白糖，讓這道甜點更健康。",
+    [
+      "decided",
+      "white",
+      "sugar"
+    ]
+  ],
+  [
+    "replacement",
+    "There is a convenient shop around here that constantly sells highly affordable __________ parts for completely broken racing bicycles.",
+    "這附近有一家便利的商店，經常為完全損壞的賽車腳踏車出售非常負擔得起的替代零件。",
+    [
+      "there",
+      "convenient",
+      "around"
+    ]
+  ],
+  [
+    "substitute for",
+    "Margarine can __________ __________ butter in most baking recipes, though the final flavor might change slightly.",
+    "在大多數烘焙食譜中，乳瑪琳可以**代替（取代）**奶油，儘管最終的風味可能會稍微改變。",
+    [
+      "margarine",
+      "butter",
+      "baking"
+    ]
+  ],
+  [
+    "substitute",
+    "Meat __________s made from plant protein have become incredibly popular among people who prefer vegetarian diets.",
+    "由植物蛋白製成的肉類替代品在偏好素食的人群中變得非常受歡迎。",
+    [
+      "plant",
+      "protein",
+      "become"
+    ]
+  ],
+  [
+    "substitute teacher",
+    "When our regular English teacher was away on sick leave, a __________ __________ took over the class for the week.",
+    "當我們原本的英文老師請病假時，一位代課老師接管了那一週的班級。",
+    [
+      "regular",
+      "english",
+      "leave"
+    ]
+  ],
+  [
+    "morally",
+    "The strict teacher carefully explained that it is __________ wrong to maliciously spread false rumors about other innocent people.",
+    "嚴格的老師仔細地解釋說，惡意散布關於其他無辜者的虛假謠言在道德上是錯誤的。",
+    [
+      "strict",
+      "teacher",
+      "carefully"
+    ]
+  ],
+  [
+    "morality",
+    "The fascinating philosophy class challenged the young students to deeply question the complex __________ of highly controversial scientific decisions.",
+    "這門引人入勝的哲學課挑戰年輕學生，去深入質疑極具爭議的科學決策中複雜的道德。",
+    [
+      "fascinating",
+      "philosophy",
+      "class"
+    ]
+  ],
+  [
+    "moral standard",
+    "Different cultures may have varying views on what constitutes a high __________ __________ regarding family obligations.",
+    "不同的文化對於在家庭義務上何謂高道德標準可能會有不同的看法。",
+    [
+      "different",
+      "cultures",
+      "varying"
+    ]
+  ],
+  [
+    "immoral",
+    "Many people believe that cheating on an exam or lying to your friends is completely __________.",
+    "許多人認為考試作弊或對朋友撒謊是完全不道德的。",
+    [
+      "people",
+      "believe",
+      "cheating"
+    ]
+  ],
+  [
+    "mortal",
+    "In ancient Greek myths, Zeus was an all-powerful god, while the heroes he interacted with were mere __________ beings.",
+    "在古希臘神話中，宙斯是一位全能的神，而與他互動的英雄們僅僅是**不能永生（凡人）**的存在。",
+    [
+      "ancient",
+      "greek",
+      "myths"
+    ]
+  ],
+  [
+    "immortal",
+    "Vampires are often portrayed in modern movies as __________ creatures that never age or die of sickness.",
+    "吸血鬼在現代電影中經常被描繪成不會變老也不會因病死亡的**長生不老（永生）**生物。",
+    [
+      "vampires",
+      "often",
+      "portrayed"
+    ]
+  ],
+  [
+    "mortality",
+    "Facing a serious illness often forces individuals to think about their own __________ and what matters most in life.",
+    "面對嚴重的疾病往往會迫使個人去思考自己**生命的有限性（必死性）**以及生命中什麼才是最重要的。",
+    [
+      "facing",
+      "serious",
+      "illness"
+    ]
+  ],
+  [
+    "accept",
+    "It took Chloe several days to decide whether to __________ the challenging job offer from the international firm.",
+    "克洛伊花了幾天的時間才決定是否要接受那家國際公司極具挑戰性的工作邀約。",
+    [
+      "chloe",
+      "several",
+      "decide"
+    ]
+  ],
+  [
+    "acceptance",
+    "After months of rigorous testing, the new mobile application finally gained widespread __________ among users.",
+    "經過數月的嚴格測試，這款新的手機應用程式終於在使用者之間獲得了廣泛的認可（接受）。",
+    [
+      "months",
+      "rigorous",
+      "testing"
+    ]
+  ],
+  [
+    "acceptable",
+    "In the distant past, it simply wasn't socially __________ for professional women to wear incredibly short skirts in the workplace.",
+    "在遙遠的過去，職業女性在工作場所穿極短的裙子在社會上根本是不可接受的。",
+    [
+      "distant",
+      "simply",
+      "wasn't"
+    ]
+  ],
+  [
+    "unacceptable",
+    "Arriving over an hour late to a highly important business interview is completely __________ and will certainly cost you the job.",
+    "參加極其重要的商業面試遲到超過一小時是完全不可接受的，且肯定會讓你失去這份工作。",
+    [
+      "arriving",
+      "highly",
+      "important"
+    ]
+  ],
+  [
+    "inclusive",
+    "The company is deeply committed to building an __________ workplace that values diversity and respects everyone.",
+    "該公司致力於打造一個重視多元化並尊重每個人的具包容性的職場。",
+    [
+      "company",
+      "deeply",
+      "committed"
+    ]
+  ],
+  [
+    "inclusive of",
+    "The monthly apartment rent is fully __________ __________ water bills, electricity, and high-speed internet access.",
+    "每月的公寓租金已完全包含水費、電費和高速網路費在內。",
+    [
+      "monthly",
+      "apartment",
+      "fully"
+    ]
+  ],
+  [
+    "inclusion",
+    "The community celebrated the __________ of a new modern playground in the downtown public park plan.",
+    "社區居民慶祝將一座新的現代化遊樂場納入市中心公共公園的計劃中。",
+    [
+      "community",
+      "celebrated",
+      "modern"
+    ]
+  ],
+  [
+    "exclusive",
+    "The television station successfully secured an __________ interview with the famous Hollywood director.",
+    "電視台成功取得了與那位著名好萊塢導演的**獨家（專屬）**專訪。",
+    [
+      "television",
+      "station",
+      "secured"
+    ]
+  ],
+  [
+    "interpretation",
+    "I am really not entirely sure if I completely agree with your unique __________ of the complex movie's main character.",
+    "我真的不完全確定我是否完全同意你對這部複雜電影主角的獨特詮釋。",
+    [
+      "entirely",
+      "agree",
+      "unique"
+    ]
+  ],
+  [
+    "interpreter",
+    "The talented professional __________ flawlessly translated the foreign president's rapid speech for the massive audience watching completely live on television.",
+    "才華洋溢的專業口譯員，完美無瑕地為完全在電視上觀看直播的廣大觀眾翻譯了外國總統快速的演講。",
+    [
+      "talented",
+      "professional",
+      "flawlessly"
+    ]
+  ],
+  [
+    "interpret",
+    "Since the foreign ambassador did not speak Japanese, Chloe was hired to __________ for him during the official press conference.",
+    "由於外國大使不會說日語，克洛伊被雇用在官方記者會期間為他進行口譯。",
+    [
+      "since",
+      "foreign",
+      "ambassador"
+    ]
+  ],
+  [
+    "interpret__2",
+    "Different critics may __________ the abstract painting in various ways, finding hidden messages that others miss.",
+    "不同的評論家可能會以各種方式**詮釋（解釋）**這幅抽象畫，發現其他人忽略的隱含訊息。",
+    [
+      "different",
+      "critics",
+      "abstract"
+    ]
+  ],
+  [
+    "interpreter__2",
+    "Working as a conference ___________ requires not only excellent language skills but also the ability to think quickly under pressure.",
+    "擔任會議口譯員不僅需要出色的語言能力，還需要具備在壓力下快速思考的能力。",
+    [
+      "working",
+      "conference",
+      "requires"
+    ]
+  ],
+  [
+    "translate ... into",
+    "It took the software engineers several months to __________ the entire user manual __________ Spanish and German.",
+    "軟體工程師們花了幾個月的時間才把整本使用手冊翻譯成西班牙文和德文。",
+    [
+      "software",
+      "engineers",
+      "several"
+    ]
+  ],
+  [
+    "translation",
+    "The classic British novel has been published in ___________ in over fifty different countries around the world.",
+    "這部經典的英國小說已經在世界上五十多個不同的國家出版了翻譯（譯本）。",
+    [
+      "classic",
+      "british",
+      "novel"
+    ]
+  ],
+  [
+    "offense",
+    "She truly didn't mean to cause any __________, but her incredibly blunt words were always deeply upsetting sensitive people around her.",
+    "她真的無意造成任何冒犯，但她極其直率的言詞總是深深激怒周圍敏感的人。",
+    [
+      "truly",
+      "didn't",
+      "cause"
+    ]
+  ],
+  [
+    "offensive",
+    "The extremely inappropriate and __________ joke that the foolish comedian told completely ruined the pleasant atmosphere of the formal dinner.",
+    "那位愚蠢的喜劇演員說的極度不適當且冒犯的笑話，徹底毀了正式晚宴愉快的氣氛。",
+    [
+      "extremely",
+      "inappropriate",
+      "foolish"
+    ]
+  ],
+  [
+    "offend",
+    "I really didn't mean to __________ Marcus with my joke; I was just trying to be funny, but it hurt his feelings.",
+    "我真的不是故意要用我的笑話**冒犯（得罪）**馬庫斯的；我只是想幽默一下，但卻傷到了他的感情。",
+    [
+      "didn't",
+      "marcus",
+      "trying"
+    ]
+  ],
+  [
+    "offensive__2",
+    "The company immediately removed the controversial advertisement because many viewers found it highly __________.",
+    "該公司立刻撤下了這則具爭議性的廣告，因為許多觀眾覺得它非常具有冒犯性（無禮的）。",
+    [
+      "company",
+      "immediately",
+      "removed"
+    ]
+  ],
+  [
+    "defend",
+    "The brave soldiers fought hard to __________ their country against the invading forces during the war.",
+    "戰爭期間，勇敢的士兵們努力戰鬥以**保衛（防禦）**他們的國家免受入侵部隊的侵害。",
+    [
+      "brave",
+      "soldiers",
+      "fought"
+    ]
+  ],
+  [
+    "defense",
+    "Vitamin C plays an important role in strengthening the body's natural __________ against common colds.",
+    "維他命 C 在增強身體對抗普通感冒的天然防禦能力中扮演著重要角色。",
+    [
+      "vitamin",
+      "plays",
+      "important"
+    ]
+  ],
+  [
+    "defensive",
+    "When the manager asked Chloe about the project's delay, she became __________ and started blaming her teammates.",
+    "當經理詢問克洛伊關於專案延誤的事時，她變得**非常有戒心（採取防衛姿態）**並開始指責她的隊友。",
+    [
+      "manager",
+      "asked",
+      "chloe"
+    ]
+  ],
+  [
+    "coarse",
+    "The unruly students were severely punished by the strict principal for their completely __________ behavior in the quiet school classroom.",
+    "不守規矩的學生因為在安靜的學校教室裡完全粗俗的行為，受到了嚴格校長的嚴厲懲罰。",
+    [
+      "unruly",
+      "students",
+      "severely"
+    ]
+  ],
+  [
+    "coarsely",
+    "The hardworking chef quickly and __________ chopped the fresh organic vegetables before heavily throwing them into the boiling hot soup.",
+    "辛勤工作的廚師迅速且粗糙地切碎新鮮的有機蔬菜，然後重重地將它們扔進沸騰的熱湯中。",
+    [
+      "hardworking",
+      "quickly",
+      "chopped"
+    ]
+  ],
+  [
+    "political",
+    "The confident president clearly clarified his strong position on complex __________ reform during his highly anticipated live televised speech.",
+    "充滿自信的總統在備受期待的電視直播演講中，清楚闡明了他在複雜政治的改革上的堅定立場。",
+    [
+      "confident",
+      "president",
+      "clearly"
+    ]
+  ],
+  [
+    "politician",
+    "The incredibly charismatic young __________ successfully convinced thousands of energetic local voters to strongly support his brilliant new campaign.",
+    "這位極具魅力的年輕政治人物成功說服了數千名充滿活力的當地選民強烈支持他出色的新競選活動。",
+    [
+      "incredibly",
+      "charismatic",
+      "young"
+    ]
+  ],
+  [
+    "politics",
+    "Marcus decided to study __________ at university because he wanted to understand how laws and governments affect society.",
+    "馬庫斯決定在大學學習政治（政治學），因為他想了解法律和政府是如何影響社會的。",
+    [
+      "marcus",
+      "decided",
+      "study"
+    ]
+  ],
+  [
+    "political__2",
+    "The two major __________ parties held a series of public debates to discuss the new economic reforms before the election.",
+    "這兩個主要的政治政黨在選舉前舉行了一系列的公開辯論，以討論新的經濟改革。",
+    [
+      "major",
+      "parties",
+      "series"
+    ]
+  ],
+  [
+    "politician__2",
+    "Every __________ must listen carefully to the needs of the local citizens in order to win their votes during the upcoming election.",
+    "每位**政治人物（政客）**都必須仔細傾聽當地公民的需求，以便在即將到來的選舉中贏得他們的選票。",
+    [
+      "every",
+      "listen",
+      "carefully"
+    ]
+  ],
+  [
+    "political figure",
+    "The president is a prominent __________ __________ who represents the nation both domestically and at international summits.",
+    "總統是一位著名的重要政治人物（政治要員），在國內及國際峰會上都代表著國家。",
+    [
+      "president",
+      "prominent",
+      "represents"
+    ]
+  ],
+  [
+    "physically-challenged",
+    "The new museum installed modern ramps and wide elevators to ensure that __________-__________ visitors can access every exhibition floor.",
+    "這座新博物館安裝了現代化的坡道和寬敞的電梯，以確保**肢體障礙的（身體有障礙的）**訪客可以到達每個展覽樓層。",
+    [
+      "museum",
+      "installed",
+      "modern"
+    ]
+  ],
+  [
+    "disabled",
+    "The government provides special parking spaces near the entrance of public buildings for __________ citizens with valid permits.",
+    "政府在公共建築物入口附近為持有有效許可證的**有身心障礙的（殘疾的）**公民提供專用停車位。",
+    [
+      "government",
+      "provides",
+      "special"
+    ]
+  ],
+  [
+    "handicapped",
+    "Andy is thoughtfully installing a smooth concrete ramp so that __________ customers can easily and safely access his new shop.",
+    "安迪正體貼地安裝一個平滑的混凝土坡道，以便**殘疾的（有生理缺陷的）**顧客能輕鬆安全地進入他的新商店。",
+    [
+      "thoughtfully",
+      "installing",
+      "smooth"
+    ]
+  ],
+  [
+    "aspect",
+    "Clearly communicating with angry customers is undoubtedly an incredibly important __________ of a successful retail salesperson's difficult daily job.",
+    "與憤怒的顧客清晰溝通，無疑是成功的零售業務員艱難日常工作中一個極其重要的方面。",
+    [
+      "clearly",
+      "communicating",
+      "angry"
+    ]
+  ],
+  [
+    "in many aspects",
+    "Although the two smartphones look very similar from the outside, they are completely different __________ __________ __________ when it comes to performance.",
+    "雖然這兩款智慧型手機從外觀上看起來非常相似，但在效能方面，它們在許多方面都完全不同。",
+    [
+      "although",
+      "smartphones",
+      "similar"
+    ]
+  ],
+  [
+    "perspective",
+    "Traveling alone in a foreign country for a year helped Marcus gain a completely new ___________ on life and career choices.",
+    "隻身在外國旅行一年幫助馬庫斯獲得了對生活和職業選擇的全新觀點（看法）。",
+    [
+      "traveling",
+      "alone",
+      "foreign"
+    ]
+  ],
+  [
+    "as far as i am concerned",
+    "__________ __________ __________ __________ __________ __________, the new company policy about working from home is the best decision the management has made this year.",
+    "就我而言（在我看來），公司關於居家辦公的新政策是管理階層今年做出的最佳決定。",
+    [
+      "company",
+      "policy",
+      "working"
+    ]
+  ],
+  [
+    "in my opinion",
+    "__________ __________ __________, learning how to manage your time effectively is far more important than just memorizing facts for a test.",
+    "依我之見（在我看來），學習如何有效管理時間遠比只為考試死記硬背知識重要得多。",
+    [
+      "learning",
+      "manage",
+      "effectively"
+    ]
+  ],
+  [
+    "nasty",
+    "Veronica's highly __________ and arrogant attitude usually made her incredibly patient teacher feel quite upset and deeply frustrated everyday.",
+    "維羅妮卡高度惡劣的且傲慢的態度，通常讓她極具耐心的老師每天都感到相當難過和深深的挫折。",
+    [
+      "veronica's",
+      "highly",
+      "arrogant"
+    ]
+  ],
+  [
+    "mock",
+    "Jan's cruel classmates maliciously __________ her brand new hairstyle, loudly saying that it looked incredibly strange and completely silly.",
+    "珍殘酷的同學惡意地嘲笑她全新的髮型，大聲說它看起來極其奇怪且完全愚蠢。",
+    [
+      "jan's",
+      "cruel",
+      "classmates"
+    ]
+  ],
+  [
+    "mockery",
+    "The arrogant manager made an absolute __________ of the junior employee's brilliant presentation, making everyone in the room incredibly uncomfortable.",
+    "傲慢的經理對初階員工出色的簡報進行了絕對的嘲笑，讓房間裡的每個人都極度不舒服。",
+    [
+      "arrogant",
+      "manager",
+      "absolute"
+    ]
+  ],
+  [
+    "racial",
+    "The progressive new government officially guaranteed absolute __________ equality for all diverse citizens living in the massive modern country.",
+    "進步的新政府正式保證，為生活在這個龐大現代國家中所有多元公民提供絕對的種族的平等。",
+    [
+      "progressive",
+      "government",
+      "officially"
+    ]
+  ],
+  [
+    "racial discrimination",
+    "The historic passage of the famous Civil Rights Act in 1964 officially made cruel __________ __________ completely illegal in the US.",
+    "1964年著名民權法案的歷史性通過，正式使殘酷的種族歧視在美國完全非法。",
+    [
+      "historic",
+      "passage",
+      "famous"
+    ]
+  ],
+  [
+    "insult",
+    "Sam is highly sensitive and often mistakenly takes people's constructive feedback as a deeply personal and incredibly cruel __________.",
+    "山姆高度敏感，經常錯誤地將人們建設性的回饋當作深深的個人且極其殘酷的侮辱。",
+    [
+      "highly",
+      "sensitive",
+      "often"
+    ]
+  ],
+  [
+    "insulting",
+    "The customer's __________ remarks about the waiter's accent caused everyone in the restaurant to turn around in shock.",
+    "那位顧客對服務生口音的**侮辱性（無禮的）**言論，讓餐廳裡的所有人都不禁震驚地轉過頭來看。",
+    [
+      "customer's",
+      "remarks",
+      "waiter's"
+    ]
+  ],
+  [
+    "publish",
+    "After working on her fantasy novel for over three years, Chloe finally found a company willing to __________ it.",
+    "在花了三年多創作她的奇幻小說後，克洛伊終於找到了一家願意出版它的公司。",
+    [
+      "working",
+      "fantasy",
+      "novel"
+    ]
+  ],
+  [
+    "publisher",
+    "The famous __________ announced that they would release a special illustrated edition of the classic novel this winter.",
+    "那家著名的**出版商（出版社）**宣布，他們將在今年冬天發行這部經典小說的特別插畫版。",
+    [
+      "famous",
+      "announced",
+      "release"
+    ]
+  ],
+  [
+    "add insult to injury",
+    "Jean's mean boss gave her much more difficult work to do, and to __________ __________ __________ __________, he significantly lowered her salary.",
+    "珍刻薄的老闆給了她更困難的工作，而且雪上加霜的是，他大幅降低了她的薪水。",
+    [
+      "jean's",
+      "difficult",
+      "significantly"
+    ]
+  ],
+  [
+    "chairman",
+    "The authoritative __________ officially began the highly important business meeting by warmly welcoming all the newly elected board members.",
+    "權威的主席正式開始了這場極其重要的商業會議，熱烈歡迎所有新當選的董事會成員。",
+    [
+      "authoritative",
+      "officially",
+      "began"
+    ]
+  ],
+  [
+    "genderless",
+    "Some progressive modern clothing stores have recently started to creatively introduce comfortable __________ clothing options for extremely young children.",
+    "一些進步的現代服飾店最近開始創造性地為極年輕的孩童推出舒適的無性別的服裝選擇。",
+    [
+      "progressive",
+      "modern",
+      "clothing"
+    ]
+  ],
+  [
+    "publication",
+    "Our highly successful magazine company reliably puts out two to three brilliant __________ every single month for our eager readers.",
+    "我們極其成功的雜誌公司，可靠地每個月為我們熱切的讀者發行兩到三份出色的出版物。",
+    [
+      "highly",
+      "successful",
+      "magazine"
+    ]
+  ],
+  [
+    "feminine",
+    "Many traditional fashion designers incorrectly say that light pink is naturally a very __________ color specifically reserved for beautiful dresses.",
+    "許多傳統的時裝設計師錯誤地說，淺粉紅色天生就是一種非常女性化的顏色，專門保留給美麗的洋裝。",
+    [
+      "traditional",
+      "fashion",
+      "designers"
+    ]
+  ],
+  [
+    "generation",
+    "Colin's large and deeply historic family has proudly lived in this quiet rural village for six entire __________ without ever leaving.",
+    "柯林龐大且歷史悠久的家族自豪地在這個安靜的鄉村村莊生活了整整六個世代，從未離開過。",
+    [
+      "colin's",
+      "large",
+      "deeply"
+    ]
+  ],
+  [
+    "from generation to generation",
+    "This beautiful ancient farm was proudly passed down __________ __________ __________ __________ in my large and deeply traditional family.",
+    "這座美麗的古老農場在我龐大且極其傳統的家庭中自豪地代代相傳。",
+    [
+      "beautiful",
+      "ancient",
+      "proudly"
+    ]
+  ],
+  [
+    "prior",
+    "We were unfortunately given absolutely no __________ notice that the highly important afternoon meeting time would be suddenly and completely changed.",
+    "我們不幸地完全沒有收到任何先前的通知，告知極其重要的下午會議時間將會突然且徹底地改變。",
+    [
+      "unfortunately",
+      "given",
+      "absolutely"
+    ]
+  ],
+  [
+    "prior__2",
+    "Marcus had to cancel his dinner plans with Chloe because of a __________ commitment at work that he couldn't skip.",
+    "馬庫斯因為工作上先前的約定而無法抽身，不得不取消與克洛伊的晚餐計劃。",
+    [
+      "marcus",
+      "cancel",
+      "dinner"
+    ]
+  ],
+  [
+    "prior work experience",
+    "The multinational company prefers to hire candidates who have at least three years of __________ __________ __________ in sales.",
+    "這家跨國公司更傾向於聘用在銷售方面擁有至少三年過往工作經驗的應徵者。",
+    [
+      "multinational",
+      "company",
+      "prefers"
+    ]
+  ],
+  [
+    "prior knowledge",
+    "The advanced physics professor assumed that all students in the class had some __________ __________ of basic calculus.",
+    "高階物理學教授假定課堂上的所有學生對基礎微積分都已經具備了一些先前知識（既有知識）。",
+    [
+      "advanced",
+      "physics",
+      "professor"
+    ]
+  ],
+  [
+    "prior to",
+    "The strict teacher firmly asked the anxious students if they had any final questions __________ __________ officially starting the difficult exam.",
+    "嚴格的老師堅定地問焦慮的學生在正式開始困難的考試之前是否還有任何最後的問題。",
+    [
+      "strict",
+      "teacher",
+      "firmly"
+    ]
+  ],
+  [
+    "majority",
+    "The vast __________ of ambitious high school students in this rich neighborhood usually start attending college right after they graduate.",
+    "這個富裕社區裡絕大多數雄心勃勃的高中生，通常在畢業後就立刻開始上大學。",
+    [
+      "ambitious",
+      "school",
+      "students"
+    ]
+  ],
+  [
+    "the majority of",
+    "__________ __________ __________ the students in this class prefer using digital tablets instead of traditional paper notebooks.",
+    "這個班級裡的大多數學生更喜歡使用數位平板，而不是傳統的紙質筆記本。",
+    [
+      "students",
+      "class",
+      "prefer"
+    ]
+  ],
+  [
+    "major in",
+    "Marcus decided to __________ __________ computer science because he wants to develop mobile applications in the future.",
+    "馬庫斯決定主修資訊工程，因為他未來想要開發手機應用程式。",
+    [
+      "marcus",
+      "decided",
+      "computer"
+    ]
+  ],
+  [
+    "major",
+    "Regular exercise and a balanced diet play a __________ role in maintaining good physical and mental health.",
+    "規律運動和均衡飲食在維持良好的身心健康中扮演著**主要的（重要的）**角色。",
+    [
+      "regular",
+      "exercise",
+      "balanced"
+    ]
+  ],
+  [
+    "minor in",
+    "While Chloe is a business major, she also chose to __________ __________ Japanese to expand her future career opportunities.",
+    "雖然克洛伊是商學主修，但她也選擇輔修日文，以拓展她未來的職涯機會。",
+    [
+      "chloe",
+      "business",
+      "major"
+    ]
+  ],
+  [
+    "minor",
+    "The car accident only caused some __________ scratches on the bumper, and luckily nobody was hurt.",
+    "這場車禍只在保險桿上造成了一些輕微的刮痕，幸運的是沒有人受傷。",
+    [
+      "accident",
+      "caused",
+      "scratches"
+    ]
+  ],
+  [
+    "minor__2",
+    "In many countries, a person under eighteen is legally considered a __________ and cannot buy cigarettes or alcohol.",
+    "在許多國家，未滿十八歲的人在法律上被視為未成年人，不能購買香菸或酒類。",
+    [
+      "countries",
+      "person",
+      "eighteen"
+    ]
+  ],
+  [
+    "minority",
+    "Marcus found himself in the __________ when he voted against the weekend overtime plan, as most of his colleagues agreed to it.",
+    "馬庫斯在投票反對週末加班計劃時發現自己屬於少數，因為他的大多數同事都同意了。",
+    [
+      "marcus",
+      "found",
+      "himself"
+    ]
+  ],
+  [
+    "minority group",
+    "The government is introducing new policies to protect the cultural rights and languages of every __________ __________ in the country.",
+    "政府正在推行新政策，以保護國內每個**少數族群（少數群體）**的文化權益與語言。",
+    [
+      "government",
+      "introducing",
+      "policies"
+    ]
+  ],
+  [
+    "commonplace",
+    "Serious technical problems with completely new computer technology tend to be extremely __________ during the very early development stages.",
+    "全新電腦科技的嚴重技術問題，在非常早期的發展階段往往是極度司空見慣的。",
+    [
+      "serious",
+      "technical",
+      "problems"
+    ]
+  ],
+  [
+    "elsewhere",
+    "The busy local store did not have the specific kitchen knife that I desperately wanted, so I had to look __________.",
+    "繁忙的當地商店沒有我極度想要的那把特定菜刀，所以我只好在別處尋找。",
+    [
+      "local",
+      "store",
+      "specific"
+    ]
+  ],
+  [
+    "scream",
+    "Whenever arrogant Brandon loudly brags about his minor accomplishments, it absolutely __________ deep insecurity to absolutely everyone around him.",
+    "每當傲慢的布蘭登大聲吹噓他微小的成就時，它絕對向周圍的每個人**尖叫（表現出）**深深的不安全感。",
+    [
+      "whenever",
+      "arrogant",
+      "brandon"
+    ]
+  ],
+  [
+    "permit",
+    "The school rules do not __________ students to use their mobile phones during formal examination hours.",
+    "學校規定不允許學生在正式考試時間使用手機。",
+    [
+      "school",
+      "rules",
+      "students"
+    ]
+  ],
+  [
+    "permit__2",
+    "You must apply for a special parking __________ before you can park your vehicle in this reserved downtown area.",
+    "在您將車輛停放在此市區保留區之前，您必須先申請特殊的停車許可證。",
+    [
+      "apply",
+      "special",
+      "parking"
+    ]
+  ],
+  [
+    "permission",
+    "Leo had to ask his manager for __________ to leave the office two hours early for a dental appointment.",
+    "里歐必須向他的經理請求允許（許可），好提早兩小時離開辦公室去牙醫診所看診。",
+    [
+      "manager",
+      "leave",
+      "office"
+    ]
+  ],
+  [
+    "request for permission",
+    "The social media software sent a __________ __________ __________ to access the user's photos before uploading the picture.",
+    "該社群軟體在確認上傳圖片之前，發送了存取使用者相簿的請求許可。",
+    [
+      "social",
+      "media",
+      "software"
+    ]
+  ],
+  [
+    "permissible",
+    "Wearing comfortable shorts in the hot summer is entirely __________ according to the modern company's progressive new dress code.",
+    "根據這家現代公司進步的新著裝規定，在炎熱的夏天穿著舒適的短褲是完全允許的。",
+    [
+      "wearing",
+      "comfortable",
+      "shorts"
+    ]
+  ],
+  [
+    "access",
+    "Users can __________ their online banking accounts securely from anywhere in the world using the mobile app.",
+    "使用者可以使用這款手機應用程式，從世界任何地方安全地**存取（讀取）**他們的網路銀行帳戶。",
+    [
+      "users",
+      "online",
+      "banking"
+    ]
+  ],
+  [
+    "access__2",
+    "The remote mountain village finally has __________ to clean drinking water and stable high-speed internet.",
+    "這個偏遠的山區村莊終於擁有了乾淨飲用水與穩定高速網路的使用管道（獲取機會）。",
+    [
+      "remote",
+      "mountain",
+      "village"
+    ]
+  ],
+  [
+    "gain access to",
+    "Hackers often use phishing emails to trick employees and __________ __________ __________ confidential company databases.",
+    "駭客經常利用網路釣魚郵件來欺騙員工，進而獲得公司機密資料庫的存取權。",
+    [
+      "hackers",
+      "often",
+      "phishing"
+    ]
+  ],
+  [
+    "authorize",
+    "The manager refused to __________ the extra budget because the marketing team did not provide a detailed report.",
+    "經理拒絕**批准（授權）**這筆額外預算，因為行銷團隊沒有提供詳細的報告。",
+    [
+      "manager",
+      "refused",
+      "extra"
+    ]
+  ],
+  [
+    "authorized",
+    "Only __________ personnel are allowed to enter the laboratory server room to ensure data security.",
+    "只有經授權的工作人員才被允許進入實驗室的伺服器室，以確保數據安全。",
+    [
+      "personnel",
+      "allowed",
+      "enter"
+    ]
+  ],
+  [
+    "unauthorized",
+    "The security system automatically blocks any ____________ attempts to log into the company's internal network.",
+    "安全系統會自動阻斷任何**未經授權的（未經許可的）**登入公司內部網路之企圖。",
+    [
+      "security",
+      "system",
+      "automatically"
+    ]
+  ],
+  [
+    "authority",
+    "The police officer has the legal __________ to stop drivers and check their licenses for safety reasons.",
+    "出於安全考量，警察擁有合法的**權力（職權）**來攔下駕駛人並檢查其駕照。",
+    [
+      "police",
+      "officer",
+      "legal"
+    ]
+  ],
+  [
+    "intend",
+    "I do not __________ to cause any trouble, so I will quietly leave before the argument gets worse.",
+    "我不打算製造任何麻煩，所以我會在爭吵惡化之前悄悄離開。",
+    [
+      "cause",
+      "trouble",
+      "quietly"
+    ]
+  ],
+  [
+    "intend to v",
+    "Marcus and Chloe __________ __________ travel to Japan next winter to enjoy the hot springs and local cuisine.",
+    "馬庫斯和克洛伊打算明年冬天去日本旅行，享受溫泉與當地美食。",
+    [
+      "marcus",
+      "chloe",
+      "travel"
+    ]
+  ],
+  [
+    "intention",
+    "Richard actually had absolutely no __________ of attending the boring holiday party, but his persistent friend strongly forced him to go.",
+    "理查實際上絕對沒有參加這個無聊節日派對的意圖，但他堅持不懈的朋友強烈強迫他去。",
+    [
+      "richard",
+      "actually",
+      "absolutely"
+    ]
+  ],
+  [
+    "intentional",
+    "The referee penalized the soccer player because his foul was clearly ___________ and aimed at hurting the opponent.",
+    "裁判處罰了那名足球員，因為他的犯規顯然是故意的，目的在於傷害對手。",
+    [
+      "referee",
+      "penalized",
+      "soccer"
+    ]
+  ],
+  [
+    "unintentional",
+    "Please forgive Marcus for spilling the tea; it was completely _____________ and he already cleaned up the table.",
+    "請原諒馬庫斯打翻茶水；這完全是無意的（不小心的），而且他已經把桌子清理乾淨了。",
+    [
+      "please",
+      "forgive",
+      "marcus"
+    ]
+  ],
+  [
+    "tend to v",
+    "People __________ __________ spend more money on online shopping when they feel highly stressed or bored.",
+    "當人們感到壓力大或非常無聊時，往往會在網購上花更多錢。",
+    [
+      "people",
+      "spend",
+      "money"
+    ]
+  ],
+  [
+    "tendency",
+    "There is a growing __________ among young professionals to prioritize remote work options over higher salaries.",
+    "在年輕的專業人士中，將遠距工作選項看得比高薪更重要的**趨勢（傾向）**正日益增長。",
+    [
+      "there",
+      "growing",
+      "among"
+    ]
+  ],
+  [
+    "have the tendency to v",
+    "Chloe __________ __________ __________ __________ check her business emails late at night, which sometimes affects her sleep.",
+    "克洛伊有在深夜檢查工作郵件的傾向，這有時會影響她的睡眠。",
+    [
+      "chloe",
+      "check",
+      "business"
+    ]
+  ],
+  [
+    "be likely to v",
+    "According to the weather forecast, it __________ __________ __________ rain heavily this afternoon, so you should bring an umbrella.",
+    "根據天氣預報，今天下午很有可能會下大雨，所以你應該帶把傘。",
+    [
+      "according",
+      "weather",
+      "forecast"
+    ]
+  ],
+  [
+    "be prone to ( nv-ing)",
+    "This old smartphone model __________ __________ __________ crashing when you try to run multiple advanced applications at the same time.",
+    "當你試圖同時執行多個高階應用程式時，這款舊手機機型**易於（往往會）**當機。",
+    [
+      "smartphone",
+      "model",
+      "crashing"
+    ]
+  ],
+  [
+    "be inclined to v",
+    "After reviewing the candidate's impressive prior work experience, the hiring manager __________ __________ __________ offer the position to Leo.",
+    "在審查了應徵者令人印象深刻的過往工作經驗後，招聘經理**傾向於（想要）**把這個職位給里歐。",
+    [
+      "reviewing",
+      "candidate's",
+      "impressive"
+    ]
+  ],
+  [
+    "noble",
+    "Tammy did a truly __________ and courageous thing when she bravely stopped the angry young boys' violent physical fight immediately.",
+    "當塔米立刻勇敢地阻止憤怒小男孩暴力的肢體衝突時，她做了一件真正高尚的且勇敢的事。",
+    [
+      "tammy",
+      "truly",
+      "courageous"
+    ]
+  ],
+  [
+    "nobility",
+    "In medieval Europe, the __________ owned most of the land and held great political power over the common people.",
+    "在中世紀的歐洲，**貴族（階層）**擁有大部分的土地，並對平民擁有巨大的政治權力。",
+    [
+      "medieval",
+      "europe",
+      "owned"
+    ]
+  ],
+  [
+    "the royal family",
+    "Millions of people watched the live television broadcast of the young prince's wedding to see __________ __________ __________.",
+    "數百萬人觀看了年輕王子婚禮的電視直播，一睹**王室（皇室）**風采。",
+    [
+      "millions",
+      "people",
+      "watched"
+    ]
+  ],
+  [
+    "royalty",
+    "Although she was treated like __________ wherever she traveled, the famous actress remained very humble and polite.",
+    "儘管不論走到哪裡都受到如同皇室成員般的款待，這位著名的女演員依然非常謙遜且有禮貌。",
+    [
+      "although",
+      "treated",
+      "wherever"
+    ]
+  ],
+  [
+    "loyal",
+    "Leo has been a __________ customer at this coffee shop for five years, visiting every single morning before work.",
+    "里歐五年來一直是這家咖啡廳的**忠實（忠誠）**顧客，每天早上上班前都會光顧。",
+    [
+      "customer",
+      "coffee",
+      "years"
+    ]
+  ],
+  [
+    "be loyal to",
+    "A well-trained guard dog will always __________ __________ __________ its owner and protect them from any potential danger.",
+    "一隻訓練有素的警衛犬會永遠忠於牠的主人，並保護他們免受任何潛在的危險。",
+    [
+      "well-trained",
+      "guard",
+      "always"
+    ]
+  ],
+  [
+    "discriminate",
+    "The large international company strictly cannot __________ against any potential employees simply on the unfair and completely illegal grounds of age.",
+    "這家大型國際公司嚴格不能僅僅基於不公平且完全非法的年齡理由，來歧視任何潛在的員工。",
+    [
+      "large",
+      "international",
+      "company"
+    ]
+  ],
+  [
+    "discriminate against",
+    "It is strictly illegal for employers to ___________ __________ job applicants based on their religious beliefs.",
+    "雇主根據求職者的宗教信仰而歧視他們，是完全違法的。",
+    [
+      "strictly",
+      "illegal",
+      "employers"
+    ]
+  ],
+  [
+    "discrimination",
+    "The international organization fights against all forms of ______________ to ensure everyone enjoys equal human rights.",
+    "該國際組織致力於對抗一切形式的歧視，以確保每個人都享有平等的權。",
+    [
+      "international",
+      "organization",
+      "fights"
+    ]
+  ],
+  [
+    "racial discrimination__2",
+    "The civil rights movement in the 1960s aimed to end __________ ______________ and guarantee equal voting rights.",
+    "1960 年代的民權運動旨在結束種族歧視，並保障平等的投票權。",
+    [
+      "civil",
+      "rights",
+      "movement"
+    ]
+  ],
+  [
+    "gender discrimination",
+    "To prevent __________ ______________, the company ensures that men and women receive equal pay for the same work.",
+    "為了防止性別歧視，公司確保男女在相同的工作中獲得同等的薪酬。",
+    [
+      "prevent",
+      "company",
+      "ensures"
+    ]
+  ],
+  [
+    "age discrimination",
+    "Refusing to hire an experienced worker simply because they are over fifty is a clear example of __________ ______________.",
+    "僅僅因為年過五十而拒絕雇用一位經驗豐富的員工，就是一個明顯的年齡歧視案例。",
+    [
+      "refusing",
+      "experienced",
+      "worker"
+    ]
+  ],
+  [
+    "prejudice",
+    "We must educate young children properly to prevent them from developing __________ against people from different cultures.",
+    "We must properly educate young children to prevent them from developing 偏見 against people from different cultures.",
+    [
+      "educate",
+      "young",
+      "children"
+    ]
+  ],
+  [
+    "stereotype",
+    "The belief that all scientists are quiet and unsocial is a common __________ that does not reflect reality.",
+    "認為所有科學家都沉默寡言且不社交的看法，是一種不符合現實的常見刻板印象。",
+    [
+      "belief",
+      "scientists",
+      "quiet"
+    ]
+  ],
+  [
+    "bias",
+    "The journalist was accused of __________ because her article only reported the views of one political party.",
+    "這名記者被指責帶有偏見（偏心），因為她的文章只報導了一個政黨的觀點。",
+    [
+      "journalist",
+      "accused",
+      "article"
+    ]
+  ],
+  [
+    "biased",
+    "The referee's __________ decisions during the championship game sparked an angry protest from the losing team.",
+    "裁判在冠軍賽中**有偏見的（偏袒的）**判決，引發了輸球隊伍的憤怒抗議。",
+    [
+      "referee's",
+      "decisions",
+      "championship"
+    ]
+  ],
+  [
+    "unbiased",
+    "A scientific study must remain completely __________ by analyzing raw data without any personal expectations.",
+    "科學研究必須藉由分析原始數據且不帶任何個人預期，以保持完全的公正（無偏見）。",
+    [
+      "scientific",
+      "study",
+      "remain"
+    ]
+  ],
+  [
+    "impartial",
+    "As a judge, it is Chloe's duty to remain __________ and listen to both sides of the legal case carefully.",
+    "作為一名法官，克洛伊的職責是保持中立（公平無私），並仔細聆聽法律案件雙方的陳述。",
+    [
+      "judge",
+      "chloe's",
+      "remain"
+    ]
+  ],
+  [
+    "just",
+    "The citizens demanded a __________ legal system where wealthy individuals cannot buy their way out of punishment.",
+    "公民們要求一個公正的法律體系，在其中富人無法透過金錢來逃避懲罰。",
+    [
+      "citizens",
+      "demanded",
+      "legal"
+    ]
+  ],
+  [
+    "justice",
+    "The community gathered outside the courthouse to demand __________ for the victim of the tragic accident.",
+    "社區居民聚集在法院外，為那場悲慘事故的受害者尋求正義（公道）。",
+    [
+      "community",
+      "gathered",
+      "outside"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Basic U16
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "collapse": new Set(["collapse__2", "collapse__3"]),
+  "collapse__2": new Set(["collapse", "collapse__3"]),
+  "colony collapse disorder": new Set([]),
+  "collapse__3": new Set(["collapse", "collapse__2"]),
+  "the economy collapses": new Set([]),
+  "a building collapses": new Set([]),
+  "someone collapses": new Set([]),
+  "inhabit": new Set([]),
+  "habitat": new Set([]),
+  "natural habitat": new Set([]),
+  "habitant": new Set([]),
+  "habitable": new Set([]),
+  "inhabitable": new Set([]),
+  "singular": new Set(["singular__2"]),
+  "singular__2": new Set(["singular"]),
+  "plural": new Set([]),
+  "except (for)": new Set([]),
+  "exception": new Set([]),
+  "no exception": new Set([]),
+  "exceptional": new Set([]),
+  "imaginative": new Set([]),
+  "imagination": new Set([]),
+  "imaginable": new Set([]),
+  "imaginary": new Set([]),
+  "mechanical": new Set([]),
+  "mechanism": new Set([]),
+  "mechanic": new Set([]),
+  "equip": new Set([]),
+  "be equipped with": new Set([]),
+  "equipment": new Set([]),
+  "wrap up": new Set([]),
+  "wrapping": new Set([]),
+  "unwrap": new Set([]),
+  "secure": new Set(["secure__2", "secure__3"]),
+  "secure__2": new Set(["secure", "secure__3"]),
+  "securely": new Set([]),
+  "security": new Set([]),
+  "safe": new Set(["safe__2"]),
+  "safety": new Set(["safety__2"]),
+  "safely": new Set(["safely__2"]),
+  "transport": new Set([]),
+  "transportation": new Set([]),
+  "secure__3": new Set(["secure", "secure__2"]),
+  "safe__2": new Set(["safe"]),
+  "safety__2": new Set(["safety"]),
+  "safely__2": new Set(["safely"]),
+  "lose (lose, lost, lost)": new Set([]),
+  "lost": new Set(["lost__2"]),
+  "get lost": new Set([]),
+  "lost__2": new Set(["lost"]),
+  "loose": new Set([]),
+  "on the loose": new Set([]),
+  "break loose": new Set([]),
+  "portion": new Set([]),
+  "proportion": new Set([]),
+  "proportionate": new Set([]),
+  "disproportionate": new Set([]),
+  "spill": new Set([]),
+  "spilled": new Set([]),
+  "count on": new Set([]),
+  "rely on": new Set([]),
+  "depend on": new Set(["dependable", "dependent on", "independent from"]),
+  "dependent on": new Set(["depend on", "dependable", "independent from"]),
+  "independent from": new Set(["depend on", "dependable", "dependent on"]),
+  "dependable": new Set(["depend on", "dependent on", "independent from"]),
+  "reliable": new Set([]),
+  "carrier": new Set([]),
+  "accurately": new Set([]),
+  "accuracy": new Set([]),
+  "rescue": new Set([]),
+  "come to one's rescue": new Set([]),
+  "artificial": new Set([]),
+  "artificial intelligence": new Set([]),
+  "artificial additive": new Set([]),
+  "artificial coloring": new Set([]),
+  "chemical": new Set(["chemical__2"]),
+  "chemical__2": new Set(["chemical"]),
+  "natural": new Set([]),
+  "replace ... with": new Set([]),
+  "replacement": new Set([]),
+  "substitute for": new Set([]),
+  "substitute": new Set([]),
+  "substitute teacher": new Set([]),
+  "morally": new Set([]),
+  "morality": new Set([]),
+  "moral standard": new Set([]),
+  "immoral": new Set([]),
+  "mortal": new Set([]),
+  "immortal": new Set([]),
+  "mortality": new Set([]),
+  "accept": new Set([]),
+  "acceptance": new Set([]),
+  "acceptable": new Set([]),
+  "unacceptable": new Set([]),
+  "inclusive": new Set([]),
+  "inclusive of": new Set([]),
+  "inclusion": new Set([]),
+  "exclusive": new Set([]),
+  "interpretation": new Set([]),
+  "interpreter": new Set(["interpreter__2"]),
+  "interpret": new Set(["interpret__2"]),
+  "interpret__2": new Set(["interpret"]),
+  "interpreter__2": new Set(["interpreter"]),
+  "translate ... into": new Set([]),
+  "translation": new Set([]),
+  "offense": new Set([]),
+  "offensive": new Set(["offensive__2"]),
+  "offend": new Set([]),
+  "offensive__2": new Set(["offensive"]),
+  "defend": new Set([]),
+  "defense": new Set([]),
+  "defensive": new Set([]),
+  "coarse": new Set([]),
+  "coarsely": new Set([]),
+  "political": new Set(["political__2"]),
+  "politician": new Set(["politician__2"]),
+  "politics": new Set([]),
+  "political__2": new Set(["political"]),
+  "politician__2": new Set(["politician"]),
+  "political figure": new Set([]),
+  "physically-challenged": new Set([]),
+  "disabled": new Set([]),
+  "handicapped": new Set([]),
+  "aspect": new Set([]),
+  "in many aspects": new Set([]),
+  "perspective": new Set([]),
+  "as far as i am concerned": new Set([]),
+  "in my opinion": new Set([]),
+  "nasty": new Set([]),
+  "mock": new Set([]),
+  "mockery": new Set([]),
+  "racial": new Set([]),
+  "racial discrimination": new Set(["racial discrimination__2"]),
+  "insult": new Set([]),
+  "insulting": new Set([]),
+  "publish": new Set([]),
+  "publisher": new Set([]),
+  "add insult to injury": new Set([]),
+  "chairman": new Set([]),
+  "genderless": new Set([]),
+  "publication": new Set([]),
+  "feminine": new Set([]),
+  "generation": new Set([]),
+  "from generation to generation": new Set([]),
+  "prior": new Set(["prior__2"]),
+  "prior__2": new Set(["prior"]),
+  "prior work experience": new Set([]),
+  "prior knowledge": new Set([]),
+  "prior to": new Set([]),
+  "majority": new Set([]),
+  "the majority of": new Set([]),
+  "major in": new Set([]),
+  "major": new Set([]),
+  "minor in": new Set([]),
+  "minor": new Set(["minor__2"]),
+  "minor__2": new Set(["minor"]),
+  "minority": new Set([]),
+  "minority group": new Set([]),
+  "commonplace": new Set([]),
+  "elsewhere": new Set([]),
+  "scream": new Set([]),
+  "permit": new Set(["permit__2"]),
+  "permit__2": new Set(["permit"]),
+  "permission": new Set([]),
+  "request for permission": new Set([]),
+  "permissible": new Set([]),
+  "access": new Set(["access__2"]),
+  "access__2": new Set(["access"]),
+  "gain access to": new Set([]),
+  "authorize": new Set([]),
+  "authorized": new Set([]),
+  "unauthorized": new Set([]),
+  "authority": new Set([]),
+  "intend": new Set([]),
+  "intend to v": new Set([]),
+  "intention": new Set([]),
+  "intentional": new Set([]),
+  "unintentional": new Set([]),
+  "tend to v": new Set([]),
+  "tendency": new Set([]),
+  "have the tendency to v": new Set([]),
+  "be likely to v": new Set([]),
+  "be prone to ( nv-ing)": new Set([]),
+  "be inclined to v": new Set([]),
+  "noble": new Set([]),
+  "nobility": new Set([]),
+  "the royal family": new Set([]),
+  "royalty": new Set([]),
+  "loyal": new Set([]),
+  "be loyal to": new Set([]),
+  "discriminate": new Set([]),
+  "discriminate against": new Set([]),
+  "discrimination": new Set([]),
+  "racial discrimination__2": new Set(["racial discrimination"]),
+  "gender discrimination": new Set([]),
+  "age discrimination": new Set([]),
+  "prejudice": new Set([]),
+  "stereotype": new Set([]),
+  "bias": new Set([]),
+  "biased": new Set([]),
+  "unbiased": new Set([]),
+  "impartial": new Set([]),
+  "just": new Set([]),
+  "justice": new Set([]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>

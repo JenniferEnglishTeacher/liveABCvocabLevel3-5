@@ -1,0 +1,3595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Basic U10 – LiveABC Vocab Quiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+/* ══════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════ */
+:root {
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', 'Segoe UI', sans-serif;
+  --font-zh: 'Noto Serif TC', serif;
+  --color-primary:       #1a3a5c;
+  --color-primary-light: #2a5080;
+  --color-accent:        #c8962e;
+  --color-accent-light:  #f0c060;
+  --color-correct:       #2d7a4f;
+  --color-correct-bg:    #e8f5ee;
+  --color-incorrect:     #b53a2f;
+  --color-incorrect-bg:  #fdecea;
+  --color-clue:          #fff3a3;
+  --color-surface:       #f5f3ef;
+  --color-card:          #ffffff;
+  --color-text:          #1c1c1c;
+  --color-muted:         #6b7280;
+  --color-border:        #ddd8d0;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-text);
+  min-height: 100vh;
+}
+
+/* ══════════════════════════════════
+   SPLASH / NAME SCREEN
+══════════════════════════════════ */
+#splashScreen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.25rem;
+  background: linear-gradient(160deg, #1a3a5c 0%, #0f2540 55%, #1a3a5c 100%);
+}
+.splash-logo {
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--color-accent-light);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 1.6rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.splash-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  text-align: center;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.splash-title em { color: var(--color-accent-light); font-style: italic; }
+.splash-sub {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.95rem;
+  text-align: center;
+  margin-bottom: 2.4rem;
+}
+.splash-card {
+  background: var(--color-card);
+  border-radius: 16px;
+  padding: 2.4rem 2.6rem;
+  width: 100%;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+}
+.field-label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 0.55rem;
+}
+.name-input {
+  width: 100%;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.8rem 1rem;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  outline: none;
+  margin-bottom: 1.6rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.name-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(26,58,92,0.12);
+}
+.name-input::placeholder { color: #bbb; }
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.6rem;
+}
+.slider-row .field-label { margin-bottom: 0; white-space: nowrap; }
+.q-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  height: 5px;
+  background: var(--color-border);
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+}
+.q-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid #fff;
+  box-shadow: 0 0 5px rgba(26,58,92,0.4);
+  cursor: pointer;
+}
+.slider-val {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary);
+}
+.start-btn {
+  width: 100%;
+  padding: 1rem;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.start-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+
+/* ══════════════════════════════════
+   STICKY HEADER
+══════════════════════════════════ */
+.site-header {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-md);
+}
+.header-logo {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.header-logo i { color: var(--color-accent-light); font-size: 1.1rem; }
+.score-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.score-badge span { color: var(--color-accent-light); font-weight: 700; font-size: 1rem; }
+
+/* ══════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════ */
+.app-container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ══════════════════════════════════
+   PROGRESS
+══════════════════════════════════ */
+.progress-section { margin-bottom: 24px; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+.progress-bar-track {
+  background: var(--color-border);
+  border-radius: 99px;
+  height: 6px;
+  overflow: hidden;
+}
+.progress-bar-fill {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-accent));
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ══════════════════════════════════
+   QUESTION CARD
+══════════════════════════════════ */
+.question-card {
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: slideUp 0.35s ease;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card-header {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: #fff;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.question-number {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+.tts-btn {
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: #fff;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.tts-btn:hover { background: rgba(255,255,255,0.28); }
+.tts-btn.speaking { background: rgba(200,150,46,0.55); }
+
+.card-body { padding: 24px 24px 20px; }
+
+/* ══════════════════════════════════
+   WORD HELPER (DICTIONARY)
+══════════════════════════════════ */
+.word-helper {
+  background: #fffbf0;
+  border: 1px solid var(--color-accent-light);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+.word-helper.active { display: block; }
+.helper-word {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 1rem;
+  margin-bottom: 3px;
+}
+.helper-word-text { flex: 1; }
+.helper-tts-btn {
+  background: var(--color-accent);
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  transition: background 0.18s, transform 0.12s;
+}
+.helper-tts-btn:hover { background: #a87825; transform: scale(1.1); }
+.helper-tts-btn.speaking { background: var(--color-primary); }
+.helper-pos { color: var(--color-muted); font-style: italic; font-size: 0.82rem; margin-bottom: 2px; }
+.helper-def { color: var(--color-text); }
+.helper-loader { color: var(--color-muted); font-style: italic; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ══════════════════════════════════
+   PASSAGE
+══════════════════════════════════ */
+.passage {
+  font-size: 1.04rem;
+  line-height: 1.85;
+  color: var(--color-text);
+  margin-bottom: 22px;
+  font-weight: 300;
+}
+.passage .word {
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(26,58,92,0.25);
+  transition: color 0.15s, background 0.15s, border-color 0.15s;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+.passage .word:hover {
+  color: var(--color-primary);
+  background: rgba(26,58,92,0.06);
+  border-bottom-color: var(--color-primary);
+}
+.passage .blank-word {
+  font-weight: 700;
+  font-family: var(--font-heading);
+  color: var(--color-primary);
+  letter-spacing: 0.05em;
+  border-bottom: 2.5px solid var(--color-accent);
+  cursor: default;
+  padding: 0 4px;
+}
+.passage .clue-highlight {
+  background: var(--color-clue);
+  border-radius: 3px;
+  padding: 1px 3px;
+  border-bottom: none !important;
+  transition: background 0.4s;
+}
+
+/* ══════════════════════════════════
+   POS BADGE
+══════════════════════════════════ */
+.pos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 12px;
+  margin-bottom: 14px;
+}
+.pos-badge .pos-val { color: var(--color-primary); }
+
+/* ══════════════════════════════════
+   CHINESE HINT
+══════════════════════════════════ */
+.zh-hint {
+  font-family: var(--font-zh);
+  font-size: 0.88rem;
+  color: var(--color-muted);
+  line-height: 1.7;
+  padding: 8px 12px;
+  background: rgba(106,76,147,0.06);
+  border-left: 3px solid rgba(106,76,147,0.3);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  margin-bottom: 20px;
+}
+
+/* ══════════════════════════════════
+   OPTIONS
+══════════════════════════════════ */
+.options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+@media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+
+.option-btn {
+  background: var(--color-surface);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-size: 0.93rem;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--color-text);
+  transition: border-color 0.2s, background 0.2s, transform 0.1s;
+}
+.option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  background: rgba(26,58,92,0.05);
+  transform: translateY(-1px);
+}
+.option-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.option-btn.correct {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+  color: var(--color-correct);
+}
+.option-btn.correct .option-label { background: var(--color-correct); }
+.option-btn.incorrect {
+  border-color: var(--color-incorrect);
+  background: var(--color-incorrect-bg);
+  color: var(--color-incorrect);
+}
+.option-btn.incorrect .option-label { background: var(--color-incorrect); }
+.option-btn:disabled { cursor: default; transform: none; }
+
+/* ══════════════════════════════════
+   FEEDBACK BOX
+══════════════════════════════════ */
+.feedback-box {
+  display: none;
+  border-top: 1px solid var(--color-border);
+  margin-top: 6px;
+  padding-top: 18px;
+  animation: fadeIn 0.3s ease;
+}
+.feedback-box.active { display: block; }
+.feedback-title {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feedback-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+@media (max-width: 500px) { .feedback-grid { grid-template-columns: 1fr; } }
+
+.feedback-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  font-size: 0.84rem;
+}
+.feedback-item.is-answer {
+  border-color: var(--color-correct);
+  background: var(--color-correct-bg);
+}
+.feedback-word {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-primary);
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.word-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
+.word-tts:hover { color: var(--color-primary); }
+.feedback-en { color: var(--color-text); margin-bottom: 3px; font-weight: 400; }
+.feedback-cn { color: #6a4c93; font-family: var(--font-zh); font-size: 0.84rem; margin-bottom: 6px; }
+.feedback-example {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  font-style: italic;
+  border-top: 1px solid var(--color-border);
+  padding-top: 6px;
+  margin-top: 4px;
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+.ex-tts {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  transition: color 0.2s;
+}
+.ex-tts:hover { color: var(--color-accent); }
+
+/* ══════════════════════════════════
+   NEXT BUTTON
+══════════════════════════════════ */
+.next-btn {
+  margin-top: 18px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px 28px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.1s;
+}
+.next-btn:hover { background: var(--color-primary-light); transform: translateY(-1px); }
+.next-btn.visible { display: flex; }
+
+/* ══════════════════════════════════
+   HINT TEXT
+══════════════════════════════════ */
+.hint-text {
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  text-align: center;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+/* ══════════════════════════════════
+   END / RESULTS SCREEN
+══════════════════════════════════ */
+.end-screen {
+  display: none;
+  background: var(--color-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+  padding: 48px 32px 40px;
+  text-align: center;
+  animation: slideUp 0.4s ease;
+}
+.end-screen.active { display: block; }
+.end-icon { font-size: 3rem; margin-bottom: 16px; }
+.end-title {
+  font-family: var(--font-heading);
+  font-size: 1.8rem;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+.end-name { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 4px; }
+.end-score-big {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: var(--color-accent);
+  line-height: 1;
+  margin: 18px 0 6px;
+}
+.end-score-label { color: var(--color-muted); font-size: 0.9rem; margin-bottom: 20px; }
+.end-stats {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 24px;
+}
+.end-stat { text-align: center; }
+.end-stat-num { font-size: 1.6rem; font-weight: 700; font-family: var(--font-heading); }
+.end-stat-num.green { color: var(--color-correct); }
+.end-stat-num.red   { color: var(--color-incorrect); }
+.end-stat-num.blue  { color: var(--color-primary); }
+.end-stat-lbl { font-size: 0.75rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+.end-review-section { text-align: left; margin-bottom: 20px; }
+.end-review-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  margin-bottom: 8px;
+}
+.word-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 4px 12px;
+  border-radius: 99px;
+  font-size: 0.82rem;
+}
+.chip-wrong  { background: #fdecea; color: var(--color-incorrect); border: 1px solid #f5c6c2; }
+.chip-lookup { background: #fffbf0; color: #7a5c00; border: 1px solid var(--color-accent-light); }
+
+.end-message    { font-size: 1rem; color: var(--color-text); margin-bottom: 6px; line-height: 1.6; }
+.end-message-cn { font-family: var(--font-zh); font-size: 0.95rem; color: #6a4c93; margin-bottom: 28px; }
+
+.submit-status {
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.88rem;
+  margin-bottom: 20px;
+  display: none;
+}
+.submit-status.show { display: block; }
+.status-sending { background: #e8f0fe; color: #1a56a8; }
+.status-ok      { background: var(--color-correct-bg); color: var(--color-correct); }
+.status-err     { background: var(--color-incorrect-bg); color: var(--color-incorrect); }
+
+.restart-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 14px 36px;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.restart-btn:hover { background: var(--color-primary-light); }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════
+     SPLASH SCREEN
+══════════════════════════════════ -->
+<div id="splashScreen">
+  <div class="splash-logo">
+    <i class="fas fa-book-open-reader"></i>
+    LiveABC Level 3–5 · Basic U10
+  </div>
+  <h1 class="splash-title">Vocabulary<br><em>Quiz</em></h1>
+  <p class="splash-sub">Fill-in-the-Blank &nbsp;·&nbsp; TTS &nbsp;·&nbsp; Online Dictionary</p>
+
+  <div class="splash-card">
+    <label class="field-label" for="nameInput">
+      <i class="fas fa-user" style="margin-right:4px"></i> Student Name 姓名
+    </label>
+    <input class="name-input" type="text" id="nameInput"
+           placeholder="Type your name / 請輸入姓名…" autocomplete="off">
+
+    <div id="totalCountDisplay" style="
+      text-align:center;
+      padding: 0.75rem 0;
+      margin-bottom: 1.4rem;
+      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      color: var(--color-muted);
+      border: 1px solid var(--color-border);
+    ">
+      <i class="fas fa-list-ol" style="color:var(--color-accent);margin-right:6px"></i>
+      All <strong id="poolCount" style="color:var(--color-primary)">0</strong> vocabulary entries will be tested
+      <br><span style="font-size:0.78rem;margin-top:3px;display:block">全部單字皆會出題，隨機排列</span>
+    </div>
+
+    <button class="start-btn" onclick="startQuiz()">
+      <i class="fas fa-play"></i> Start Quiz &nbsp;開始測驗
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     QUIZ SCREEN
+══════════════════════════════════ -->
+<div id="quizScreen" style="display:none">
+
+  <header class="site-header">
+    <div class="header-logo">
+      <i class="fas fa-book-open-reader"></i>
+      Basic U10 · LiveABC Vocabulary Quiz
+    </div>
+    <div class="score-badge">
+      <i class="fas fa-star" style="color:var(--color-accent-light)"></i>
+      Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">-</span>
+    </div>
+  </header>
+
+  <div class="app-container">
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="progressLabel">Question 1</span>
+        <span id="progressPercent">0%</span>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Question area -->
+    <div id="quizArea">
+      <div class="question-card" id="questionCard">
+        <div class="card-header">
+          <div class="question-number" id="qNumber">Question 1</div>
+          <button class="tts-btn" id="ttsBtn" onclick="speakPassage()">
+            <i class="fas fa-volume-high"></i> Listen
+          </button>
+        </div>
+        <div class="card-body">
+
+          <!-- Word Helper -->
+          <div class="word-helper" id="wordHelper">
+            <div class="helper-word" id="helperWord">
+              <span class="helper-word-text" id="helperWordText"></span>
+              <button class="helper-tts-btn" id="helperTtsBtn" title="Listen to pronunciation">
+                <i class="fas fa-volume-high"></i>
+              </button>
+            </div>
+            <div class="helper-pos"  id="helperPos"></div>
+            <div class="helper-def"  id="helperDef"></div>
+          </div>
+
+          <!-- POS badge + Passage -->
+          <div class="pos-badge" id="posBadge">
+            POS: <span class="pos-val" id="posVal"></span>
+          </div>
+          <div class="passage" id="passageText"></div>
+          <div class="zh-hint" id="zhHint"></div>
+
+          <!-- Options -->
+          <div class="options-grid" id="optionsGrid"></div>
+
+          <!-- Feedback -->
+          <div class="feedback-box" id="feedbackBox">
+            <div class="feedback-title">
+              <i class="fas fa-lightbulb"></i>&nbsp; Vocabulary Feedback — All Options
+            </div>
+            <div class="feedback-grid" id="feedbackGrid"></div>
+          </div>
+
+          <!-- Next button -->
+          <button class="next-btn" id="nextBtn" onclick="nextQuestion()">
+            Next Question <i class="fas fa-arrow-right"></i>
+          </button>
+
+        </div>
+      </div>
+      <div class="hint-text">
+        <i class="fas fa-hand-pointer"></i>
+        Click any word in the passage to look up its definition
+      </div>
+    </div>
+
+    <!-- End screen -->
+    <div class="end-screen" id="endScreen">
+      <div class="end-icon" id="endIcon">🎓</div>
+      <div class="end-title">Quiz Complete!</div>
+      <div class="end-name" id="endName"></div>
+      <div class="end-score-big" id="endScoreBig">--</div>
+      <div class="end-score-label" id="endScoreLabel"></div>
+
+      <div class="end-stats">
+        <div class="end-stat">
+          <div class="end-stat-num green" id="statCorrect">0</div>
+          <div class="end-stat-lbl">Correct</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num red" id="statWrong">0</div>
+          <div class="end-stat-lbl">Wrong</div>
+        </div>
+        <div class="end-stat">
+          <div class="end-stat-num blue" id="statLooked">0</div>
+          <div class="end-stat-lbl">Looked Up</div>
+        </div>
+      </div>
+
+      <div class="end-review-section" id="wrongSection">
+        <div class="end-review-title"><i class="fas fa-rotate-left"></i> &nbsp;Words to Review 需要複習</div>
+        <div class="word-chips" id="wrongChips"></div>
+      </div>
+
+      <div class="end-review-section" id="lookupSection">
+        <div class="end-review-title"><i class="fas fa-magnifying-glass"></i> &nbsp;Words You Looked Up 查詢的單字</div>
+        <div class="word-chips" id="lookupChips"></div>
+      </div>
+
+      <div class="end-message"    id="endMessage"></div>
+      <div class="end-message-cn" id="endMessageCn"></div>
+
+      <div class="submit-status" id="submitStatus"></div>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        <i class="fas fa-rotate-right"></i> Try Again &nbsp;再試一次
+      </button>
+    </div>
+
+  </div><!-- /app-container -->
+</div><!-- /quizScreen -->
+
+<script>
+// ══════════════════════════════════════════════════════
+//  CONFIG
+// ══════════════════════════════════════════════════════
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ══════════════════════════════════════════════════════
+//  VOCABULARY DEFINITIONS
+//  { en, cn, example, pos_category }
+//  pos_category: "adj" | "adv" | "n" | "v" | "phr"
+// ══════════════════════════════════════════════════════
+const DEFS = {
+  "therapy": {
+    "word": "therapy",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "treatment intended to relieve or heal a disorder.",
+    "cn": "治療；療法",
+    "ex": "Doris severely hurt her muscles while playing sports, so she needed intensive physical therapy to help heal them."
+  },
+  "physical therapy": {
+    "word": "physical therapy",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the treatment of disease, injury, or deformity by physical methods such as massage or exercise.",
+    "cn": "物理治療",
+    "ex": "After his serious car accident, the young man had to attend physical therapy twice a week for several months."
+  },
+  "ancient": {
+    "word": "ancient",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "belonging to the very distant past and no longer in existence.",
+    "cn": "古老的",
+    "ex": "The ambitious university professor was extremely excited when he discovered the ruined buildings of a magnificent ancient city."
+  },
+  "elderly": {
+    "word": "elderly",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "old or aging.",
+    "cn": "年長的",
+    "ex": "Tim is a very devoted son who makes sure to visit his elderly parents every single Sunday morning."
+  },
+  "the elderly": {
+    "word": "the elderly",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "old people considered as a group.",
+    "cn": "年長者（集合名詞）",
+    "ex": "The local government recently started a brand new social program specifically designed to care for the elderly in our community."
+  },
+  "aged": {
+    "word": "aged",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "having lived for a specified length of time; having grown old.",
+    "cn": "...歲的；年老的",
+    "ex": "Mike dutifully looks after his aged parents who can no longer comfortably take care of themselves at home."
+  },
+  "middle-aged": {
+    "word": "middle-aged",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Being in the period of life between youth and old age, typically from about 40 to 60 years old.",
+    "cn": "中年的",
+    "ex": "The middle-aged man decided to join a local marathon to stay healthy and energetic as he approached his fifties."
+  },
+  "middle class": {
+    "word": "middle class",
+    "pos": "(n. [C])",
+    "cat": "phr",
+    "en": "A social group between the rich and the poor, including professional and business people.",
+    "cn": "中產階級",
+    "ex": "Most families living in this suburban neighborhood belong to the middle class, earning a stable income and owning their homes."
+  },
+  "ageing  aging": {
+    "word": "ageing / aging",
+    "pos": "(adj.)",
+    "cat": "phr",
+    "en": "Becoming older, or showing signs of growing old.",
+    "cn": "變老的、高齡化的、老化的",
+    "ex": "The government is building more nursing homes to provide better medical care for the country's ageing population."
+  },
+  "ageing society": {
+    "word": "ageing society",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "A society where the average age of the population increases because of falling birth rates and longer life-spans.",
+    "cn": "高齡化社會",
+    "ex": "Taiwan has officially become an ageing society, which means there are fewer young workers to support the retired population."
+  },
+  "senior": {
+    "word": "senior",
+    "pos": "(n.) / (adj.)",
+    "cat": "adj",
+    "en": "an older person; of a more advanced age.",
+    "cn": "年長者；資深的",
+    "ex": "The local movie theater kindly offers much cheaper movie tickets to students and senior during the weekday afternoons."
+  },
+  "senior citizen": {
+    "word": "senior citizen",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "An older person, usually someone who has retired from work (often over 65).",
+    "cn": "老年人、銀髮族",
+    "ex": "Every senior citizen living in this city can take public transportation for free by showing their special identity card."
+  },
+  "is senior to": {
+    "word": "is senior to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "To have a higher rank, position, or status than someone else in an organization or company.",
+    "cn": "職位比…高、資歷比…深",
+    "ex": "Although Marcus is much younger than Kevin, he is senior to Kevin because he was promoted to manager last year."
+  },
+  "is junior to": {
+    "word": "is junior to",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "To have a lower rank, position, or status than someone else in an organization or company.",
+    "cn": "職位比…低、資歷比…淺",
+    "ex": "Since Chloe just joined the accounting department last week, she is junior to everyone else in terms of work experience."
+  },
+  "limit": {
+    "word": "limit",
+    "pos": "(v.) (n.)",
+    "cat": "n",
+    "en": "a point or level beyond which something does not or may not extend or pass.",
+    "cn": "限制；極限",
+    "ex": "If you genuinely want to lose some extra weight, you must set a limit of suger intake and strictly limit the amount of sweet food you eat."
+  },
+  "set a speed limit": {
+    "word": "set a speed limit",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to establish a legal maximum or minimum speed allowed for vehicles traveling on a specific road",
+    "cn": "設定速限",
+    "ex": "The city council decided to set a speed limit along the busy residential area to minimize traffic accidents and ensure pedestrian safety."
+  },
+  "limitation": {
+    "word": "limitation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a limiting rule or circumstance; a restriction.",
+    "cn": "限制；極限",
+    "ex": "His only noticeable limitation as a professional fashion model is that he is actually a little bit too short."
+  },
+  "strict limitation": {
+    "word": "strict limitation",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a severe or unyielding restriction.",
+    "cn": "嚴格的限制",
+    "ex": "Because of the terrible water shortage, the city council imposed a strict limitation on washing cars and watering gardens."
+  },
+  "restrict": {
+    "word": "restrict",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to put a limit on someone or something, or to keep something within strict legal boundaries",
+    "cn": "限制；限定（動詞）",
+    "ex": "The government decided to restrict civilian access to the military zone to protect top-secret scientific experiments."
+  },
+  "restriction": {
+    "word": "restriction",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an official rule, statute, or law that limits what people can do or how a total system operates",
+    "cn": "限制（名詞）",
+    "ex": "The prestigious law firm thoroughly evaluated the new trade restriction imposed on imported goods at the port."
+  },
+  "ban ...from": {
+    "word": "ban ...from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially or legally forbid someone from doing something, entering a place, or using a service",
+    "cn": "禁止...做...",
+    "ex": "The strict city council intends to ban private vehicles ...from entering the crowded commercial area during rush hours."
+  },
+  "lift the ban": {
+    "word": "lift the ban",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially remove or cancel a legal prohibition or restriction that was previously established",
+    "cn": "解除禁令",
+    "ex": "The president decided to lift the ban on foreign technology products after the trade agreement went smoothly."
+  },
+  "prohibit": {
+    "word": "prohibit",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to officially or legally forbid something by a law, rule, statue, or authoritative decree",
+    "cn": "禁止；不准（動詞）",
+    "ex": "New traffic regulations strictly prohibit the parking of any private vehicle along the narrow streets of the residential area."
+  },
+  "prohibit ...from": {
+    "word": "prohibit ...from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to formally prevent or legally stop an individual or group from doing a specific activity",
+    "cn": "禁止...做...",
+    "ex": "The strict company policy will prohibit unauthorized staff ...from gaining access to the secure database framework of the corporation."
+  },
+  "inhibit...from": {
+    "word": "inhibit...from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to prevent, slow down, or hinder someone or something from making progress or developing naturally",
+    "cn": "阻礙...做...；抑制...",
+    "ex": "Extreme winter weather will heavily inhibit...from the logistics workers inhibit...from delivering the express cargo to the harbor."
+  },
+  "inhibition": {
+    "word": "inhibition",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a feeling of embarrassment or worry that prevents you from saying or doing what you truly want",
+    "cn": "拘束；顧忌；壓抑",
+    "ex": "The student successfully overcame her initial inhibition and made an active attempt to state her opinion clearly."
+  },
+  "refrain from": {
+    "word": "refrain from",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to intentionally choose to stop oneself from doing something, especially an undesirable habit",
+    "cn": "克制不去做...；忍住...",
+    "ex": "All participants in the scientific experiment must refrain from smoking before the leading researcher begins the assessment."
+  },
+  "restraint": {
+    "word": "restraint",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "controlled behavior, self-control, or a legal/physical restriction that limits someone's freedom or actions",
+    "cn": "克制；抑制；約束（名詞）",
+    "ex": "The police officers exercised remarkable restraint when dealing with the highly aggressive protesters at the crime scene."
+  },
+  "exercise control": {
+    "word": "exercise control",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to actively direct, influence, or manage the behavior, operation, or development of something",
+    "cn": "施加控制；進行管理 (補充)",
+    "ex": "The central bank attempts to exercise strict control over the national currency to prevent sudden inflation in the market."
+  },
+  "exercise self-discipline": {
+    "word": "exercise self-discipline",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to systematically control one's own desires, emotions, and behaviors to achieve long-term goals",
+    "cn": "展現自律；實踐自我克制",
+    "ex": "The ambitious student needs to exercise self-discipline to study for the standardized exam instead of playing video games."
+  },
+  "exercise caution": {
+    "word": "exercise caution",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to be purposefully careful and alert in order to avoid potential danger, mistakes, or accidents",
+    "cn": "保持謹慎；格外小心",
+    "ex": "Drivers must exercise caution when navigating the narrow and slippery mountain roads during a severe winter storm."
+  },
+  "exercise patience": {
+    "word": "exercise patience",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to intentionally remain calm and controlled while waiting for something or dealing with difficulties",
+    "cn": "保持耐心",
+    "ex": "The leading researcher reminded his young assistants to exercise patience while waiting for the scientific data to compile."
+  },
+  "exercise the authority": {
+    "word": "exercise the authority",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially use legal power, command, or directional control over an organization or state",
+    "cn": "行使公權力；行使職權",
+    "ex": "The newly appointed military commander decided to exercise the authority to restrict civilian access to the critical crime scene."
+  },
+  "exercise civil rights": {
+    "word": "exercise civil rights",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to formally use or apply a legal prerogative, freedom, or privilege guaranteed by the law",
+    "cn": "行使公民權利",
+    "ex": "All citizens are heavily encouraged to exercise civil rights to vote in the upcoming presidential election and referendum next month."
+  },
+  "election": {
+    "word": "election",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a formal and organized choice by vote of a person for a political office or other position",
+    "cn": "選舉",
+    "ex": "The progressive political party urged every single citizen to exercise their legal right to vote in the upcoming presidential election."
+  },
+  "referendum": {
+    "word": "referendum",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a general vote by the electorate on a single political question which has been referred to them for a direct decision",
+    "cn": "公民投票；公投",
+    "ex": "The government decided to conduct a national referendum to let citizens directly determine whether to alter the existing tariff laws."
+  },
+  "practice a religious ritual": {
+    "word": "practice a religious ritual",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to systematically perform a traditional ceremony, custom, or service associated with a faith",
+    "cn": "履行宗教儀式",
+    "ex": "The local tribe gathered at the ancient temple to practice a religious ritual to pray for a bountiful autumn harvest."
+  },
+  "practice law": {
+    "word": "practice law",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially work as a professional lawyer or legal advisor within a specific legislative framework",
+    "cn": "執業（律師）；從事法律工作",
+    "ex": "After passing the rigorous bar exam, the progressive lawyer decided to practice law at a prestigious international law firm."
+  },
+  "practice medicine": {
+    "word": "practice medicine",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to officially work as a qualified medical doctor, treating patients and prescribing therapies",
+    "cn": "執業（醫生）；從事醫療工作",
+    "ex": "The skilled surgeon obtained her official license and began to practice medicine in a remote rural community that lacked facilities."
+  },
+  "perform a surgery": {
+    "word": "perform a surgery",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to systematically carry out a medical operation on a patient to treat a physical injury or illness",
+    "cn": "進行手術",
+    "ex": "The experienced chief surgeon will perform a surgery tomorrow morning to repair the patient's severely damaged mechanical heart."
+  },
+  "perform a duty": {
+    "word": "perform a duty",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to actively execute, fulfill, or carry out a moral obligation, legal responsibility, or assigned task",
+    "cn": "履行職責；執行任務",
+    "ex": "Every loyal police officer is fully expected to perform his a with complete integrity and protect local communities."
+  },
+  "perform an act of kindness": {
+    "word": "perform an act of kindness",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to intentionally do a helpful, generous, or considerate action for another individual without expecting reward",
+    "cn": "做出善行",
+    "ex": "Even a small gesture can make a significant difference when you perform an act of kindness for a complete stranger."
+  },
+  "conduct an experiment": {
+    "word": "conduct an experiment",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to systematically organize and carry out a scientific test or trial to discover or verify facts",
+    "cn": "進行實驗",
+    "ex": "The software engineering team plans to conduct an experiment to assess whether the new automated system operates smoothly."
+  },
+  "conduct a research project": {
+    "word": "conduct a research project",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to professionally organize, manage, and execute a systematic academic investigation or deep study",
+    "cn": "主導研究計畫",
+    "ex": "The leading university received a massive government grant to conduct a research project on endangered wild animal species."
+  },
+  "conduct a survey": {
+    "word": "conduct a survey",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to systematically gather specific opinions, data, or facts from a targeted group of participants",
+    "cn": "進行調查",
+    "ex": "The marketing firm decided to conduct a survey to evaluate consumer satisfaction regarding the new portable devices."
+  },
+  "conduct an interview": {
+    "word": "conduct an interview",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to formally host, guide, and ask questions during a structured meeting with a prospective candidate",
+    "cn": "舉辦面試",
+    "ex": "The human resources department will conduct an interview tomorrow to assess the applicant's mechanical engineering skills."
+  },
+  "conduct an orchestra": {
+    "word": "conduct an orchestra",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to actively direct and coordinate the performance of a large musical group using hand gestures or a baton",
+    "cn": "指揮交響樂團",
+    "ex": "The world-renowned musician was invited to conduct an orchestra during the international charity concert next weekend."
+  },
+  "conduct heat": {
+    "word": "conduct heat",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to efficiently transmit thermal energy or warmth directly through a specific material or substance",
+    "cn": "傳導熱",
+    "ex": "Copper and aluminum are highly valued in manufacturing because they can conduct heat much faster than plastic materials."
+  },
+  "conduct electricity": {
+    "word": "conduct electricity",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to efficiently allow an electrical current or energy flow to pass smoothly through a physical substance",
+    "cn": "導電",
+    "ex": "Pure water itself is a poor conductor, but dissolved minerals allow the liquid to conduct electricity very efficiently."
+  },
+  "hold a ceremony": {
+    "word": "hold a ceremony",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to formally organize and conduct a traditional, official, or ritualistic public event",
+    "cn": "舉行儀式；舉辦典禮",
+    "ex": "The indigenous tribe gathered near the ancient harbor to hold a ceremony to pray for a bountiful and safe fishing season."
+  },
+  "throw a party": {
+    "word": "throw a party",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to informally organize, host, and fund a celebratory social gathering for friends or colleagues",
+    "cn": "舉辦派對；辦宴會",
+    "ex": "The ambitious entrepreneur decided to throw a party to celebrate the international corporation's successful business expansion."
+  },
+  "notice": {
+    "word": "notice",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to become aware of; the fact of observing or paying attention to something.",
+    "cn": "注意（到）",
+    "ex": "Did you happen to notice that Sarah was wearing a completely different dress when she returned from the bathroom?"
+  },
+  "notice__2": {
+    "word": "notice",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "A written or printed announcement or warning displayed for everyone to see.",
+    "cn": "公告、通知、啟事",
+    "ex": "The school principal put up a large notice next to the main entrance to inform students that the annual sports day has been postponed."
+  },
+  "noticeable": {
+    "word": "noticeable",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "easily seen or noticed; clear or apparent.",
+    "cn": "明顯的；引人注目的",
+    "ex": "After he finally left his stressful home environment, there was a highly noticeable change in his overall daily attitude."
+  },
+  "bulletin": {
+    "word": "bulletin",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "A short official statement or news report about an important matter of public interest.",
+    "cn": "（官方的）簡報、公告、新聞快報",
+    "ex": "The hospital issued a regular medical bulletin regarding the president's health condition to keep the anxious public informed."
+  },
+  "bulletin board": {
+    "word": "bulletin board",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "A board on a wall where people can pin notices, advertisements, or messages.",
+    "cn": "佈告欄、公告欄",
+    "ex": "Students frequently check the bulletin board in the hallway to see the latest updates about club activities and school events."
+  },
+  "apparent": {
+    "word": "apparent",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "clearly visible or understood; obvious.",
+    "cn": "明顯的；顯而易見的",
+    "ex": "It was quite apparent to everyone in the room that the nervous man was lying about his true identity."
+  },
+  "obvious": {
+    "word": "obvious",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Easy to see, recognize, or understand.",
+    "cn": "明顯的、顯而易見的",
+    "ex": "It was obvious to everyone in the room that Leo was nervous, because his hands were shaking violently during the presentation."
+  },
+  "ambiguous": {
+    "word": "ambiguous",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "open to more than one interpretation; having a double meaning.",
+    "cn": "模稜兩可的",
+    "ex": "The politician's completely ambiguous answer to the journalist's serious question left the entire audience feeling extremely confused and frustrated."
+  },
+  "vague": {
+    "word": "vague",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not clear, definite, or specific in thought, expression, or details.",
+    "cn": "模糊的、含糊的、不明確的",
+    "ex": "The detective found the witness's description of the suspect very vague, as she could only remember that he was wearing a dark jacket."
+  },
+  "blurry": {
+    "word": "blurry",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Not clear or sharp, especially when referring to images, photos, or vision.",
+    "cn": "模糊的、（影像）不清晰的",
+    "ex": "Because Chloe accidentally moved her hand while clicking the shutter, the photo she took of the beautiful sunset turned out completely blurry."
+  },
+  "abstract": {
+    "word": "abstract",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "Existing as an idea, feeling, or quality rather than a physical or material object.",
+    "cn": "抽象的",
+    "ex": "Truth and justice are abstract concepts that can be difficult for young children to understand, as they usually prefer concrete examples they can see."
+  },
+  "facility": {
+    "word": "facility",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "space or equipment necessary for doing something.",
+    "cn": "設施；機構",
+    "ex": "When the man suddenly collapsed on the street, the ambulance rushed him directly to a nearby medical facility."
+  },
+  "medical facility": {
+    "word": "medical facility",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a place where healthcare is provided.",
+    "cn": "醫療機構",
+    "ex": "In rural areas, it can sometimes take hours to drive a sick patient to the nearest fully equipped medical facility."
+  },
+  "facilitate": {
+    "word": "facilitate",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make an action or process easy or easier.",
+    "cn": "促進；使便利",
+    "ex": "The new interactive teaching software is specifically designed to deeply facilitate faster and more effective learning for young children."
+  },
+  "wheelchair": {
+    "word": "wheelchair",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a chair fitted with wheels for use as a means of transport by a person who is unable to walk.",
+    "cn": "輪椅",
+    "ex": "The poor old man unfortunately can't walk anymore and desperately needs a wheelchair just to get around his house."
+  },
+  "wheelchair bound": {
+    "word": "wheelchair bound",
+    "pos": "(adj.)",
+    "cat": "phr",
+    "en": "unable to walk and thus forced to use a wheelchair.",
+    "cn": "必須坐輪椅的",
+    "ex": "Despite being entirely wheelchair bound for most of his adult life, the inspiring man managed to write three brilliant books."
+  },
+  "motorized wheelchair": {
+    "word": "motorized wheelchair",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a wheelchair propelled by an electric motor.",
+    "cn": "電動輪椅",
+    "ex": "Thanks to his highly advanced motorized wheelchair, the disabled veteran can easily navigate the busy city streets completely by himself."
+  },
+  "interaction": {
+    "word": "interaction",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "reciprocal action or influence; communication.",
+    "cn": "互動",
+    "ex": "Because Carol doesn't have any classes with Sam, they unfortunately don't have much personal interaction during the long school day."
+  },
+  "interact with": {
+    "word": "interact with",
+    "pos": "(v.)",
+    "cat": "phr",
+    "en": "to act in such a way as to have an effect on another; to communicate.",
+    "cn": "互動；交流",
+    "ex": "The friendly kindergarten teacher always strongly encourages her shy students to confidently interact with each other during outdoor playtime."
+  },
+  "interactive": {
+    "word": "interactive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "allowing a two-way flow of information between a computer and a computer-user; responding to a user's input.",
+    "cn": "互動式的",
+    "ex": "The fascinating science museum features many brilliant interactive exhibits that brilliantly allow children to physically test out physics principles."
+  },
+  "social interaction": {
+    "word": "social interaction",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "the process of acting and reacting to the people around us.",
+    "cn": "社交互動",
+    "ex": "Maintaining regular and positive social interaction is incredibly important for preserving an elderly person's mental health and overall happiness."
+  },
+  "magical": {
+    "word": "magical",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "relating to, using, or resembling magic.",
+    "cn": "魔法的；神奇的",
+    "ex": "The beautifully decorated theme park creates a truly magical experience for young children visiting it for the very first time."
+  },
+  "magically": {
+    "word": "magically",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "by or as if by magic.",
+    "cn": "如魔法般地；神奇地",
+    "ex": "During the impressive performance, the floating cup appeared to magically hover completely unsupported right above the wooden wooden desk."
+  },
+  "miracle": {
+    "word": "miracle",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "an extraordinary and welcome event that is not explicable by natural or scientific laws and is considered to be the work of a divine agency",
+    "cn": "奇蹟",
+    "ex": "The chief surgeon stated that it was a complete miracle that the patient survived such a severe heart failure during the operation."
+  },
+  "miraculous": {
+    "word": "miraculous",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "occurring through divine or extraordinary intervention; highly improbable and extraordinarily wonderful",
+    "cn": "奇蹟般的；不可思議的",
+    "ex": "The injured athlete made a miraculous recovery just a few weeks before the highly anticipated international programming tournament."
+  },
+  "miraculously": {
+    "word": "miraculously",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a way that resembles or suggests a miracle; extraordinarily, unexpectedly, or completely by chance",
+    "cn": "奇蹟般地",
+    "ex": "Despite driving through a severe winter storm on the narrow mountain road, the entire family miraculously arrived home safely without any accidents."
+  },
+  "appear magically": {
+    "word": "appear magically",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to suddenly show up as if brought by magic.",
+    "cn": "神奇地出現",
+    "ex": "Just when we desperately needed a taxi in the pouring rain, one seemed to appear magically right at the corner."
+  },
+  "transform": {
+    "word": "transform",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to make a thorough or dramatic change in the form, appearance, or character of.",
+    "cn": "改變；改造",
+    "ex": "Buying that expensive new modern furniture completely transform their dark and boring living room into a bright, stylish space."
+  },
+  "transform a into b": {
+    "word": "transform A into B",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to completely change one thing into another.",
+    "cn": "把A變成B",
+    "ex": "The ambitious city government officially plans to successfully transform the abandoned old factory buildings A a beautiful large shopping complex."
+  },
+  "transformation": {
+    "word": "transformation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a thorough or dramatic change in form or appearance.",
+    "cn": "轉變；變形",
+    "ex": "The butterfly's miraculous physical transformation from a tiny, creeping caterpillar is widely considered one of nature's most beautiful processes."
+  },
+  "convert": {
+    "word": "convert",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to cause to change in form, character, or function.",
+    "cn": "轉換；改變",
+    "ex": "The wealthy businessman decided to expensively convert his massive basement into a fully equipped private cinema for his family."
+  },
+  "relax": {
+    "word": "relax",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to rest from work or engage in an enjoyable activity so as to become less tired or anxious.",
+    "cn": "放鬆",
+    "ex": "After successfully finishing his incredibly difficult final exams, Ian finally had the opportunity to just sit down and relax."
+  },
+  "relaxation": {
+    "word": "relaxation",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state of being free from tension and anxiety.",
+    "cn": "放鬆；消遣",
+    "ex": "Exhausted Sasha firmly told me that she specifically wants her upcoming summer vacation to be entirely about rest and relaxation."
+  },
+  "relaxed": {
+    "word": "relaxed",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "free from tension and anxiety; at ease.",
+    "cn": "放鬆的；從容的",
+    "ex": "The manager's calm and highly relaxed leadership style surprisingly helps the entire office remain highly productive during stressful deadlines."
+  },
+  "relaxing": {
+    "word": "relaxing",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "reducing tension or anxiety.",
+    "cn": "令人放鬆的",
+    "ex": "Getting a professional deep tissue massage after a terribly stressful week at work is arguably the most relaxing experience possible."
+  },
+  "tension": {
+    "word": "tension",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state of being stretched tight; mental or emotional strain.",
+    "cn": "緊張；拉力",
+    "ex": "The unbearable physical tension in his sore shoulders finally began to disappear after he took a long, hot shower."
+  },
+  "presence": {
+    "word": "presence",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state or fact of existing, occurring, or being present in a place or thing.",
+    "cn": "出席；存在",
+    "ex": "You don't have to come to the party, but your pleasant presence would undoubtedly make everyone there incredibly happy."
+  },
+  "in the presence of": {
+    "word": "in the presence of",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "in front of or existing with someone else.",
+    "cn": "在...的面前",
+    "ex": "Naughty Ted surprisingly always acts extremely well-behaved and polite whenever he is in the presence of his strict parents."
+  },
+  "present": {
+    "word": "present",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "existing or occurring now; in a particular place.",
+    "cn": "在場的；現在的",
+    "ex": "The principal demanded to ensure that every single senior student was actually physically present in the auditorium for the speech."
+  },
+  "absence": {
+    "word": "absence",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the state of being away from a place or person.",
+    "cn": "缺席；不在",
+    "ex": "The manager noted that John's continued and entirely unexplained absence from the important weekly meetings was becoming a serious issue."
+  },
+  "orphan": {
+    "word": "orphan",
+    "pos": "(n.) / (v.)",
+    "cat": "n",
+    "en": "a child whose parents are dead; to make a child an orphan.",
+    "cn": "孤兒；使成為孤兒",
+    "ex": "The generous charity specifically works hard to securely provide safe housing and good food for every homeless orphan in the city."
+  },
+  "orphanage": {
+    "word": "orphanage",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a residential institution for the care and education of orphans.",
+    "cn": "孤兒院",
+    "ex": "Poor John sadly grew up in a crowded local orphanage after his loving parents tragically passed away in a car accident."
+  },
+  "express": {
+    "word": "express",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to convey a thought or feeling in words or by gestures and conduct.",
+    "cn": "表達",
+    "ex": "Because the quiet man was not naturally express, I simply didn't know what he actually wanted from the store."
+  },
+  "expressive": {
+    "word": "expressive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "effectively conveying thought or feeling.",
+    "cn": "富於表情的；善於表達的",
+    "ex": "The incredibly talented actor's highly expressive face perfectly communicated his deep sorrow without him ever needing to speak a word."
+  },
+  "expression": {
+    "word": "expression",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "the process of making known one's thoughts or feelings.",
+    "cn": "表達；表情",
+    "ex": "Writing incredibly beautiful poetry was her absolute favorite form of emotional expression whenever she felt lonely or deeply misunderstood."
+  },
+  "talkative": {
+    "word": "talkative",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "fond of or given to talking.",
+    "cn": "健談的；多話的",
+    "ex": "Unlike her exceptionally quiet sister, Maria is a highly talkative person who can easily chat with complete strangers for hours."
+  },
+  "collective": {
+    "word": "collective",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "done by people acting as a group.",
+    "cn": "集體的；共同的",
+    "ex": "Rebuilding the completely destroyed town after the terrible earthquake clearly required an immense collective effort from every single surviving citizen."
+  },
+  "tense": {
+    "word": "tense",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "stretched tight or unable to relax; causing anxiety.",
+    "cn": "緊張的；緊繃的",
+    "ex": "Alice unfortunately feels extremely tense most of the time because her demanding corporate job is very difficult and highly stressful."
+  },
+  "feel tense": {
+    "word": "feel tense",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to experience physical or emotional tightness.",
+    "cn": "感到緊張",
+    "ex": "It is completely natural to feel incredibly tense and anxious right before delivering an important speech to a large, silent audience."
+  },
+  "tense mood": {
+    "word": "tense mood",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a heavily strained atmosphere.",
+    "cn": "緊張的氣氛",
+    "ex": "The unpredictable tense mood in the dark room was palpable as the angry family awkwardly ate their dinner in complete silence."
+  },
+  "tension__2": {
+    "word": "tension",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a feeling of fear, distrust, or anxiety caused by tight relationships or unresolved conflict",
+    "cn": "緊張（關係）；局勢緊張",
+    "ex": "The rising political tension between the two neighbouring countries forced the international border to close temporarily."
+  },
+  "relieve tension": {
+    "word": "relieve tension",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "to reduce mental or emotional strain.",
+    "cn": "緩解緊張",
+    "ex": "Engaging in regular deep breathing exercises can effectively relieve the terrible physical tension that builds up during a long workday."
+  },
+  "intensive": {
+    "word": "intensive",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "involving a high degree of concentrated effort, massive resources, or energy within a short time",
+    "cn": "密集的；集中的",
+    "ex": "The engineering team underwent intensive training to master the newly deployed automated server frameworks."
+  },
+  "intensive course": {
+    "word": "intensive course",
+    "pos": "(n.)",
+    "cat": "phr",
+    "en": "a highly concentrated educational program designed to teach extensive knowledge very quickly",
+    "cn": "密集課程",
+    "ex": "Joining an intensive course in asset management helped the young intern quickly fulfill his professional potential."
+  },
+  "relieve": {
+    "word": "relieve",
+    "pos": "(v.)",
+    "cat": "v",
+    "en": "to cause pain, distress, or difficulty to become less severe or serious.",
+    "cn": "減輕；緩解",
+    "ex": "Gus cautiously took some expensive prescription medicine to quickly relieve the sharp, shooting pain in his lower back."
+  },
+  "relief": {
+    "word": "relief",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a feeling of reassurance and relaxation following release from anxiety or distress.",
+    "cn": "如釋重負；解脫",
+    "ex": "Joe immediately felt a huge sense of deep relief after the experienced doctor told him he would definitely recover completely."
+  },
+  "relieved": {
+    "word": "relieved",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "no longer feeling distressed or anxious; reassured.",
+    "cn": "感到寬慰的",
+    "ex": "The terribly worried parents were visibly relieved when the brave police officer safely brought their missing little boy back home."
+  },
+  "anxiety": {
+    "word": "anxiety",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a feeling of worry, nervousness, or unease, typically about an imminent event.",
+    "cn": "焦慮",
+    "ex": "Poor Chris has tragically suffered from crippling anxiety for much of his difficult adult life, making it hard to socialize."
+  },
+  "anxious": {
+    "word": "anxious",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "experiencing worry, nervousness, or unease.",
+    "cn": "焦慮的；渴望的",
+    "ex": "The young job applicant felt incredibly anxious and sweaty while sitting quietly in the cold waiting room before his interview."
+  },
+  "anxiously": {
+    "word": "anxiously",
+    "pos": "(adv.)",
+    "cat": "adv",
+    "en": "in a manner resulting from or revealing anxiety.",
+    "cn": "焦急地",
+    "ex": "The loving mother stood by the window and completely anxiously watched the dark street, waiting for her teenage daughter's return."
+  },
+  "anxiety disorder": {
+    "word": "anxiety disorder",
+    "pos": "(phr.)",
+    "cat": "phr",
+    "en": "a mental health disorder characterized by feelings of worry or fear.",
+    "cn": "焦慮症",
+    "ex": "It is highly recommended to seek professional psychological help if you constantly suspect you might officially have an anxiety disorder."
+  },
+  "depression": {
+    "word": "depression",
+    "pos": "(n.)",
+    "cat": "n",
+    "en": "a persistent mental health condition characterized by severe long-term sadness, low energy, and loss of interest",
+    "cn": "憂鬱症；沮喪",
+    "ex": "The experienced counselor provided professional guidance to help the young student overcome her severe academic depression."
+  },
+  "depressed": {
+    "word": "depressed",
+    "pos": "(adj.)",
+    "cat": "adj",
+    "en": "feeling deeply sad, hopeless, and discouraged about life or a specific unfortunate situation",
+    "cn": "感到憂鬱的；沮喪的",
+    "ex": "Feeling heavily depressed after the sudden business failure, the ambitious entrepreneur decided to take a short break to restore his energy."
+  }
+};
+
+const QUESTION_POOL = [
+  [
+    "therapy",
+    "Doris severely hurt her muscles while playing sports, so she needed intensive physical __________ to help heal them.",
+    "朵莉絲在做運動時嚴重拉傷了肌肉，所以她需要密集的物理治療來幫助復原。",
+    [
+      "doris",
+      "severely",
+      "muscles"
+    ]
+  ],
+  [
+    "physical therapy",
+    "After his serious car accident, the young man had to attend __________ __________ twice a week for several months.",
+    "在嚴重的車禍後，這名年輕人必須連續幾個月每週參加兩次物理治療。",
+    [
+      "serious",
+      "accident",
+      "young"
+    ]
+  ],
+  [
+    "ancient",
+    "The ambitious university professor was extremely excited when he discovered the ruined buildings of a magnificent __________ city.",
+    "當這位雄心勃勃的大學教授發現一座宏偉古老的城市的建築遺跡時，他感到極度興奮。",
+    [
+      "ambitious",
+      "university",
+      "professor"
+    ]
+  ],
+  [
+    "elderly",
+    "Tim is a very devoted son who makes sure to visit his __________ parents every single Sunday morning.",
+    "提姆是個非常孝順的兒子，他確保每個星期天早上都會去探望他年長的父母。",
+    [
+      "devoted",
+      "makes",
+      "visit"
+    ]
+  ],
+  [
+    "the elderly",
+    "The local government recently started a brand new social program specifically designed to care for __________ __________ in our community.",
+    "當地政府最近啟動了一個全新的社會計畫，專門設計來照顧我們社區的年長者。",
+    [
+      "local",
+      "government",
+      "recently"
+    ]
+  ],
+  [
+    "aged",
+    "Mike dutifully looks after his __________ parents who can no longer comfortably take care of themselves at home.",
+    "麥克盡責地照顧他那無法再舒適地在家自理的年老的父母。",
+    [
+      "dutifully",
+      "looks",
+      "parents"
+    ]
+  ],
+  [
+    "middle-aged",
+    "The ___________ man decided to join a local marathon to stay healthy and energetic as he approached his fifties.",
+    "這位中年的男子決定參加當地的馬拉松比賽，以便在接近五十歲時保持健康與活力。",
+    [
+      "decided",
+      "local",
+      "marathon"
+    ]
+  ],
+  [
+    "middle class",
+    "Most families living in this suburban neighborhood belong to the __________ __________, earning a stable income and owning their homes.",
+    "居住在這個郊區社區的大多數家庭都屬於中產階級，擁有穩定的收入並擁有自己的房子。",
+    [
+      "families",
+      "living",
+      "suburban"
+    ]
+  ],
+  [
+    "ageing  aging",
+    "The government is building more nursing homes to provide better medical care for the country's __________ population.",
+    "政府正在建造更多養老院，以便為該國**高齡化的（變老的）**人口提供更好的醫療照護。",
+    [
+      "government",
+      "building",
+      "nursing"
+    ]
+  ],
+  [
+    "ageing society",
+    "Taiwan has officially become an __________ __________, which means there are fewer young workers to support the retired population.",
+    "台灣已正式成為一個高齡化社會，這意味著能扶養退休人口的年輕勞動力變少了。",
+    [
+      "taiwan",
+      "officially",
+      "become"
+    ]
+  ],
+  [
+    "senior",
+    "The local movie theater kindly offers much cheaper movie tickets to students and __________ during the weekday afternoons.",
+    "當地電影院親切地在平日下午為學生和年長者提供便宜許多的電影票。",
+    [
+      "local",
+      "movie",
+      "theater"
+    ]
+  ],
+  [
+    "senior citizen",
+    "Every __________ __________ living in this city can take public transportation for free by showing their special identity card.",
+    "居住在這座城市的每位**老年人（銀髮族）**大只要出示他們的特殊身分證，就可以免費搭乘大眾運輸。",
+    [
+      "every",
+      "living",
+      "public"
+    ]
+  ],
+  [
+    "is senior to",
+    "Although Marcus is much younger than Kevin, he __________ __________ __________ Kevin because he was promoted to manager last year.",
+    "雖然馬庫斯比凱文年輕得多，但在公司裡他的職位比凱文高（資歷比凱文深），因為他去年被晉升為經理。",
+    [
+      "although",
+      "marcus",
+      "younger"
+    ]
+  ],
+  [
+    "is junior to",
+    "Since Chloe just joined the accounting department last week, she __________ __________ __________ everyone else in terms of work experience.",
+    "由於克洛伊上週才加入會計部，就工作經驗而言，她的職位比其他人低（資歷比其他人淺）。",
+    [
+      "since",
+      "chloe",
+      "joined"
+    ]
+  ],
+  [
+    "limit",
+    "If you genuinely want to lose some extra weight, you must set a __________ of suger intake and strictly __________ the amount of sweet food you eat.",
+    "如果你真的想減掉一些多餘的體重，你必須嚴格制定醣類攝取限制量和限制你吃的甜食數量。",
+    [
+      "genuinely",
+      "extra",
+      "weight"
+    ]
+  ],
+  [
+    "set a speed limit",
+    "The city council decided to __________ __________ __________ __________ along the busy residential area to minimize traffic accidents and ensure pedestrian safety.",
+    "市議會決定沿著繁忙的住宅區設定速限，以減少交通事故並確保行人安全。",
+    [
+      "council",
+      "decided",
+      "along"
+    ]
+  ],
+  [
+    "limitation",
+    "His only noticeable __________ as a professional fashion model is that he is actually a little bit too short.",
+    "他作為職業時裝模特兒唯一明顯的限制，是他實際上稍微太矮了一點。",
+    [
+      "noticeable",
+      "professional",
+      "fashion"
+    ]
+  ],
+  [
+    "strict limitation",
+    "Because of the terrible water shortage, the city council imposed a __________ __________ on washing cars and watering gardens.",
+    "因為可怕的水資源短缺，市議會對洗車和澆花實施了嚴格的限制。",
+    [
+      "terrible",
+      "water",
+      "shortage"
+    ]
+  ],
+  [
+    "restrict",
+    "The government decided to __________ civilian access to the military zone to protect top-secret scientific experiments.",
+    "政府決定限制平民進入軍事管制區，以保護絕密的科學實驗。",
+    [
+      "government",
+      "decided",
+      "civilian"
+    ]
+  ],
+  [
+    "restriction",
+    "The prestigious law firm thoroughly evaluated the new trade __________ imposed on imported goods at the port.",
+    "這家聲譽卓著的法律事務所徹底評估了港口對進口貨物所施加的新貿易限制。",
+    [
+      "prestigious",
+      "thoroughly",
+      "evaluated"
+    ]
+  ],
+  [
+    "ban ...from",
+    "The strict city council intends to __________ private vehicles __________ entering the crowded commercial area during rush hours.",
+    "嚴格的市議會打算在尖峰時段禁止私人車輛進入擁擠的商業區。",
+    [
+      "strict",
+      "council",
+      "intends"
+    ]
+  ],
+  [
+    "lift the ban",
+    "The president decided to __________ __________ __________ on foreign technology products after the trade agreement went smoothly.",
+    "在貿易協定順利進行後，總統決定解除對外國科技產品的禁令。",
+    [
+      "president",
+      "decided",
+      "foreign"
+    ]
+  ],
+  [
+    "prohibit",
+    "New traffic regulations strictly __________ the parking of any private vehicle along the narrow streets of the residential area.",
+    "新的交通法規嚴格禁止在住宅區的狹窄街道上停放任何私人車輛。",
+    [
+      "traffic",
+      "regulations",
+      "strictly"
+    ]
+  ],
+  [
+    "prohibit ...from",
+    "The strict company policy will __________ unauthorized staff __________ gaining access to the secure database framework of the corporation.",
+    "公司嚴格的政策將禁止未經授權的人員獲取公司安全資料庫架構的存取權。",
+    [
+      "strict",
+      "company",
+      "policy"
+    ]
+  ],
+  [
+    "inhibit...from",
+    "Extreme winter weather will heavily __________ the logistics workers __________ delivering the express cargo to the harbor.",
+    "極端寒冬的天氣將嚴重阻礙物流工人將快捷貨物運送到港口。",
+    [
+      "extreme",
+      "winter",
+      "weather"
+    ]
+  ],
+  [
+    "inhibition",
+    "The student successfully overcame her initial __________ and made an active attempt to state her opinion clearly.",
+    "這名學生成功克服了她起初的顧忌，並大膽嘗試清楚地陳述她的觀點。",
+    [
+      "student",
+      "overcame",
+      "initial"
+    ]
+  ],
+  [
+    "refrain from",
+    "All participants in the scientific experiment must __________ __________ smoking before the leading researcher begins the assessment.",
+    "在首席研究員開始評估之前，科學實驗的所有參與者都必須克制不去吸菸。",
+    [
+      "participants",
+      "scientific",
+      "experiment"
+    ]
+  ],
+  [
+    "restraint",
+    "The police officers exercised remarkable __________ when dealing with the highly aggressive protesters at the crime scene.",
+    "警員在犯罪現場應對極具攻擊性的抗議者時，表現出了驚人的克制。",
+    [
+      "police",
+      "officers",
+      "exercised"
+    ]
+  ],
+  [
+    "exercise control",
+    "The central bank attempts to __________ strict __________ over the national currency to prevent sudden inflation in the market.",
+    "中央銀行試圖對國家貨幣實施嚴格控制，以防止市場上突然發生通貨膨脹。",
+    [
+      "central",
+      "attempts",
+      "strict"
+    ]
+  ],
+  [
+    "exercise self-discipline",
+    "The ambitious student needs to __________ __________ to study for the standardized exam instead of playing video games.",
+    "這名雄心勃勃的學生需要展現自律來準備標準化考試，而不是玩電子遊戲。",
+    [
+      "ambitious",
+      "student",
+      "needs"
+    ]
+  ],
+  [
+    "exercise caution",
+    "Drivers must __________ __________ when navigating the narrow and slippery mountain roads during a severe winter storm.",
+    "在嚴重的冬季暴風雨中行駛於狹窄且濕滑的山路時，駕駛人必須保持謹慎。",
+    [
+      "drivers",
+      "navigating",
+      "narrow"
+    ]
+  ],
+  [
+    "exercise patience",
+    "The leading researcher reminded his young assistants to __________ __________ while waiting for the scientific data to compile.",
+    "首席研究員提醒他的年輕助手們，在等待科學數據彙編時要保持耐心。",
+    [
+      "leading",
+      "researcher",
+      "reminded"
+    ]
+  ],
+  [
+    "exercise the authority",
+    "The newly appointed military commander decided to __________ __________ __________ to restrict civilian access to the critical crime scene.",
+    "新上任的軍事指揮官決定行使職權，限制平民進入關鍵的犯罪現場。",
+    [
+      "newly",
+      "appointed",
+      "military"
+    ]
+  ],
+  [
+    "exercise civil rights",
+    "All citizens are heavily encouraged to __________ __________ __________ to vote in the upcoming presidential election and referendum next month.",
+    "所有公民都被強烈鼓勵在下個月即將舉行的總統大選和公投中行使投票權。",
+    [
+      "citizens",
+      "heavily",
+      "encouraged"
+    ]
+  ],
+  [
+    "election",
+    "The progressive political party urged every single citizen to exercise their legal right to vote in the upcoming presidential __________.",
+    "進步派政黨敦促每一位公民在即將到來的總統選舉中行使他們的合法投票權。",
+    [
+      "progressive",
+      "political",
+      "party"
+    ]
+  ],
+  [
+    "referendum",
+    "The government decided to conduct a national __________ to let citizens directly determine whether to alter the existing tariff laws.",
+    "政府決定舉行全民公投，讓公民直接決定是否修改現行的關稅法律。",
+    [
+      "government",
+      "decided",
+      "conduct"
+    ]
+  ],
+  [
+    "practice a religious ritual",
+    "The local tribe gathered at the ancient temple to __________ __________ __________ __________ to pray for a bountiful autumn harvest.",
+    "當地部落聚集在古老的寺廟裡履行宗教儀式，以祈求秋季豐收。",
+    [
+      "local",
+      "tribe",
+      "gathered"
+    ]
+  ],
+  [
+    "practice law",
+    "After passing the rigorous bar exam, the progressive lawyer decided to __________ __________ at a prestigious international law firm.",
+    "在通過嚴格的律師資格考試後，這位進步派律師決定在一家聲譽卓著的國際法律事務所執業。",
+    [
+      "passing",
+      "rigorous",
+      "progressive"
+    ]
+  ],
+  [
+    "practice medicine",
+    "The skilled surgeon obtained her official license and began to __________ __________ in a remote rural community that lacked facilities.",
+    "這位技術熟練的外科醫生獲得了她的正式執照，並開始在一個缺乏設施的偏遠農村社區從事醫療工作。",
+    [
+      "skilled",
+      "surgeon",
+      "obtained"
+    ]
+  ],
+  [
+    "perform a surgery",
+    "The experienced chief surgeon will __________ __________ __________ tomorrow morning to repair the patient's severely damaged mechanical heart.",
+    "經驗豐富的總外科醫生將於明天上午進行手術，以修復患者嚴重受損的機械心臟。",
+    [
+      "experienced",
+      "chief",
+      "surgeon"
+    ]
+  ],
+  [
+    "perform a duty",
+    "Every loyal police officer is fully expected to __________ his __________ with complete integrity and protect local communities.",
+    "每位忠誠的警員都被充分期望能以完全正直的態度履行職責，並保護當地社群。",
+    [
+      "every",
+      "loyal",
+      "police"
+    ]
+  ],
+  [
+    "perform an act of kindness",
+    "Even a small gesture can make a significant difference when you __________ __________ __________ __________ __________ for a complete stranger.",
+    "當你為一個完全陌生的人做出善行時，即使是一個小小的舉動也能帶來重大的改變。",
+    [
+      "small",
+      "gesture",
+      "significant"
+    ]
+  ],
+  [
+    "conduct an experiment",
+    "The software engineering team plans to __________ __________ __________ to assess whether the new automated system operates smoothly.",
+    "軟體工程團隊計劃進行一項實驗，以評估這個新的自動化系統是否運作順利。",
+    [
+      "software",
+      "engineering",
+      "plans"
+    ]
+  ],
+  [
+    "conduct a research project",
+    "The leading university received a massive government grant to __________ __________ __________ __________ on endangered wild animal species.",
+    "這所頂尖大學獲得了巨額的政府補助，以主導一項關於瀕危野生動物物種的研究計畫。",
+    [
+      "leading",
+      "university",
+      "received"
+    ]
+  ],
+  [
+    "conduct a survey",
+    "The marketing firm decided to __________ __________ __________ to evaluate consumer satisfaction regarding the new portable devices.",
+    "這家行銷公司決定進行一項調查，以評估消費者對這款全新便攜式裝置的滿意度。",
+    [
+      "marketing",
+      "decided",
+      "evaluate"
+    ]
+  ],
+  [
+    "conduct an interview",
+    "The human resources department will __________ __________ __________ tomorrow to assess the applicant's mechanical engineering skills.",
+    "人力資源部門明天將進行面試，以評估應徵者的機械工程技能。",
+    [
+      "human",
+      "resources",
+      "department"
+    ]
+  ],
+  [
+    "conduct an orchestra",
+    "The world-renowned musician was invited to __________ __________ __________ during the international charity concert next weekend.",
+    "這位世界聞名的音樂家受邀在下週末的國際慈善音樂會上指揮交響樂團。",
+    [
+      "world-renowned",
+      "musician",
+      "invited"
+    ]
+  ],
+  [
+    "conduct heat",
+    "Copper and aluminum are highly valued in manufacturing because they can __________ __________ much faster than plastic materials.",
+    "銅和鋁在製造業中受到高度重視，因為它們傳導熱的速度比塑膠材料快得多。",
+    [
+      "copper",
+      "aluminum",
+      "highly"
+    ]
+  ],
+  [
+    "conduct electricity",
+    "Pure water itself is a poor conductor, but dissolved minerals allow the liquid to __________ __________ very efficiently.",
+    "純水本身是個不良導體，但溶解的礦物質能讓這種液體非常高效地導電。",
+    [
+      "water",
+      "itself",
+      "conductor"
+    ]
+  ],
+  [
+    "hold a ceremony",
+    "The indigenous tribe gathered near the ancient harbor to __________ __________ __________ to pray for a bountiful and safe fishing season.",
+    "原住民部落聚集在古老的港口附近舉行儀式，以祈求豐收且安全的捕魚季節。",
+    [
+      "indigenous",
+      "tribe",
+      "gathered"
+    ]
+  ],
+  [
+    "throw a party",
+    "The ambitious entrepreneur decided to __________ __________ __________ to celebrate the international corporation's successful business expansion.",
+    "這位雄心勃勃的企業家決定舉辦一場派對，以慶祝這家國際公司的業務擴展圓滿成功。",
+    [
+      "ambitious",
+      "entrepreneur",
+      "decided"
+    ]
+  ],
+  [
+    "notice",
+    "Did you happen to __________ that Sarah was wearing a completely different dress when she returned from the bathroom?",
+    "你有碰巧注意到莎拉從洗手間回來時穿著一件完全不同的洋裝嗎？",
+    [
+      "happen",
+      "sarah",
+      "wearing"
+    ]
+  ],
+  [
+    "notice__2",
+    "The school principal put up a large __________ next to the main entrance to inform students that the annual sports day has been postponed.",
+    "校長在主入口旁張貼了一份大型公告，以通知學生年度運動會已延期。",
+    [
+      "school",
+      "principal",
+      "large"
+    ]
+  ],
+  [
+    "noticeable",
+    "After he finally left his stressful home environment, there was a highly __________ change in his overall daily attitude.",
+    "在他終於離開壓力沉重的家庭環境後，他整體的日常態度有了非常明顯的改變。",
+    [
+      "finally",
+      "stressful",
+      "environment"
+    ]
+  ],
+  [
+    "bulletin",
+    "The hospital issued a regular medical __________ regarding the president's health condition to keep the anxious public informed.",
+    "醫院發布了關於總統健康狀況的定期醫療簡報（公告），以讓焦慮的公眾知情。",
+    [
+      "hospital",
+      "issued",
+      "regular"
+    ]
+  ],
+  [
+    "bulletin board",
+    "Students frequently check the __________ __________ in the hallway to see the latest updates about club activities and school events.",
+    "學生們經常查看走廊上的佈告欄，以了解社團活動和學校事件的最新動態。",
+    [
+      "students",
+      "frequently",
+      "check"
+    ]
+  ],
+  [
+    "apparent",
+    "It was quite __________ to everyone in the room that the nervous man was lying about his true identity.",
+    "房間裡的每個人都很明顯的看出這個緊張的男人在說謊掩飾他的真實身分。",
+    [
+      "quite",
+      "everyone",
+      "nervous"
+    ]
+  ],
+  [
+    "obvious",
+    "It was __________ to everyone in the room that Leo was nervous, because his hands were shaking violently during the presentation.",
+    "房間裡的每個人都很明顯地看出里歐很緊張，因為他在簡報時雙手抖得很厲害。",
+    [
+      "everyone",
+      "nervous",
+      "hands"
+    ]
+  ],
+  [
+    "ambiguous",
+    "The politician's completely __________ answer to the journalist's serious question left the entire audience feeling extremely confused and frustrated.",
+    "這位政治人物對記者嚴肅問題完全模稜兩可的回答，讓全場觀眾感到極度困惑和沮喪。",
+    [
+      "politician's",
+      "answer",
+      "journalist's"
+    ]
+  ],
+  [
+    "vague",
+    "The detective found the witness's description of the suspect very __________, as she could only remember that he was wearing a dark jacket.",
+    "偵探發現證人對嫌犯的描述非常含糊（模糊），因為她只記得他穿著一件深色外套。",
+    [
+      "detective",
+      "found",
+      "witness's"
+    ]
+  ],
+  [
+    "blurry",
+    "Because Chloe accidentally moved her hand while clicking the shutter, the photo she took of the beautiful sunset turned out completely __________.",
+    "因為克洛伊在按下快門時不小心動了手，她拍的那張美麗落日的照片結果完全是模糊的。",
+    [
+      "chloe",
+      "accidentally",
+      "moved"
+    ]
+  ],
+  [
+    "abstract",
+    "Truth and justice are __________ concepts that can be difficult for young children to understand, as they usually prefer concrete examples they can see.",
+    "真理和正義是幼童可能很難理解的抽象概念，因爲他們通常更喜歡看得見的具體例子。",
+    [
+      "truth",
+      "justice",
+      "concepts"
+    ]
+  ],
+  [
+    "facility",
+    "When the man suddenly collapsed on the street, the ambulance rushed him directly to a nearby medical __________.",
+    "當那名男子突然在街上倒下時，救護車將他直接送往附近的醫療機構。",
+    [
+      "suddenly",
+      "collapsed",
+      "street"
+    ]
+  ],
+  [
+    "medical facility",
+    "In rural areas, it can sometimes take hours to drive a sick patient to the nearest fully equipped __________ __________.",
+    "在鄉村地區，有時可能需要開車數小時才能將生病的病患送到最近且設備齊全的醫療機構。",
+    [
+      "rural",
+      "areas",
+      "sometimes"
+    ]
+  ],
+  [
+    "facilitate",
+    "The new interactive teaching software is specifically designed to deeply __________ faster and more effective learning for young children.",
+    "這個新的互動教學軟體專門設計來深入促進幼童更快、更有效的學習。",
+    [
+      "interactive",
+      "teaching",
+      "software"
+    ]
+  ],
+  [
+    "wheelchair",
+    "The poor old man unfortunately can't walk anymore and desperately needs a __________ just to get around his house.",
+    "可憐的老人不幸地再也無法走路，極度需要一張輪椅才能在他的房子裡四處走動。",
+    [
+      "unfortunately",
+      "can't",
+      "anymore"
+    ]
+  ],
+  [
+    "wheelchair bound",
+    "Despite being entirely __________ __________ for most of his adult life, the inspiring man managed to write three brilliant books.",
+    "儘管在他的成年生活中大多是完全必須坐輪椅的，這位激勵人心的人還是成功寫出了三本才華洋溢的書。",
+    [
+      "despite",
+      "entirely",
+      "adult"
+    ]
+  ],
+  [
+    "motorized wheelchair",
+    "Thanks to his highly advanced __________ __________, the disabled veteran can easily navigate the busy city streets completely by himself.",
+    "多虧了他高度先進的電動輪椅，這位殘障的退伍軍人能完全靠自己輕鬆地在繁忙的城市街道上穿梭。",
+    [
+      "thanks",
+      "highly",
+      "advanced"
+    ]
+  ],
+  [
+    "interaction",
+    "Because Carol doesn't have any classes with Sam, they unfortunately don't have much personal __________ during the long school day.",
+    "因為卡蘿沒有和山姆同班的課，他們在漫長的上學日中不幸地沒有多少個人的互動。",
+    [
+      "carol",
+      "doesn't",
+      "classes"
+    ]
+  ],
+  [
+    "interact with",
+    "The friendly kindergarten teacher always strongly encourages her shy students to confidently __________ __________ each other during outdoor playtime.",
+    "友善的幼稚園老師總是強烈鼓勵她害羞的學生在戶外遊戲時間自信地互相互動。",
+    [
+      "friendly",
+      "kindergarten",
+      "teacher"
+    ]
+  ],
+  [
+    "interactive",
+    "The fascinating science museum features many brilliant __________ exhibits that brilliantly allow children to physically test out physics principles.",
+    "迷人的科學博物館擁有許多出色的互動式的展覽，出色地讓孩子們能實際測試物理原理。",
+    [
+      "fascinating",
+      "science",
+      "museum"
+    ]
+  ],
+  [
+    "social interaction",
+    "Maintaining regular and positive __________ __________ is incredibly important for preserving an elderly person's mental health and overall happiness.",
+    "維持規律且積極的社交互動，對於保存年長者的心理健康和整體幸福感極其重要。",
+    [
+      "maintaining",
+      "regular",
+      "positive"
+    ]
+  ],
+  [
+    "magical",
+    "The beautifully decorated theme park creates a truly __________ experience for young children visiting it for the very first time.",
+    "裝飾美麗的主題樂園為第一次造訪的幼童創造了真正神奇的體驗。",
+    [
+      "beautifully",
+      "decorated",
+      "theme"
+    ]
+  ],
+  [
+    "magically",
+    "During the impressive performance, the floating cup appeared to __________ hover completely unsupported right above the wooden wooden desk.",
+    "在令人印象深刻的表演中，漂浮的杯子似乎神奇地完全無支撐地盤旋在木製書桌正上方。",
+    [
+      "impressive",
+      "performance",
+      "floating"
+    ]
+  ],
+  [
+    "miracle",
+    "The chief surgeon stated that it was a complete __________ that the patient survived such a severe heart failure during the operation.",
+    "主治醫生聲稱，病人在手術過程中經歷了如此嚴重的生命心臟衰竭卻能活下來，完全是一個奇蹟。",
+    [
+      "chief",
+      "surgeon",
+      "stated"
+    ]
+  ],
+  [
+    "miraculous",
+    "The injured athlete made a __________ recovery just a few weeks before the highly anticipated international programming tournament.",
+    "這名受傷的運動員在備受期待的國際程式設計大賽舉行前幾週，做出了奇蹟般的康復。",
+    [
+      "injured",
+      "athlete",
+      "recovery"
+    ]
+  ],
+  [
+    "miraculously",
+    "Despite driving through a severe winter storm on the narrow mountain road, the entire family __________ arrived home safely without any accidents.",
+    "儘管在狹窄的山路上開車穿過嚴重的冬季暴風雨，全家人依然奇蹟般地安全抵達家門，沒有發生任何意外。",
+    [
+      "despite",
+      "driving",
+      "severe"
+    ]
+  ],
+  [
+    "appear magically",
+    "Just when we desperately needed a taxi in the pouring rain, one seemed to __________ __________ right at the corner.",
+    "正當我們在傾盆大雨中極度需要計程車時，一輛計程車似乎神奇地出現在轉角處。",
+    [
+      "desperately",
+      "needed",
+      "pouring"
+    ]
+  ],
+  [
+    "transform",
+    "Buying that expensive new modern furniture completely __________ their dark and boring living room into a bright, stylish space.",
+    "買下那套昂貴的新現代家具，徹底將他們黑暗無聊的客廳改造成一個明亮、時尚的空間。",
+    [
+      "buying",
+      "expensive",
+      "modern"
+    ]
+  ],
+  [
+    "transform a into b",
+    "The ambitious city government officially plans to successfully __________ the abandoned old factory buildings __________ a beautiful large shopping complex.",
+    "雄心勃勃的市政府正式計畫成功地把廢棄的舊工廠建築變成一個美麗的大型購物中心。",
+    [
+      "ambitious",
+      "government",
+      "officially"
+    ]
+  ],
+  [
+    "transformation",
+    "The butterfly's miraculous physical __________ from a tiny, creeping caterpillar is widely considered one of nature's most beautiful processes.",
+    "蝴蝶從一隻微小爬行的毛毛蟲發生的奇蹟般物理轉變，被廣泛認為是自然界最美麗的過程之一。",
+    [
+      "butterfly's",
+      "miraculous",
+      "physical"
+    ]
+  ],
+  [
+    "convert",
+    "The wealthy businessman decided to expensively __________ his massive basement into a fully equipped private cinema for his family.",
+    "富有的商人決定花大錢將他巨大的地下室**改裝（轉換）**成一個設備齊全的家庭私人電影院。",
+    [
+      "wealthy",
+      "businessman",
+      "decided"
+    ]
+  ],
+  [
+    "relax",
+    "After successfully finishing his incredibly difficult final exams, Ian finally had the opportunity to just sit down and __________.",
+    "在成功完成極其困難的期末考後，伊恩終於有機會直接坐下來放鬆。",
+    [
+      "finishing",
+      "incredibly",
+      "difficult"
+    ]
+  ],
+  [
+    "relaxation",
+    "Exhausted Sasha firmly told me that she specifically wants her upcoming summer vacation to be entirely about rest and __________.",
+    "疲憊的莎夏堅定地告訴我，她特別希望即將到來的暑假能完全是關於休息和放鬆。",
+    [
+      "exhausted",
+      "sasha",
+      "firmly"
+    ]
+  ],
+  [
+    "relaxed",
+    "The manager's calm and highly __________ leadership style surprisingly helps the entire office remain highly productive during stressful deadlines.",
+    "經理平靜且高度從容的領導風格，出人意料地幫助整個辦公室在充滿壓力的截止日期期間保持高生產力。",
+    [
+      "manager's",
+      "highly",
+      "leadership"
+    ]
+  ],
+  [
+    "relaxing",
+    "Getting a professional deep tissue massage after a terribly stressful week at work is arguably the most __________ experience possible.",
+    "在工作了極度充滿壓力的一週後，接受專業的深層組織按摩可以說是可能最令人放鬆的體驗了。",
+    [
+      "getting",
+      "professional",
+      "tissue"
+    ]
+  ],
+  [
+    "tension",
+    "The unbearable physical __________ in his sore shoulders finally began to disappear after he took a long, hot shower.",
+    "在洗了個舒服的熱水澡後，他痠痛肩膀上難以忍受的身體**緊張（緊繃）**終於開始消失了。",
+    [
+      "unbearable",
+      "physical",
+      "shoulders"
+    ]
+  ],
+  [
+    "presence",
+    "You don't have to come to the party, but your pleasant __________ would undoubtedly make everyone there incredibly happy.",
+    "你不必來參加派對，但你令人愉快的出席無疑會讓在那裡的每個人都非常高興。",
+    [
+      "don't",
+      "party",
+      "pleasant"
+    ]
+  ],
+  [
+    "in the presence of",
+    "Naughty Ted surprisingly always acts extremely well-behaved and polite whenever he is __________ __________ __________ __________ his strict parents.",
+    "頑皮的泰德令人驚訝地每當他在他嚴格父母的面前時，總是表現得極度守規矩且有禮貌。",
+    [
+      "naughty",
+      "surprisingly",
+      "always"
+    ]
+  ],
+  [
+    "present",
+    "The principal demanded to ensure that every single senior student was actually physically __________ in the auditorium for the speech.",
+    "校長要求確保每一位高三學生實際上都確實在場於禮堂聆聽演講。",
+    [
+      "principal",
+      "demanded",
+      "ensure"
+    ]
+  ],
+  [
+    "absence",
+    "The manager noted that John's continued and entirely unexplained __________ from the important weekly meetings was becoming a serious issue.",
+    "經理指出，約翰持續且完全無法解釋的對重要週會的缺席，正成為一個嚴重的問題。",
+    [
+      "manager",
+      "noted",
+      "john's"
+    ]
+  ],
+  [
+    "orphan",
+    "The generous charity specifically works hard to securely provide safe housing and good food for every homeless __________ in the city.",
+    "這家慷慨的慈善機構特別努力為城市裡每一位無家可歸的孤兒穩妥地提供安全的住所和良好的食物。",
+    [
+      "generous",
+      "charity",
+      "specifically"
+    ]
+  ],
+  [
+    "orphanage",
+    "Poor John sadly grew up in a crowded local __________ after his loving parents tragically passed away in a car accident.",
+    "可憐的約翰在他充滿愛的父母於車禍中悲慘離世後，令人遺憾地在擁擠的當地孤兒院長大。",
+    [
+      "sadly",
+      "crowded",
+      "local"
+    ]
+  ],
+  [
+    "express",
+    "Because the quiet man was not naturally __________, I simply didn't know what he actually wanted from the store.",
+    "因為這個安靜的男人天生不擅表達，我根本不知道他實際上想從店裡得到什麼。",
+    [
+      "quiet",
+      "naturally",
+      "simply"
+    ]
+  ],
+  [
+    "expressive",
+    "The incredibly talented actor's highly __________ face perfectly communicated his deep sorrow without him ever needing to speak a word.",
+    "這位才華洋溢的演員極其富於表情的臉龐，完美地傳達了他深深的悲傷，而不需要他說出任何一個字。",
+    [
+      "incredibly",
+      "talented",
+      "actor's"
+    ]
+  ],
+  [
+    "expression",
+    "Writing incredibly beautiful poetry was her absolute favorite form of emotional __________ whenever she felt lonely or deeply misunderstood.",
+    "每當她感到孤單或深深被誤解時，寫出極其美麗的詩是她絕對最喜歡的情感表達形式。",
+    [
+      "writing",
+      "incredibly",
+      "beautiful"
+    ]
+  ],
+  [
+    "talkative",
+    "Unlike her exceptionally quiet sister, Maria is a highly __________ person who can easily chat with complete strangers for hours.",
+    "不同於她異常安靜的妹妹，瑪麗亞是個極其健談的人，可以輕鬆地與完全陌生的人聊上幾個小時。",
+    [
+      "unlike",
+      "exceptionally",
+      "quiet"
+    ]
+  ],
+  [
+    "collective",
+    "Rebuilding the completely destroyed town after the terrible earthquake clearly required an immense __________ effort from every single surviving citizen.",
+    "在可怕的地震後重建被徹底摧毀的城鎮，顯然需要每一位倖存公民付出巨大的集體的努力。",
+    [
+      "rebuilding",
+      "destroyed",
+      "terrible"
+    ]
+  ],
+  [
+    "tense",
+    "Alice unfortunately feels extremely __________ most of the time because her demanding corporate job is very difficult and highly stressful.",
+    "艾莉絲不幸地大部分時間都感到極度緊張的，因為她要求極高的企業工作非常困難且壓力極大。",
+    [
+      "alice",
+      "unfortunately",
+      "feels"
+    ]
+  ],
+  [
+    "feel tense",
+    "It is completely natural to __________ incredibly __________ and anxious right before delivering an important speech to a large, silent audience.",
+    "在向大批安靜的觀眾發表重要演講之前，感到極度緊張和焦慮是完全自然的。",
+    [
+      "natural",
+      "incredibly",
+      "anxious"
+    ]
+  ],
+  [
+    "tense mood",
+    "The unpredictable __________ __________ in the dark room was palpable as the angry family awkwardly ate their dinner in complete silence.",
+    "當這個憤怒的家庭在完全的沉默中尷尬地吃著晚餐時，黑暗房間裡不可預測的緊張的氣氛是顯而易見的。",
+    [
+      "unpredictable",
+      "palpable",
+      "angry"
+    ]
+  ],
+  [
+    "tension__2",
+    "The rising political __________ between the two neighbouring countries forced the international border to close temporarily.",
+    "兩國之間日益加劇的政治緊張關係迫使國際邊界暫時關閉。",
+    [
+      "rising",
+      "political",
+      "between"
+    ]
+  ],
+  [
+    "relieve tension",
+    "Engaging in regular deep breathing exercises can effectively __________ the terrible physical __________ that builds up during a long workday.",
+    "進行規律的深呼吸運動可以有效地緩解在漫長工作日中累積的可怕身體緊張。",
+    [
+      "engaging",
+      "regular",
+      "breathing"
+    ]
+  ],
+  [
+    "intensive",
+    "The engineering team underwent __________ training to master the newly deployed automated server frameworks.",
+    "工程團隊接受了密集的培訓，以掌握新部署的自動化伺服器架構。",
+    [
+      "engineering",
+      "underwent",
+      "training"
+    ]
+  ],
+  [
+    "intensive course",
+    "Joining an __________ __________ in asset management helped the young intern quickly fulfill his professional potential.",
+    "參加資產管理的密集課程幫助這位年輕實習生迅速發揮了他的專業潛力。",
+    [
+      "joining",
+      "asset",
+      "management"
+    ]
+  ],
+  [
+    "relieve",
+    "Gus cautiously took some expensive prescription medicine to quickly __________ the sharp, shooting pain in his lower back.",
+    "葛斯謹慎地吃了一些昂貴的處方藥，以迅速緩解他下背部劇烈刺痛的疼痛。",
+    [
+      "cautiously",
+      "expensive",
+      "prescription"
+    ]
+  ],
+  [
+    "relief",
+    "Joe immediately felt a huge sense of deep __________ after the experienced doctor told him he would definitely recover completely.",
+    "在經驗豐富的醫生告訴他絕對會完全康復後，喬立刻感到了一種巨大的深深的如釋重負。",
+    [
+      "immediately",
+      "sense",
+      "experienced"
+    ]
+  ],
+  [
+    "relieved",
+    "The terribly worried parents were visibly __________ when the brave police officer safely brought their missing little boy back home.",
+    "當勇敢的警察安全地把他們失蹤的小男孩帶回家時，極度擔憂的父母明顯地感到寬慰的。",
+    [
+      "terribly",
+      "worried",
+      "parents"
+    ]
+  ],
+  [
+    "anxiety",
+    "Poor Chris has tragically suffered from crippling __________ for much of his difficult adult life, making it hard to socialize.",
+    "可憐的克里斯在他艱難的成年生活中大部分時間都悲慘地遭受嚴重焦慮的折磨，使他難以社交。",
+    [
+      "chris",
+      "tragically",
+      "suffered"
+    ]
+  ],
+  [
+    "anxious",
+    "The young job applicant felt incredibly __________ and sweaty while sitting quietly in the cold waiting room before his interview.",
+    "年輕的求職者在面試前安靜地坐在寒冷的候診室時，感到極度焦慮的且流汗。",
+    [
+      "young",
+      "applicant",
+      "incredibly"
+    ]
+  ],
+  [
+    "anxiously",
+    "The loving mother stood by the window and completely __________ watched the dark street, waiting for her teenage daughter's return.",
+    "慈愛的母親站在窗邊，完全焦急地看著黑暗的街道，等待著她十幾歲的女兒歸來。",
+    [
+      "loving",
+      "mother",
+      "stood"
+    ]
+  ],
+  [
+    "anxiety disorder",
+    "It is highly recommended to seek professional psychological help if you constantly suspect you might officially have an __________ __________.",
+    "如果你不斷懷疑自己可能正式患有焦慮症，強烈建議尋求專業心理協助。",
+    [
+      "highly",
+      "recommended",
+      "professional"
+    ]
+  ],
+  [
+    "depression",
+    "The experienced counselor provided professional guidance to help the young student overcome her severe academic __________.",
+    "經驗豐富的輔導老師提供了專業的指導，以幫助這名年輕學生克服她嚴重的學業沮喪。",
+    [
+      "experienced",
+      "counselor",
+      "provided"
+    ]
+  ],
+  [
+    "depressed",
+    "Feeling heavily __________ after the sudden business failure, the ambitious entrepreneur decided to take a short break to restore his energy.",
+    "在突如其來的商業失敗後感到非常沮喪，這位雄心勃勃的企業家決定休個短假以恢復精力。",
+    [
+      "feeling",
+      "heavily",
+      "sudden"
+    ]
+  ]
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ══════════════════════════════════════════════════════
+//  SYNONYM CONFLICT MAP  — Basic U10
+// ══════════════════════════════════════════════════════
+const SYNONYMS = {
+  "therapy": new Set([]),
+  "physical therapy": new Set([]),
+  "ancient": new Set([]),
+  "elderly": new Set([]),
+  "the elderly": new Set([]),
+  "aged": new Set([]),
+  "middle-aged": new Set([]),
+  "middle class": new Set([]),
+  "ageing  aging": new Set([]),
+  "ageing society": new Set([]),
+  "senior": new Set([]),
+  "senior citizen": new Set([]),
+  "is senior to": new Set([]),
+  "is junior to": new Set([]),
+  "limit": new Set([]),
+  "set a speed limit": new Set([]),
+  "limitation": new Set([]),
+  "strict limitation": new Set([]),
+  "restrict": new Set([]),
+  "restriction": new Set([]),
+  "ban ...from": new Set([]),
+  "lift the ban": new Set([]),
+  "prohibit": new Set([]),
+  "prohibit ...from": new Set([]),
+  "inhibit...from": new Set([]),
+  "inhibition": new Set([]),
+  "refrain from": new Set([]),
+  "restraint": new Set([]),
+  "exercise control": new Set([]),
+  "exercise self-discipline": new Set([]),
+  "exercise caution": new Set([]),
+  "exercise patience": new Set([]),
+  "exercise the authority": new Set([]),
+  "exercise civil rights": new Set([]),
+  "election": new Set([]),
+  "referendum": new Set([]),
+  "practice a religious ritual": new Set([]),
+  "practice law": new Set([]),
+  "practice medicine": new Set([]),
+  "perform a surgery": new Set([]),
+  "perform a duty": new Set([]),
+  "perform an act of kindness": new Set([]),
+  "conduct an experiment": new Set([]),
+  "conduct a research project": new Set([]),
+  "conduct a survey": new Set([]),
+  "conduct an interview": new Set([]),
+  "conduct an orchestra": new Set([]),
+  "conduct heat": new Set([]),
+  "conduct electricity": new Set([]),
+  "hold a ceremony": new Set([]),
+  "throw a party": new Set([]),
+  "notice": new Set(["notice__2"]),
+  "notice__2": new Set(["notice"]),
+  "noticeable": new Set([]),
+  "bulletin": new Set([]),
+  "bulletin board": new Set([]),
+  "apparent": new Set([]),
+  "obvious": new Set([]),
+  "ambiguous": new Set([]),
+  "vague": new Set([]),
+  "blurry": new Set([]),
+  "abstract": new Set([]),
+  "facility": new Set([]),
+  "medical facility": new Set([]),
+  "facilitate": new Set([]),
+  "wheelchair": new Set([]),
+  "wheelchair bound": new Set([]),
+  "motorized wheelchair": new Set([]),
+  "interaction": new Set([]),
+  "interact with": new Set([]),
+  "interactive": new Set([]),
+  "social interaction": new Set([]),
+  "magical": new Set([]),
+  "magically": new Set([]),
+  "miracle": new Set([]),
+  "miraculous": new Set([]),
+  "miraculously": new Set([]),
+  "appear magically": new Set([]),
+  "transform": new Set([]),
+  "transform a into b": new Set([]),
+  "transformation": new Set([]),
+  "convert": new Set([]),
+  "relax": new Set([]),
+  "relaxation": new Set([]),
+  "relaxed": new Set([]),
+  "relaxing": new Set([]),
+  "tension": new Set(["tension__2"]),
+  "presence": new Set([]),
+  "in the presence of": new Set([]),
+  "present": new Set([]),
+  "absence": new Set([]),
+  "orphan": new Set([]),
+  "orphanage": new Set([]),
+  "express": new Set([]),
+  "expressive": new Set([]),
+  "expression": new Set([]),
+  "talkative": new Set([]),
+  "collective": new Set([]),
+  "tense": new Set([]),
+  "feel tense": new Set([]),
+  "tense mood": new Set([]),
+  "tension__2": new Set(["tension"]),
+  "relieve tension": new Set([]),
+  "intensive": new Set([]),
+  "intensive course": new Set([]),
+  "relieve": new Set([]),
+  "relief": new Set([]),
+  "relieved": new Set([]),
+  "anxiety": new Set([]),
+  "anxious": new Set([]),
+  "anxiously": new Set([]),
+  "anxiety disorder": new Set([]),
+  "depression": new Set([]),
+  "depressed": new Set([]),
+};
+
+function getDistractors(correctKey, count) {
+  const cat  = DEFS[correctKey]?.cat;
+  const syns = SYNONYMS[correctKey] || new Set();
+
+  const pool = QUESTION_POOL.filter(q => {
+    const k = q[0];
+    if (k === correctKey) return false;
+    if ((DEFS[k]?.word || k) === (DEFS[correctKey]?.word || correctKey)) return false;
+    if (DEFS[k]?.cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  const picked = shuffle(pool).slice(0, count).map(q => q[0]);
+
+  if (picked.length < count) {
+    const fallback = shuffle(QUESTION_POOL.filter(q => {
+      const k = q[0];
+      return k !== correctKey && !picked.includes(k) &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}// Stop words skipped for lookup
+const STOP_WORDS = new Set([
+  "a","an","the","this","that","these","those","it","its","i","we","you","he","she","they",
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","must","can","shall",
+  "and","but","or","nor","so","yet","for","at","by","in","on","to","of","up","as","into",
+  "if","all","not","no","any","my","our","your","his","her","their","its",
+  "from","with","about","than","then","also","very","just","more","most","such","too","even",
+  "what","which","who","whom","how","when","where","why","after","before","because","during",
+  "over","under","still","only","each","both","few","many","same","other","new","first","last","s"
+]);
+
+function renderPassage(text) {
+  return text.split(/(\s+)/).map(part => {
+    if (/^\s+$/.test(part)) return part;
+    if (/_/.test(part)) return part.replace(/_+/g, `<span class="word blank-word">__________</span>`);
+    const clean  = part.replace(/^[^a-zA-Z]+|[^a-zA-Z]+$/g, "");
+    const prefix = part.match(/^[^a-zA-Z]*/)[0];
+    const suffix = part.match(/[^a-zA-Z]*$/)[0];
+    if (!clean || clean.length < 2) return part;
+    if (STOP_WORDS.has(clean.toLowerCase())) return part;
+    return `${prefix}<span class="word" data-word="${clean.toLowerCase()}" onclick="lookupWord(this)">${clean}</span>${suffix}`;
+  }).join("");
+}
+
+// Show pool count on splash load
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+});
+
+// ══════════════════════════════════════════════════════
+//  START QUIZ  — uses ALL entries, shuffled
+// ══════════════════════════════════════════════════════
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim();
+  if (!studentName) { alert("Please enter your name first! 請先輸入姓名！"); return; }
+
+  questions = shuffle(QUESTION_POOL);   // ALL entries in random order
+  totalQ    = questions.length;
+  currentQ  = 0; score = 0; answered = false; wrongWords = []; lookedUp = new Set();
+
+  document.getElementById("splashScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display   = "block";
+  document.getElementById("totalDisplay").textContent    = totalQ;
+  window.speechSynthesis.getVoices();
+  renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  RENDER QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+  answered = false;
+  const q   = questions[currentQ];
+  const key = q[0];
+  const def = DEFS[key] || {};
+  const pct = Math.round((currentQ / totalQ) * 100);
+
+  // Progress
+  document.getElementById("progressBar").style.width   = pct + "%";
+  document.getElementById("progressLabel").textContent  = `Question ${currentQ + 1} of ${totalQ}`;
+  document.getElementById("progressPercent").textContent = pct + "%";
+  document.getElementById("qNumber").textContent        = `Question ${currentQ + 1}`;
+  document.getElementById("scoreDisplay").textContent   = score;
+
+  // Reset word helper
+  document.getElementById("wordHelper").classList.remove("active");
+
+  // POS badge
+  document.getElementById("posVal").textContent = def.pos || "";
+
+  // Passage
+  document.getElementById("passageText").innerHTML = renderPassage(q[1]);
+
+  // Chinese hint
+  document.getElementById("zhHint").textContent = q[2];
+
+  // Options: 1 correct + 3 distractors (same POS), shuffled
+  const distractors = getDistractors(key, 3);
+  const opts = shuffle([key, ...distractors]);
+
+  const grid   = document.getElementById("optionsGrid");
+  const labels = ["A","B","C","D"];
+  grid.innerHTML = "";
+  opts.forEach((optKey, i) => {
+    const btn       = document.createElement("button");
+    btn.className   = "option-btn";
+    btn.dataset.key = optKey;
+    const optLabel = (DEFS[optKey] && DEFS[optKey].word) || optKey;
+    btn.innerHTML   = `<span class="option-label">${labels[i]}</span>${optLabel}`;
+    btn.onclick     = () => handleAnswer(optKey, btn, q);
+    grid.appendChild(btn);
+  });
+
+  // Reset feedback & next
+  document.getElementById("feedbackBox").classList.remove("active");
+  const nb = document.getElementById("nextBtn");
+  nb.classList.remove("visible");
+  nb.style.display = "none";
+
+  // TTS button reset
+  document.getElementById("ttsBtn").classList.remove("speaking");
+
+  // Card animation
+  const card = document.getElementById("questionCard");
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation = "slideUp 0.35s ease";
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILT-IN MINI DICTIONARY (common English words + CN)
+//  Used as fallback when a word is not in DEFS
+// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════
+//  DICTIONARY LOOKUP — DEFS first, then Free Dict API + MyMemory CN translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab, instant)
+//  Layer 2: Free Dictionary API → English definition
+//  Layer 3: MyMemory API → 繁體中文 translation
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1 : DEFS (this unit's vocab — instant)
+//  Layer 2 : Google Translate API → 繁中 + EN definitions
+//  Layer 3 : Free Dictionary API → EN definition (fallback)
+// ══════════════════════════════════════════════════════
+//  WORD HELPER / DICTIONARY LOOKUP
+//  Layer 1: DEFS (this unit's vocab — instant, always works)
+//  Layer 2: Google Translate API (CN + EN definition attempt)
+//  Layer 3: Cambridge Dictionary button (guaranteed fallback)
+// ══════════════════════════════════════════════════════
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up\u2026</span>';
+
+  // Rewire TTS button
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  // Cambridge Dictionary link — guaranteed to work everywhere
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '\u81ea\u52d5\u67e5\u8a62\u5931\u6557\uff0c\u8acb\u9ede\u64ca\u4e0b\u65b9\u6309\u9215\u67e5\u8a62\u5b8c\u6574\u5b57\u5178\uff1a</span>' +
+      cambridgeBtn;
+  }
+
+  // Strip suffix to get base form
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // ── Layer 1: DEFS (this unit's vocab words) ──────────────────────────────
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    var dw = ((DEFS[k] && DEFS[k].word) || k).toLowerCase();
+    return dw === raw || dw.startsWith(raw + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // ── Layer 2: Google Translate API ────────────────────────────────────────
+  // Uses the lightweight client=gtx endpoint — no API key, CORS-enabled,
+  // works from browsers worldwide. dt=t gives translation, dt=md gives definitions.
+  var lookupWord = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupWord);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      // data[0][0][0] = Chinese translation
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupWord || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+
+      // data[12] = definitions: [[POS, [[def,...],...]],...]
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+
+      if (cn || en) {
+        var enShow  = en  || '<em style="font-size:0.82rem">\uff08\u82f1\u6587\u5b9a\u7fa9\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        var cnShow  = cn  || '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through to Layer 3 */ }
+
+  // ── Layer 3: Free Dictionary API (second attempt) ────────────────────────
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupWord);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">\uff08\u4e2d\u6587\u7ffb\u8b6f\u8acb\u5c55\u958b\u5b57\u5178\uff09</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // ── Final fallback: Cambridge Dictionary link ────────────────────────────
+  showLinkOnly();
+}
+
+
+// Speaks a single word at slow rate, fires callback on end/error
+function speakWordOnly(word, onDone) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(word);
+  utt.lang   = "en-US";
+  utt.rate   = 0.78;   // slower so pronunciation is clear
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  utt.onend   = onDone || (() => {});
+  utt.onerror = onDone || (() => {});
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  HANDLE ANSWER
+// ══════════════════════════════════════════════════════
+function handleAnswer(chosenKey, btn, q) {
+  if (answered) return;
+  answered = true;
+  const isCorrect = chosenKey === q[0];
+  if (isCorrect) score++;
+  else wrongWords.push((DEFS[q[0]] && DEFS[q[0]].word) || q[0]);
+
+  // Style buttons
+  document.querySelectorAll(".option-btn").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.key === q[0]) b.classList.add("correct");
+    else if (b === btn && !isCorrect) b.classList.add("incorrect");
+  });
+
+  document.getElementById("scoreDisplay").textContent = score;
+
+  // Highlight clue words in passage
+  const clues = q[3] || [];
+  document.getElementById("passageText").querySelectorAll(".word[data-word]").forEach(span => {
+    if (clues.some(c => c.toLowerCase() === span.dataset.word)) span.classList.add("clue-highlight");
+  });
+
+  // Feedback
+  buildFeedback(q);
+  document.getElementById("feedbackBox").classList.add("active");
+
+  // Next button
+  const nb = document.getElementById("nextBtn");
+  nb.style.display = "flex";
+  nb.classList.add("visible");
+  nb.innerHTML = currentQ < totalQ - 1
+    ? `Next Question <i class="fas fa-arrow-right"></i>`
+    : `See Results <i class="fas fa-flag-checkered"></i>`;
+}
+
+// ══════════════════════════════════════════════════════
+//  BUILD FEEDBACK BOX  (uses data-* attrs to avoid escaping issues)
+// ══════════════════════════════════════════════════════
+function buildFeedback(q) {
+  const grid = document.getElementById("feedbackGrid");
+  grid.innerHTML = "";
+  // Collect option keys from rendered buttons
+  const optKeys = [...document.querySelectorAll(".option-btn")].map(b => b.dataset.key);
+  optKeys.forEach(wk => {
+    const def   = DEFS[wk] || { pos:"", en:"—", cn:"—", ex:"—" };
+    const isAns = wk === q[0];
+    const item  = document.createElement("div");
+    item.className = "feedback-item" + (isAns ? " is-answer" : "");
+
+    // Word row + TTS
+    const wordRow = document.createElement("div");
+    wordRow.className = "feedback-word";
+
+    const displayWord = (DEFS[wk] && DEFS[wk].word) || wk;
+    const wordSpan = document.createElement("span");
+    wordSpan.textContent = displayWord + (isAns ? " ?" : "");
+    wordRow.appendChild(wordSpan);
+
+    const wordTts = document.createElement("button");
+    wordTts.className = "word-tts";
+    wordTts.title = "Listen to word";
+    wordTts.innerHTML = `<i class="fas fa-volume-low"></i>`;
+    wordTts.dataset.speak = displayWord;
+    wordTts.addEventListener("click", () => speakText(displayWord));
+    wordRow.appendChild(wordTts);
+    item.appendChild(wordRow);
+
+    // EN definition
+    const enDiv = document.createElement("div");
+    enDiv.className = "feedback-en";
+    enDiv.textContent = def.en;
+    item.appendChild(enDiv);
+
+    // CN definition
+    const cnDiv = document.createElement("div");
+    cnDiv.className = "feedback-cn";
+    cnDiv.textContent = def.cn;
+    item.appendChild(cnDiv);
+
+    // Example sentence row with TTS
+    const exRow = document.createElement("div");
+    exRow.className = "feedback-example";
+
+    const exTts = document.createElement("button");
+    exTts.className = "ex-tts";
+    exTts.title = "Listen to example sentence";
+    exTts.innerHTML = `<i class="fas fa-play-circle"></i>`;
+    const exText = def.ex || "";
+    exTts.addEventListener("click", () => speakText(exText));
+    exRow.appendChild(exTts);
+
+    const exSpan = document.createElement("span");
+    exSpan.textContent = exText;
+    exRow.appendChild(exSpan);
+    item.appendChild(exRow);
+
+    grid.appendChild(item);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+//  TTS
+// ══════════════════════════════════════════════════════
+function speakText(text) {
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(text);
+  utt.lang   = "en-US";
+  utt.rate   = 0.92;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  window.speechSynthesis.speak(utt);
+}
+
+function speakPassage() {
+  const q   = questions[currentQ];
+  const btn = document.getElementById("ttsBtn");
+  const txt = q[1].replace(/_+/g, "blank");
+  window.speechSynthesis.cancel();
+  const utt  = new SpeechSynthesisUtterance(txt);
+  utt.lang   = "en-US";
+  utt.rate   = 0.88;
+  const voices = window.speechSynthesis.getVoices();
+  const female = voices.find(v => v.lang === "en-US" && /female|woman|samantha|karen|victoria|zira/i.test(v.name));
+  if (female) utt.voice = female;
+  btn.classList.add("speaking");
+  utt.onend  = () => btn.classList.remove("speaking");
+  utt.onerror= () => btn.classList.remove("speaking");
+  window.speechSynthesis.speak(utt);
+}
+
+// ══════════════════════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════════════════════
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= totalQ) showEndScreen();
+  else renderQuestion();
+}
+
+// ══════════════════════════════════════════════════════
+//  END SCREEN
+// ══════════════════════════════════════════════════════
+function showEndScreen() {
+  document.getElementById("quizArea").style.display = "none";
+  document.getElementById("endScreen").classList.add("active");
+  document.getElementById("progressBar").style.width      = "100%";
+  document.getElementById("progressLabel").textContent     = "Quiz Complete!";
+  document.getElementById("progressPercent").textContent   = "100%";
+
+  const pct = Math.round((score / totalQ) * 100);
+  document.getElementById("endName").textContent           = studentName;
+  document.getElementById("endScoreBig").textContent       = `${score}/${totalQ}`;
+  document.getElementById("endScoreLabel").textContent     = `${pct}% Correct`;
+  document.getElementById("statCorrect").textContent       = score;
+  document.getElementById("statWrong").textContent         = totalQ - score;
+  document.getElementById("statLooked").textContent        = lookedUp.size;
+
+  // Wrong word chips
+  const wc = document.getElementById("wrongChips");
+  wc.innerHTML = wrongWords.length
+    ? [...new Set(wrongWords)].map(w => `<span class="chip chip-wrong">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">None! 🎉</span>`;
+
+  // Looked-up chips
+  const lc = document.getElementById("lookupChips");
+  lc.innerHTML = lookedUp.size
+    ? [...lookedUp].map(w => `<span class="chip chip-lookup">${w}</span>`).join("")
+    : `<span style="color:var(--color-muted);font-size:0.88rem">No words were looked up.</span>`;
+
+  // Message
+  let icon, msg, msgCn;
+  if (pct === 100) { icon="🏆"; msg="Perfect score! Your vocabulary mastery is exceptional."; msgCn="滿分！你的詞彙能力非常出色！"; }
+  else if (pct >= 80) { icon="🌟"; msg="Excellent work! You have a strong command of these words."; msgCn="表現優異！你對這些單字掌握得很好。"; }
+  else if (pct >= 60) { icon="📚"; msg="Good effort! Review the words you missed and try again."; msgCn="表現不錯！複習答錯的單字，再試一次吧。"; }
+  else { icon="💪"; msg="Keep practicing! Each attempt builds stronger vocabulary skills."; msgCn="繼續努力！每次練習都能讓你的詞彙更進步。"; }
+  document.getElementById("endIcon").textContent        = icon;
+  document.getElementById("endMessage").textContent     = msg;
+  document.getElementById("endMessageCn").textContent   = msgCn;
+
+  submitResults(pct);
+}
+
+// ══════════════════════════════════════════════════════
+//  SUBMIT TO GOOGLE SHEETS
+// ══════════════════════════════════════════════════════
+async function submitResults(pct) {
+  const st = document.getElementById("submitStatus");
+  st.className = "submit-status status-sending show";
+  st.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Submitting results… 成績送出中…`;
+
+  const payload = {
+    timestamp:    new Date().toISOString(),
+    studentName:  studentName,
+    scorePercent: pct,
+    wrongWords:   [...new Set(wrongWords)],
+    lookedUpWords:[...lookedUp]
+  };
+
+  try {
+    await fetch(SCRIPT_URL, {
+      method: "POST",
+      mode:   "no-cors",
+      headers:{ "Content-Type": "application/json" },
+      body:   JSON.stringify(payload)
+    });
+    st.className = "submit-status status-ok show";
+    st.innerHTML = `<i class="fas fa-circle-check"></i> Results submitted! 成績已成功送出！`;
+  } catch(e) {
+    st.className = "submit-status status-err show";
+    st.innerHTML = `<i class="fas fa-circle-exclamation"></i> Could not submit. Please check your internet connection.`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+//  RESTART
+// ══════════════════════════════════════════════════════
+function restartQuiz() {
+  document.getElementById("endScreen").classList.remove("active");
+  document.getElementById("quizArea").style.display = "block";
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("splashScreen").style.display = "flex";
+  document.getElementById("nameInput").value = "";
+}
+
+// Init
+window.speechSynthesis.getVoices();
+// Set pool count on splash (fallback if DOMContentLoaded already fired)
+if (document.getElementById("poolCount")) {
+  document.getElementById("poolCount").textContent = QUESTION_POOL.length;
+}
+</script>
+</body>
+</html>
