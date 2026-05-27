@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Level 2-4 Basic U6 – LiveABC Vocab Quiz</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --color-bg: #f4f7fb;
+    --color-card: #ffffff;
+    --color-primary: #1a3a5c;
+    --color-accent: #e8a020;
+    --color-correct: #27ae60;
+    --color-wrong: #e74c3c;
+    --color-muted: #7a8a9a;
+    --color-light: #eaf1fb;
+    --color-purple: #6a4c93;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: var(--color-bg); color: #1c1c1c; min-height: 100vh; }
+  header { background: var(--color-primary); color: #fff; padding: 18px 24px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,.18); }
+  header .badge { background: var(--color-accent); color: #fff; font-size: 0.78rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; letter-spacing: .03em; }
+  header h1 { font-size: 1.15rem; font-weight: 700; }
+  .container { max-width: 720px; margin: 0 auto; padding: 28px 16px 48px; }
+
+  /* ── Start Screen ── */
+  #startScreen { text-align: center; padding: 40px 24px; }
+  #startScreen h2 { font-size: 1.7rem; color: var(--color-primary); margin-bottom: 10px; }
+  #startScreen p { color: var(--color-muted); margin-bottom: 24px; font-size: 0.95rem; }
+  #nameInput { width: 100%; max-width: 340px; padding: 12px 16px; border: 2px solid #d0d8e8; border-radius: var(--radius); font-size: 1rem; margin-bottom: 20px; outline: none; transition: border .2s; }
+  #nameInput:focus { border-color: var(--color-primary); }
+  .btn-primary { background: var(--color-primary); color: #fff; border: none; padding: 13px 36px; border-radius: var(--radius); font-size: 1rem; font-weight: 700; cursor: pointer; transition: background .2s; display: inline-flex; align-items: center; gap: 8px; }
+  .btn-primary:hover { background: #254d7a; }
+  .pool-count { font-size: 0.85rem; color: var(--color-muted); margin-top: 14px; }
+
+  /* ── Quiz Screen ── */
+  #quizScreen { display: none; }
+  .progress-bar-wrap { background: #dde6f0; border-radius: 8px; height: 8px; margin-bottom: 20px; }
+  .progress-bar-fill { background: var(--color-accent); height: 8px; border-radius: 8px; transition: width .4s; }
+  .q-meta { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--color-muted); margin-bottom: 6px; }
+
+  .card { background: var(--color-card); border-radius: var(--radius); padding: 24px 22px 20px; box-shadow: 0 2px 12px rgba(26,58,92,.09); margin-bottom: 20px; }
+  .sentence-block { font-size: 1.08rem; line-height: 1.7; margin-bottom: 8px; }
+  .cn-sentence { font-size: 0.88rem; color: #555; font-family: 'Noto Serif TC', serif; margin-bottom: 14px; }
+  .clue-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+  .clue-pill { background: var(--color-light); color: var(--color-primary); font-size: 0.78rem; padding: 3px 10px; border-radius: 20px; cursor: pointer; border: 1px solid #c8d8ec; transition: background .15s; }
+  .clue-pill:hover { background: #d0e4f8; }
+  .clue-pill.looked-up { background: #fff3cd; border-color: var(--color-accent); }
+
+  .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+  @media(max-width:480px){ .options-grid { grid-template-columns: 1fr; } }
+  .opt-btn { background: #f0f4fb; border: 2px solid #d0d8e8; border-radius: 10px; padding: 11px 14px; font-size: 0.95rem; font-weight: 600; cursor: pointer; text-align: left; transition: all .15s; display: flex; align-items: center; gap: 8px; }
+  .opt-btn:hover:not(:disabled) { background: var(--color-light); border-color: var(--color-primary); }
+  .opt-btn.correct { background: #eafaf1; border-color: var(--color-correct); color: var(--color-correct); }
+  .opt-btn.wrong   { background: #fdecea; border-color: var(--color-wrong);  color: var(--color-wrong);  }
+  .opt-btn:disabled { cursor: default; }
+
+  /* ── Word Helper ── */
+  #wordHelper { display: none; background: #fff8ec; border: 2px solid var(--color-accent); border-radius: var(--radius); padding: 16px 18px; margin-bottom: 18px; position: relative; }
+  #wordHelper.active { display: block; }
+  #helperClose { position: absolute; top: 10px; right: 14px; background: none; border: none; font-size: 1.1rem; cursor: pointer; color: var(--color-muted); }
+  #helperWordText { font-size: 1.2rem; font-weight: 700; color: var(--color-primary); }
+  #helperPos { font-size: 0.82rem; color: var(--color-muted); margin-bottom: 4px; }
+  #helperDef { font-size: 0.9rem; line-height: 1.55; }
+  #helperTtsBtn { margin-left: 10px; background: none; border: none; color: var(--color-accent); font-size: 1rem; cursor: pointer; }
+  #helperTtsBtn.speaking { color: var(--color-correct); }
+  .helper-loader { color: var(--color-muted); font-size: 0.85rem; }
+
+  /* ── Feedback ── */
+  #feedbackBlock { display: none; margin-top: 14px; padding: 14px 16px; border-radius: 10px; font-size: 0.92rem; line-height: 1.6; }
+  #feedbackBlock.correct-fb { background: #eafaf1; border: 1.5px solid var(--color-correct); }
+  #feedbackBlock.wrong-fb   { background: #fdecea; border: 1.5px solid var(--color-wrong); }
+  .fb-label { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+  .fb-answer { font-size: 1rem; font-weight: 700; color: var(--color-primary); }
+  .fb-en { color: #444; margin-top: 4px; }
+  .fb-cn { color: var(--color-purple); font-family: 'Noto Serif TC', serif; font-size: 0.87rem; }
+
+  .tts-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .tts-btn { background: var(--color-primary); color: #fff; border: none; border-radius: 8px; padding: 8px 14px; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background .15s; }
+  .tts-btn:hover { background: #254d7a; }
+  .tts-btn.speaking { background: var(--color-correct); }
+
+  .next-btn { margin-top: 16px; width: 100%; background: var(--color-primary); color: #fff; border: none; border-radius: var(--radius); padding: 13px; font-size: 1rem; font-weight: 700; cursor: pointer; display: none; transition: background .2s; }
+  .next-btn:hover { background: #254d7a; }
+
+  /* ── Score Strip ── */
+  .score-strip { background: var(--color-card); border-radius: var(--radius); padding: 12px 20px; display: flex; gap: 24px; justify-content: center; margin-bottom: 20px; box-shadow: 0 1px 6px rgba(26,58,92,.07); flex-wrap: wrap; }
+  .score-item { text-align: center; }
+  .score-item .val { font-size: 1.4rem; font-weight: 700; color: var(--color-primary); }
+  .score-item .lbl { font-size: 0.72rem; color: var(--color-muted); text-transform: uppercase; letter-spacing: .05em; }
+
+  /* ── End Screen ── */
+  #endScreen { display: none; text-align: center; padding: 32px 20px; }
+  #endScreen h2 { font-size: 2rem; color: var(--color-primary); margin-bottom: 8px; }
+  .final-pct { font-size: 3.5rem; font-weight: 700; color: var(--color-accent); margin: 10px 0; }
+  .wrong-list { text-align: left; background: #fdecea; border-radius: 10px; padding: 14px 18px; margin: 18px 0; font-size: 0.9rem; }
+  .wrong-list h4 { color: var(--color-wrong); margin-bottom: 8px; }
+  .wrong-list li { margin-bottom: 4px; color: #444; }
+  .submit-form { margin-top: 20px; }
+  .submit-form input { width: 100%; max-width: 300px; padding: 10px 14px; border: 2px solid #d0d8e8; border-radius: 10px; font-size: 0.95rem; margin-bottom: 10px; outline: none; }
+  .submit-form input:focus { border-color: var(--color-primary); }
+  .btn-submit { background: var(--color-correct); color: #fff; border: none; padding: 11px 28px; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin: 6px 4px; transition: background .2s; }
+  .btn-submit:hover { background: #219a52; }
+  .btn-restart { background: var(--color-primary); color: #fff; border: none; padding: 11px 28px; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; margin: 6px 4px; }
+  .submit-msg { margin-top: 10px; font-size: 0.88rem; color: var(--color-muted); }
+</style>
+</head>
+<body>
+<header>
+  <span class="badge">Level 2-4 Basic U6 · LiveABC Vocabulary Quiz</span>
+  <h1>Vocabulary Quiz</h1>
+</header>
+<div class="container">
+
+  <!-- START SCREEN -->
+  <div id="startScreen">
+    <h2>🎯 Basic U6 Quiz</h2>
+    <p>Test all vocabulary from Unit 6. Fill in each blank with the correct word!</p>
+    <input type="text" id="nameInput" placeholder="Enter your name…" autocomplete="off"/>
+    <br/>
+    <button class="btn-primary" onclick="startQuiz()"><i class="fas fa-play"></i> Start Quiz</button>
+    <p class="pool-count" id="poolCount"></p>
+  </div>
+
+  <!-- QUIZ SCREEN -->
+  <div id="quizScreen">
+    <div class="score-strip">
+      <div class="score-item"><div class="val" id="scoreCorrect">0</div><div class="lbl">✅ Correct</div></div>
+      <div class="score-item"><div class="val" id="scoreWrong">0</div><div class="lbl">❌ Wrong</div></div>
+      <div class="score-item"><div class="val" id="scoreLeft">0</div><div class="lbl">Remaining</div></div>
+    </div>
+
+    <div class="q-meta">
+      <span id="qNum">Question 1</span>
+      <span id="qPct">0%</span>
+    </div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+
+    <!-- Word Helper -->
+    <div id="wordHelper">
+      <button id="helperClose" onclick="document.getElementById('wordHelper').classList.remove('active')"><i class="fas fa-times"></i></button>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+        <span id="helperWordText" style="font-size:1.2rem;font-weight:700;color:var(--color-primary)"></span>
+        <button id="helperTtsBtn"><i class="fas fa-volume-up"></i></button>
+      </div>
+      <div id="helperPos"></div>
+      <div id="helperDef"></div>
+    </div>
+
+    <div class="card" id="questionCard">
+      <div class="sentence-block" id="sentenceDisplay"></div>
+      <div class="cn-sentence" id="cnSentence"></div>
+      <div class="clue-row" id="clueRow"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div id="feedbackBlock"></div>
+      <div class="tts-row" id="ttsRow" style="display:none">
+        <button class="tts-btn" id="ttsWordBtn" onclick="speakWordOnly(currentKey, function(){ document.getElementById('ttsWordBtn').classList.remove('speaking'); })"><i class="fas fa-volume-up"></i> Word</button>
+        <button class="tts-btn" id="ttsSentBtn" onclick="speakText(document.getElementById('sentenceDisplay').textContent, function(){ document.getElementById('ttsSentBtn').classList.remove('speaking'); })"><i class="fas fa-volume-up"></i> Sentence</button>
+      </div>
+      <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </div>
+
+  <!-- END SCREEN -->
+  <div id="endScreen">
+    <h2>🏆 Quiz Complete!</h2>
+    <div class="final-pct" id="finalPct"></div>
+    <p id="finalMsg"></p>
+    <div class="wrong-list" id="wrongList" style="display:none">
+      <h4><i class="fas fa-exclamation-triangle"></i> Review These Words</h4>
+      <ul id="wrongItems"></ul>
+    </div>
+    <div class="submit-form">
+      <p style="margin-bottom:10px;font-size:0.9rem;color:var(--color-muted)">Submit your score to the teacher's record:</p>
+      <input type="text" id="submitName" placeholder="Your name…"/>
+      <br/>
+      <button class="btn-submit" onclick="submitResults()"><i class="fas fa-paper-plane"></i> Submit Score</button>
+      <button class="btn-restart" onclick="restartQuiz()"><i class="fas fa-redo"></i> Try Again</button>
+      <div class="submit-msg" id="submitMsg"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// 1. CONFIG
+// ─────────────────────────────────────────────
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzJFmp-g1dyVSuy-sj4x8yjUrYkvnu4Wjo-m05TE5TGH_ziSZlGf9lnnzWc1VlbhQvu/exec";
+
+// ─────────────────────────────────────────────
+// 2. DEFS
+// ─────────────────────────────────────────────
+const DEFS = {
+  "fake":         { pos:"(adj.)", cat:"adj", en:"Not genuine; counterfeit or false.", cn:"假的" },
+  "mislead":      { pos:"(v.)",   cat:"v",   en:"To cause someone to have a wrong idea or impression.", cn:"誤導" },
+  "misleading":   { pos:"(adj.)", cat:"adj", en:"Giving a wrong impression; deceptive.", cn:"誤導的" },
+  "customer":     { pos:"(n.)",   cat:"n",   en:"A person who buys goods or services from a shop or business.", cn:"顧客" },
+  "except":       { pos:"(conj.)",cat:"phr", en:"Not including; other than.", cn:"除了…之外" },
+  "exception":    { pos:"(n.)",   cat:"n",   en:"A person or thing that is excluded from a general statement or does not follow a rule.", cn:"例外" },
+  "achieve":      { pos:"(v.)",   cat:"v",   en:"To successfully reach a desired objective by effort, skill, or courage.", cn:"實現" },
+  "achievement":  { pos:"(n.)",   cat:"n",   en:"A thing done successfully, typically by effort, courage, or skill.", cn:"成就" },
+  "quality":      { pos:"(n.)",   cat:"n",   en:"The standard of something as measured against other things; degree of excellence.", cn:"品質" },
+  "quantity":     { pos:"(n.)",   cat:"n",   en:"The amount or number of a material or immaterial thing.", cn:"數量" },
+  "industry":     { pos:"(n.)",   cat:"n",   en:"Economic activity concerned with the processing of raw materials and manufacture of goods.", cn:"行業" },
+  "industrial":   { pos:"(adj.)", cat:"adj", en:"Relating to or characterized by industry.", cn:"工業的" },
+  "require":      { pos:"(v.)",   cat:"v",   en:"To need something for a particular purpose; to make something necessary.", cn:"需要" },
+  "required":     { pos:"(adj.)", cat:"adj", en:"Made necessary by regulations or rules; compulsory.", cn:"必需的" },
+  "requirement":  { pos:"(n.)",   cat:"n",   en:"A thing that is needed or wanted; a necessary condition.", cn:"要求" },
+  "a rather than b": { pos:"(phr.)",cat:"phr", en:"Preferring one thing over another of the same type.", cn:"而不是（A rather than B）" },
+  "instead of":   { pos:"(phr.)", cat:"phr", en:"As an alternative or substitute to; in place of.", cn:"而不是（instead of）" },
+  "substance":    { pos:"(n.)",   cat:"n",   en:"A particular kind of matter with uniform properties.", cn:"物質" },
+  "link to":      { pos:"(phr.)", cat:"phr", en:"To connect or associate one thing with another.", cn:"連接到" },
+  "cancer":       { pos:"(n.)",   cat:"n",   en:"A disease caused by an uncontrolled division of abnormal cells in a part of the body.", cn:"癌症" },
+  "metal":        { pos:"(n.)",   cat:"n",   en:"A solid material that is typically hard, shiny, and conducts electricity and heat.", cn:"金屬" },
+  "exhibit":      { pos:"(v.)",   cat:"v",   en:"To publicly display an object or collection in a gallery or museum.", cn:"展示" },
+  "visible":      { pos:"(adj.)", cat:"adj", en:"Able to be seen; perceptible to the eye.", cn:"可見的" },
+  "invisible":    { pos:"(adj.)", cat:"adj", en:"Unable to be seen; not visible to the eye.", cn:"看不見的" },
+  "medical":      { pos:"(adj.)", cat:"adj", en:"Relating to medicine or the treatment of illness and injuries.", cn:"醫療的" },
+  "condition":    { pos:"(n.)",   cat:"n",   en:"The state of something, especially with regard to its quality.", cn:"狀況" },
+  "disease":      { pos:"(n.)",   cat:"n",   en:"A disorder of structure or function in a human, animal, or plant, especially one that produces specific symptoms.", cn:"疾病" },
+  "be suspicious of": { pos:"(phr.)", cat:"phr", en:"To have doubts or feelings of distrust about someone or something.", cn:"懷疑" }
+};
+
+// ─────────────────────────────────────────────
+// 3. QUESTION_POOL
+// ─────────────────────────────────────────────
+const QUESTION_POOL = [
+  // adj
+  ["fake",        "She bought a __________ designer bag of a luxury brand, only to find that it is a counterfeit.", "她買了一個假的豪華品牌設計師包，只發現它是個仿冒品。", ["designer","luxury","counterfeit","bought"]],
+  ["misleading",  "The brochure contained __________ information, causing confusion among potential customers.", "這本手冊包含了誤導性資訊，引起了潛在客戶的混淆。", ["brochure","information","confusion","customers"]],
+  ["industrial",  "Pollution is a common issue in __________ areas, posing a threat to both the environment and human health.", "污染在工業區是一個常見問題，對環境和人類健康都構成威脅。", ["pollution","areas","environment","health"]],
+  ["required",    "Safety equipment is __________ for this task to ensure the well-being of the workers.", "這項任務需要安全設備，以確保工人的安全和福祉。", ["safety","equipment","task","workers"]],
+  ["visible",     "After the rain, a beautiful rainbow became __________ in the sky, attracting many onlookers.", "雨後，天空中出現了美麗的彩虹，吸引了許多觀眾。", ["rainbow","sky","rain","onlookers"]],
+  ["invisible",   "Even though it's __________ to the naked eye, microscopic bacteria play a crucial role in our ecosystem.", "儘管肉眼看不見，但微小的細菌在我們的生態系統中起著至關重要的作用。", ["naked","eye","bacteria","ecosystem"]],
+  ["medical",     "After his accident, he received __________ attention immediately to prevent any complications.", "他出事故後立即得到了醫療照顧，以防止任何併發症。", ["accident","attention","complications","prevent"]],
+  // n
+  ["customer",    "The store values its __________ feedback and takes it into account when making improvements.", "這家店重視顧客的反饋，並在進行改進時考慮其中的意見。", ["store","feedback","improvements","values"]],
+  ["exception",   "There is an __________ to the rule, but it rarely applies in practice.", "這個規則有一個例外，但在實踐中很少適用。", ["rule","rarely","applies","practice"]],
+  ["achievement", "Winning the competition was a great __________ for the team, and they celebrated their success enthusiastically.", "贏得比賽對於團隊來說是一個巨大的成就，他們熱情慶祝他們的成功。", ["winning","competition","team","celebrated"]],
+  ["quality",     "The company is known for its high __________ products, which have earned them a loyal customer base.", "這家公司以其高品質的產品而聞名，這些產品為他們贏得了忠實的客戶基礎。", ["company","products","loyal","earned"]],
+  ["quantity",    "We need to increase the __________ of production to meet the growing demand for our products.", "為了滿足對我們產品日益增長的需求，我們需要提高生產的數量。", ["increase","production","demand","products"]],
+  ["industry",    "The technology __________ is constantly evolving, with new innovations and breakthroughs happening regularly.", "技術行業不斷發展變化，定期出現新的創新和突破。", ["technology","evolving","innovations","breakthroughs"]],
+  ["requirement", "Meeting the __________ is essential for the success of the project, and it sets clear standards for performance.", "符合這項要求對於項目的成功至關重要，它為性能設定了明確的標準。", ["meeting","essential","project","standards"]],
+  ["substance",   "Scientists are researching the mysterious __________ found in the meteorite to understand its origin.", "科學家正在研究在隕石中發現的神秘物質，以了解其起源。", ["scientists","mysterious","meteorite","origin"]],
+  ["cancer",      "Due to his family history, he regularly undergoes checks for __________ to ensure early detection.", "由於他的家族病史，他定期進行癌症檢查以確保早期發現。", ["family","history","regularly","detection"]],
+  ["metal",       "The artist uses scrap __________ to create sculptures that convey messages about environmental conservation.", "藝術家使用廢金屬創作雕塑，傳達有關環境保護的信息。", ["artist","scrap","sculptures","environmental"]],
+  ["condition",   "The old building is in poor __________ and requires extensive repairs before it can be inhabited again.", "這座老建築物狀況不佳，需要進行大量維修才能再次入住。", ["building","repairs","inhabited","poor"]],
+  ["disease",     "Scientists are working tirelessly to find a cure for the __________ that has affected millions worldwide.", "科學家正在不懈地尋找治療這種影響全球數百萬人的疾病的方法。", ["cure","affected","millions","worldwide"]],
+  // v
+  ["mislead",     "The false advertising can __________ consumers into making uninformed decisions about the product.", "虛假廣告可能會誤導消費者，使他們對產品做出不知情的決策。", ["false","advertising","consumers","uninformed"]],
+  ["achieve",     "She worked tirelessly to __________ her goals, dedicating long hours to her studies and projects.", "她不知疲倦地努力工作以實現她的目標，她花費了很多時間在學習和項目上。", ["goals","tirelessly","studies","projects"]],
+  ["require",     "This job will __________ a lot of hard work and dedication, as it involves complex tasks and responsibilities.", "這份工作需要付出大量的努力和奉獻，因為它涉及到複雜的任務和責任。", ["job","dedication","complex","responsibilities"]],
+  ["exhibit",     "The museum will __________ ancient artifacts from various civilizations next month.", "博物館將於下個月展出來自各個文明的古代文物。", ["museum","ancient","artifacts","civilizations"]],
+  // phr
+  ["except",      "Everyone attended the meeting __________ for John, who was unable to make it due to illness.", "除了約翰，每個人都參加了會議，由於生病他無法參加。", ["everyone","meeting","illness","unable"]],
+  ["a rather than b", "She would travel within the country __________ take a plane abroad because she feels frightened to travel by plane.", "她寧願在國內旅行也不願搭飛機出國，因為她害怕搭飛機旅行。", ["travel","country","plane","abroad"]],
+  ["instead of",  "He bought an e-book __________ a physical one, finding it more convenient for his travels.", "他購買了電子書而不是實體書，認為它更適合他的旅行。", ["bought","e-book","physical","convenient"]],
+  ["link to",     "Studies have shown that regular exercise is __________ better mental health, reducing symptoms of anxiety and depression.", "研究表明，定期運動可以連接到更好的心理健康，減少焦慮和抑鬱的症狀。", ["exercise","mental","health","anxiety"]],
+  ["be suspicious of", "She began to __________ his actions when he returned home late every night without a clear explanation.", "當他每晚回家都很晚而沒有明確的解釋時，她開始懷疑他的行為。", ["actions","returned","late","explanation"]]
+];
+
+// ─────────────────────────────────────────────
+// 4. UTILITIES
+// ─────────────────────────────────────────────
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ─────────────────────────────────────────────
+// 5. SYNONYMS
+// ─────────────────────────────────────────────
+const SYNONYMS = {
+  "fake":             new Set(["misleading"]),
+  "mislead":          new Set(["misleading"]),
+  "misleading":       new Set(["fake","mislead"]),
+  "customer":         new Set([]),
+  "except":           new Set(["a rather than b","instead of"]),
+  "exception":        new Set([]),
+  "achieve":          new Set(["achievement"]),
+  "achievement":      new Set(["achieve"]),
+  "quality":          new Set(["condition"]),
+  "quantity":         new Set([]),
+  "industry":         new Set(["industrial"]),
+  "industrial":       new Set(["industry"]),
+  "require":          new Set(["required","requirement"]),
+  "required":         new Set(["require","requirement"]),
+  "requirement":      new Set(["require","required"]),
+  "a rather than b":  new Set(["instead of","except"]),
+  "instead of":       new Set(["a rather than b","except"]),
+  "substance":        new Set([]),
+  "link to":          new Set([]),
+  "cancer":           new Set(["disease"]),
+  "metal":            new Set(["substance"]),
+  "exhibit":          new Set([]),
+  "visible":          new Set(["invisible"]),
+  "invisible":        new Set(["visible"]),
+  "medical":          new Set(["required"]),
+  "condition":        new Set(["quality","disease"]),
+  "disease":          new Set(["cancer","condition"]),
+  "be suspicious of": new Set([])
+};
+
+// ─────────────────────────────────────────────
+// 6. getDistractors
+// ─────────────────────────────────────────────
+function getDistractors(correctKey, count) {
+  var cat  = DEFS[correctKey] ? DEFS[correctKey].cat : "";
+  var syns = SYNONYMS[correctKey] || new Set();
+
+  var pool = QUESTION_POOL.filter(function(q) {
+    var k = q[0];
+    if (k === correctKey) return false;
+    if (DEFS[k] && DEFS[k].cat !== cat) return false;
+    if (syns.has(k)) return false;
+    if ((SYNONYMS[k] || new Set()).has(correctKey)) return false;
+    return true;
+  });
+
+  var picked = shuffle(pool).slice(0, count).map(function(q){ return q[0]; });
+
+  if (picked.length < count) {
+    var fallback = shuffle(QUESTION_POOL.filter(function(q) {
+      var k = q[0];
+      return k !== correctKey && picked.indexOf(k) === -1 &&
+             !syns.has(k) && !(SYNONYMS[k] || new Set()).has(correctKey);
+    }));
+    while (picked.length < count && fallback.length)
+      picked.push(fallback.pop()[0]);
+  }
+  return picked;
+}
+
+// ─────────────────────────────────────────────
+// 7. STOP_WORDS
+// ─────────────────────────────────────────────
+var STOP_WORDS = new Set(["the","a","an","is","are","was","were","be","been","being","have","has","had","do","does","did","will","would","shall","should","may","might","must","can","could","to","of","in","on","at","by","for","with","about","as","into","through","during","before","after","above","below","from","up","down","and","but","or","nor","so","yet","both","either","neither","not","also","just","it","its","he","she","they","we","you","i","his","her","their","our","your","my","this","that","these","those","which","who","what","when","where","how","all","each","every","some","any","no","more","most","other","such","than","then","if","because","while","although","though","even","very","too","only","own","same","different"]);
+
+// ─────────────────────────────────────────────
+// 8. DOMContentLoaded
+// ─────────────────────────────────────────────
+var quizQueue   = [];
+var currentIdx  = 0;
+var currentKey  = "";
+var correctCount= 0;
+var wrongCount  = 0;
+var wrongWords  = [];
+var lookedUp    = new Set();
+var studentName = "";
+var poolCount   = 0;
+
+document.addEventListener("DOMContentLoaded", function() {
+  poolCount = QUESTION_POOL.length;
+  document.getElementById("poolCount").textContent = "Total questions: " + poolCount;
+});
+
+// ─────────────────────────────────────────────
+// 9. startQuiz + renderQuestion + quiz logic
+// ─────────────────────────────────────────────
+function startQuiz() {
+  studentName = document.getElementById("nameInput").value.trim() || "Anonymous";
+  correctCount = 0; wrongCount = 0; wrongWords = []; lookedUp = new Set();
+  quizQueue = shuffle(QUESTION_POOL.slice());
+  currentIdx = 0;
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("quizScreen").style.display  = "block";
+  updateScoreStrip();
+  renderQuestion();
+}
+
+function updateScoreStrip() {
+  document.getElementById("scoreCorrect").textContent = correctCount;
+  document.getElementById("scoreWrong").textContent   = wrongCount;
+  document.getElementById("scoreLeft").textContent    = quizQueue.length - currentIdx;
+}
+
+function renderQuestion() {
+  var entry = quizQueue[currentIdx];
+  currentKey  = entry[0];
+  var sentence= entry[1];
+  var cnSent  = entry[2];
+  var clues   = entry[3];
+
+  // progress
+  var pct = Math.round((currentIdx / quizQueue.length) * 100);
+  document.getElementById("progressBar").style.width = pct + "%";
+  document.getElementById("qNum").textContent = "Question " + (currentIdx + 1) + " / " + quizQueue.length;
+  document.getElementById("qPct").textContent = pct + "%";
+
+  // sentence
+  document.getElementById("sentenceDisplay").textContent = sentence;
+  document.getElementById("cnSentence").textContent = cnSent;
+
+  // clues
+  var clueRow = document.getElementById("clueRow");
+  clueRow.innerHTML = "";
+  clues.forEach(function(w) {
+    var pill = document.createElement("span");
+    pill.className = "clue-pill";
+    pill.textContent = w;
+    pill.dataset.word = w;
+    if (lookedUp.has(w)) pill.classList.add("looked-up");
+    pill.onclick = function() { lookupWord(pill); };
+    clueRow.appendChild(pill);
+  });
+
+  // options
+  var distractors = getDistractors(currentKey, 3);
+  var opts = shuffle([currentKey].concat(distractors));
+  var grid = document.getElementById("optionsGrid");
+  grid.innerHTML = "";
+  opts.forEach(function(key) {
+    var btn = document.createElement("button");
+    btn.className = "opt-btn";
+    btn.dataset.key = key;
+
+    // display label
+    var label = key;
+    if (key === "a rather than b") label = "A rather than B";
+    else if (key === "instead of") label = "instead of";
+    else if (key === "link to") label = "link…to";
+    else if (key === "be suspicious of") label = "be suspicious of";
+
+    btn.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;color:var(--color-muted)"></i> ' + label;
+    btn.onclick = function() { handleAnswer(key, btn); };
+    grid.appendChild(btn);
+  });
+
+  // reset feedback
+  document.getElementById("feedbackBlock").style.display = "none";
+  document.getElementById("feedbackBlock").className = "";
+  document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("ttsRow").style.display = "none";
+  document.getElementById("wordHelper").classList.remove("active");
+  updateScoreStrip();
+}
+
+// ─────────────────────────────────────────────
+// 10. lookupWord
+// ─────────────────────────────────────────────
+async function lookupWord(el) {
+  var raw = el.dataset.word;
+  lookedUp.add(raw);
+
+  // mark pill
+  document.querySelectorAll(".clue-pill").forEach(function(p) {
+    if (p.dataset.word === raw) p.classList.add("looked-up");
+  });
+
+  var helper = document.getElementById("wordHelper");
+  helper.classList.add("active");
+  document.getElementById("helperWordText").textContent = raw;
+  document.getElementById("helperPos").textContent = "";
+  document.getElementById("helperDef").innerHTML =
+    '<span class="helper-loader"><i class="fas fa-spinner fa-spin"></i> Looking up…</span>';
+
+  var oldBtn = document.getElementById("helperTtsBtn");
+  var newBtn = oldBtn.cloneNode(true);
+  oldBtn.parentNode.replaceChild(newBtn, oldBtn);
+  newBtn.addEventListener("click", function() {
+    newBtn.classList.add("speaking");
+    speakWordOnly(raw, function() { newBtn.classList.remove("speaking"); });
+  });
+
+  function showResult(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem">' + cnText + '</span>';
+  }
+
+  var cambridgeUrl = "https://dictionary.cambridge.org/dictionary/english/" + encodeURIComponent(raw);
+  var cambridgeBtn =
+    '<a href="' + cambridgeUrl + '" target="_blank" rel="noopener" ' +
+    'style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;' +
+    'padding:5px 12px;background:#1a3a5c;color:#fff;border-radius:6px;' +
+    'font-size:0.8rem;text-decoration:none;font-weight:600;">' +
+    '<i class="fas fa-book-open"></i> Open in Cambridge Dictionary</a>';
+
+  function showWithLink(posText, enText, cnText) {
+    document.getElementById("helperPos").textContent = posText;
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:#1c1c1c;display:block;margin-bottom:3px">' + enText + '</span>' +
+      '<span style="color:#6a4c93;font-family:\'Noto Serif TC\',serif;font-size:0.9rem;display:block">' + cnText + '</span>' +
+      cambridgeBtn;
+  }
+
+  function showLinkOnly() {
+    document.getElementById("helperPos").textContent = "";
+    document.getElementById("helperDef").innerHTML =
+      '<span style="color:var(--color-muted);font-size:0.85rem;display:block;margin-bottom:4px">' +
+      '自動查詢失敗，請點擊下方按鈕查詢完整字典：</span>' + cambridgeBtn;
+  }
+
+  function baseForm(w) {
+    if (/ied$/i.test(w))           return w.replace(/ied$/i, "y");
+    if (/ies$/i.test(w))           return w.replace(/ies$/i, "y");
+    if (/ves$/i.test(w))           return w.replace(/ves$/i, "f");
+    if (/(\w{4,})ness$/i.test(w))  return w.replace(/ness$/i, "");
+    if (/(\w{4,})tion$/i.test(w))  return w.replace(/tion$/i, "");
+    if (/(\w{4,})edly$/i.test(w))  return w.replace(/edly$/i, "e");
+    if (/(\w{4,})ing$/i.test(w))   return w.replace(/ing$/i, "");
+    if (/(\w{4,})ings$/i.test(w))  return w.replace(/ings$/i, "");
+    if (/(\w{4,})ed$/i.test(w))    return w.replace(/ed$/i, "");
+    if (/(\w{3,})ers?$/i.test(w))  return w.replace(/ers?$/i, "");
+    if (/(\w{4,})ment$/i.test(w))  return w.replace(/ment$/i, "");
+    if (/(\w{4,})ally$/i.test(w))  return w.replace(/ally$/i, "al");
+    if (/(\w{4,})ly$/i.test(w))    return w.replace(/ly$/i, "");
+    if (/(\w{3,})es$/i.test(w))    return w.replace(/es$/i, "");
+    if (/(\w{3,})s$/i.test(w))     return w.replace(/s$/i, "");
+    return w;
+  }
+
+  // Layer 1: DEFS
+  var defsKey = Object.keys(DEFS).find(function(k) {
+    return k.toLowerCase() === raw.toLowerCase() || k.toLowerCase().startsWith(raw.toLowerCase() + " ");
+  });
+  if (defsKey) {
+    showResult(DEFS[defsKey].pos, DEFS[defsKey].en, DEFS[defsKey].cn);
+    return;
+  }
+
+  // Layer 2: Google Translate
+  var lookupW = (baseForm(raw) !== raw) ? baseForm(raw) : raw;
+  var gtUrl = "https://translate.googleapis.com/translate_a/single" +
+              "?client=gtx&sl=en&tl=zh-TW&dt=t&dt=md&q=" + encodeURIComponent(lookupW);
+  try {
+    var res = await fetch(gtUrl);
+    if (res && res.ok) {
+      var data = await res.json();
+      var cn = "";
+      try { cn = (data[0] && data[0][0] && data[0][0][0]) ? data[0][0][0] : ""; } catch(e2) {}
+      if (cn && (cn.toLowerCase() === lookupW || /^[\x00-\x7F\s]+$/.test(cn))) cn = "";
+      var pos = "", en = "";
+      try {
+        if (data[12] && data[12][0]) {
+          pos = data[12][0][0] ? "(" + data[12][0][0] + ")" : "";
+          if (data[12][0][1] && data[12][0][1][0]) en = data[12][0][1][0][0] || "";
+        }
+      } catch(e3) {}
+      if (cn || en) {
+        var enShow = en || '<em style="font-size:0.82rem">（英文定義請展開字典）</em>';
+        var cnShow = cn || '<em style="font-size:0.82rem">（中文翻譯請展開字典）</em>';
+        showWithLink(pos, enShow, cnShow);
+        return;
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // Layer 3: Free Dictionary API
+  try {
+    var fdUrl = "https://api.dictionaryapi.dev/api/v2/entries/en/" + encodeURIComponent(lookupW);
+    var fdRes = await fetch(fdUrl);
+    if (fdRes && fdRes.ok) {
+      var fdData = await fdRes.json();
+      if (fdData && fdData[0] && fdData[0].meanings && fdData[0].meanings[0]) {
+        var m   = fdData[0].meanings[0];
+        var def = (m.definitions && m.definitions[0] && m.definitions[0].definition) || "";
+        if (def) {
+          var fdPos = m.partOfSpeech ? "(" + m.partOfSpeech + ")" : "";
+          showWithLink(fdPos, def, '<em style="font-size:0.82rem">（中文翻譯請展開字典）</em>');
+          return;
+        }
+      }
+    }
+  } catch(e) { /* fall through */ }
+
+  // Layer 4: Cambridge button
+  showLinkOnly();
+}
+
+// ─────────────────────────────────────────────
+// 11. TTS
+// ─────────────────────────────────────────────
+function speakWordOnly(word, cb) {
+  if (!window.speechSynthesis) { if (cb) cb(); return; }
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(word);
+  utt.lang = "en-US"; utt.rate = 0.85;
+  utt.onend = function() { if (cb) cb(); };
+  window.speechSynthesis.speak(utt);
+}
+function speakText(text, cb) {
+  if (!window.speechSynthesis) { if (cb) cb(); return; }
+  window.speechSynthesis.cancel();
+  var utt = new SpeechSynthesisUtterance(text);
+  utt.lang = "en-US"; utt.rate = 0.85;
+  utt.onend = function() { if (cb) cb(); };
+  window.speechSynthesis.speak(utt);
+}
+
+// ─────────────────────────────────────────────
+// 12. handleAnswer + buildFeedback + nextQuestion + showEndScreen
+// ─────────────────────────────────────────────
+function handleAnswer(selectedKey, btn) {
+  var btns = document.querySelectorAll(".opt-btn");
+  btns.forEach(function(b){ b.disabled = true; });
+
+  var isCorrect = (selectedKey === currentKey);
+  if (isCorrect) {
+    btn.classList.add("correct");
+    correctCount++;
+  } else {
+    btn.classList.add("wrong");
+    wrongCount++;
+    wrongWords.push(currentKey);
+    // highlight correct
+    btns.forEach(function(b) {
+      if (b.dataset.key === currentKey) b.classList.add("correct");
+    });
+  }
+
+  // feedback
+  var fb = document.getElementById("feedbackBlock");
+  fb.style.display = "block";
+  fb.className = isCorrect ? "correct-fb" : "wrong-fb";
+
+  var def  = DEFS[currentKey];
+  var displayKey = currentKey;
+  if (currentKey === "a rather than b") displayKey = "A rather than B";
+  else if (currentKey === "link to") displayKey = "link…to";
+  else if (currentKey === "be suspicious of") displayKey = "be suspicious of";
+
+  fb.innerHTML =
+    '<div class="fb-label">' + (isCorrect ? '✅ Correct!' : '❌ Wrong') + '</div>' +
+    '<div class="fb-answer">' + displayKey + ' ' + (def ? def.pos : "") + '</div>' +
+    '<div class="fb-en">' + (def ? def.en : "") + '</div>' +
+    '<div class="fb-cn">' + (def ? def.cn : "") + '</div>';
+
+  // TTS
+  var ttsRow = document.getElementById("ttsRow");
+  ttsRow.style.display = "flex";
+  document.getElementById("ttsWordBtn").onclick = function() {
+    this.classList.add("speaking");
+    var self = this;
+    speakWordOnly(currentKey, function(){ self.classList.remove("speaking"); });
+  };
+  document.getElementById("ttsSentBtn").onclick = function() {
+    this.classList.add("speaking");
+    var self = this;
+    speakText(document.getElementById("sentenceDisplay").textContent, function(){ self.classList.remove("speaking"); });
+  };
+
+  document.getElementById("nextBtn").style.display = "block";
+  updateScoreStrip();
+}
+
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= quizQueue.length) {
+    showEndScreen();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showEndScreen() {
+  document.getElementById("quizScreen").style.display = "none";
+  document.getElementById("endScreen").style.display  = "block";
+  var total = quizQueue.length;
+  var pct   = Math.round((correctCount / total) * 100);
+  document.getElementById("finalPct").textContent = pct + "%";
+  document.getElementById("submitName").value = studentName;
+
+  var msg = pct >= 90 ? "🌟 Excellent! You're a vocabulary star!" :
+            pct >= 70 ? "👍 Good job! Keep practicing!" :
+            pct >= 50 ? "📖 Not bad. Review the missed words!" :
+                        "💪 Keep studying — you'll get there!";
+  document.getElementById("finalMsg").textContent = msg;
+
+  if (wrongWords.length) {
+    var wl = document.getElementById("wrongList");
+    wl.style.display = "block";
+    var ul = document.getElementById("wrongItems");
+    ul.innerHTML = "";
+    var unique = wrongWords.filter(function(w, i, a){ return a.indexOf(w) === i; });
+    unique.forEach(function(w) {
+      var li = document.createElement("li");
+      var def = DEFS[w];
+      li.textContent = w + (def ? " " + def.pos + " — " + def.cn : "");
+      ul.appendChild(li);
+    });
+  }
+}
+
+// ─────────────────────────────────────────────
+// 13. submitResults + restartQuiz
+// ─────────────────────────────────────────────
+function submitResults() {
+  var name = document.getElementById("submitName").value.trim() || studentName;
+  var total = quizQueue.length;
+  var pct   = Math.round((correctCount / total) * 100);
+  var payload = {
+    studentName:   name,
+    scorePercent:  pct,
+    wrongWords:    wrongWords.join(", "),
+    lookedUpWords: Array.from(lookedUp).join(", "),
+    unit:          "Level2-4 Basic U6"
+  };
+  document.getElementById("submitMsg").textContent = "Submitting…";
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode:   "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body:    JSON.stringify(payload)
+  }).then(function() {
+    document.getElementById("submitMsg").textContent = "✅ Score submitted! Thank you, " + name + "!";
+  }).catch(function() {
+    document.getElementById("submitMsg").textContent = "⚠️ Submission failed. Please tell your teacher.";
+  });
+}
+
+function restartQuiz() {
+  document.getElementById("endScreen").style.display   = "none";
+  document.getElementById("startScreen").style.display = "block";
+  document.getElementById("nameInput").value = studentName;
+}
+
+// ─────────────────────────────────────────────
+// 14. Init
+// ─────────────────────────────────────────────
+document.getElementById("nameInput").addEventListener("keydown", function(e){ if (e.key === "Enter") startQuiz(); });
+document.getElementById("poolCount").textContent = "Total questions: " + QUESTION_POOL.length;
+</script>
+</body>
+</html>
